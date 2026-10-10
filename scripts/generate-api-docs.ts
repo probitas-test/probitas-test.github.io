@@ -6,7 +6,7 @@
  * runs `deno doc --json` for each package, and saves the output
  * to data/api/ for use by the documentation site.
  *
- * Usage: deno task generate-api
+ * Usage: npm run generate-api
  */
 
 import type {
@@ -20,8 +20,9 @@ import type {
 
 const API_DIR = new URL("../data/api/", import.meta.url);
 
-// Packages to exclude from API documentation
-const EXCLUDED_PACKAGES = new Set(["cli"]);
+// Packages to exclude from API documentation. `client-deno-kv` and `scenario`
+// stay listed on JSR but are no longer part of Probitas.
+const EXCLUDED_PACKAGES = new Set(["cli", "client-deno-kv", "scenario"]);
 
 interface JsrPackage {
   scope: string;
@@ -75,7 +76,16 @@ async function getPackageDoc(
   }
 
   const text = new TextDecoder().decode(stdout);
-  return JSON.parse(text);
+  const output = JSON.parse(text);
+  // The site renders the version 1 schema (a flat `nodes` array). Newer Deno
+  // releases emit version 2, which nests symbols per module.
+  if (output.version !== 1 || !Array.isArray(output.nodes)) {
+    throw new Error(
+      `deno doc emitted JSON schema version ${output.version}; this script ` +
+        "needs version 1 (put Deno 2.6 first on PATH)",
+    );
+  }
+  return output;
 }
 
 /**
@@ -173,7 +183,13 @@ async function main(): Promise<void> {
   await Deno.mkdir(API_DIR, { recursive: true });
 
   // Fetch all packages
-  const packages = await fetchPackages();
+  const packages = (await fetchPackages()).filter((pkg) => {
+    if (EXCLUDED_PACKAGES.has(pkg.name)) {
+      console.log(`Skipping ${pkg.name} (excluded)`);
+      return false;
+    }
+    return true;
+  });
   console.log(`Found ${packages.length} packages\n`);
 
   // Generate docs for each package
@@ -183,12 +199,6 @@ async function main(): Promise<void> {
   await updatePackageDependencies(packages);
 
   for (const pkg of packages) {
-    // Skip excluded packages
-    if (EXCLUDED_PACKAGES.has(pkg.name)) {
-      console.log(`Skipping ${pkg.name} (excluded)`);
-      continue;
-    }
-
     const doc = await generatePackageDoc(pkg);
     if (doc) {
       results.push(doc);

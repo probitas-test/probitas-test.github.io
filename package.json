@@ -7,7 +7,7 @@
     "build": "vite build --mode client && vite build && npm run build:post",
     "build:post": "node scripts/post-build.js",
     "preview": "vite preview",
-    "generate-api": "node scripts/generate-api-docs.js"
+    "generate-api": "deno run -A scripts/generate-api-docs.ts"
   },
   "dependencies": {
     "hono": "^4.7.0",
