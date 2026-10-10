@@ -67,7 +67,8 @@ brew install probitas-test/tap/probitas
 
 ## Nix
 
-The Probitas repository provides a Nix flake that packages the release binary.
+The Probitas repository provides a Nix flake that builds `probitas` from
+source.
 
 ### Run Without Installing
 
@@ -152,15 +153,17 @@ Benefits:
 
 ### Pin a Specific Version
 
-The flake provides the binary of the latest release rather than one built from
-the flake's revision. To stay on a specific version, pin the flake to its
-release tag:
+The flake builds the CLI from the revision you lock, so `nix flake update`
+follows the main branch, and the binary reports its version as
+`0.0.0-unstable.<date>.<rev>`. To stay on a release, pin the flake to its tag:
 
 ```nix
-probitas-flake.url = "github:probitas-test/probitas/v2.0.0";
+probitas-flake.url = "github:probitas-test/probitas/v2.0.2";
 ```
 
-Pin `v1.0.0` to keep using Probitas 1.x, which runs on Deno.
+Pin `v2.0.2` or later: the `v2.0.0` and `v2.0.1` tags predate the source build
+and do not install their own version through Nix. Pin `v1.0.0` to keep using
+Probitas 1.x, which runs on Deno.
 
 ### Flake Outputs Reference
 
@@ -169,7 +172,7 @@ The Probitas flake provides:
 | Output                        | Description                          |
 | ----------------------------- | ------------------------------------ |
 | `overlays.default`            | Overlay adding `probitas` to pkgs    |
-| `packages.${system}.default`  | The `probitas` release binary        |
+| `packages.${system}.default`  | `probitas` built from source         |
 | `packages.${system}.probitas` | Alias for the binary package         |
 | `devShells.${system}.default` | Shell for developing Probitas itself |
 
