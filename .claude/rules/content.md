@@ -15,7 +15,7 @@ paths: "docs/**/*.md"
 Every concept needs a runnable example:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Example")
   .resource(
@@ -29,9 +29,12 @@ export default scenario("Example")
   .build();
 ```
 
+Scenarios run on Bun inside the `probitas` binary: use `process.env` and `node:`
+modules, never `Deno.*` APIs or `npm:`/`jsr:` specifiers.
+
 ## Package Documentation
 
-| Repository         | Packages                                    |
-| ------------------ | ------------------------------------------- |
-| `probitas/`        | Core: probitas, builder, runner, reporter   |
-| `probitas-client/` | Clients: http, grpc, graphql, redis, sql... |
+| Repository           | Packages                                               |
+| -------------------- | ------------------------------------------------------ |
+| `probitas/`          | User-facing package and CLI: `@probitas-test/probitas` |
+| `probitas-packages/` | Framework and clients: builder, runner, client-*...    |
