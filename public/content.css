@@ -552,6 +552,7 @@
   color: var(--text-muted);
 }
 
+.npm-link,
 .jsr-link {
   display: flex;
   align-items: center;
@@ -560,6 +561,7 @@
   color: var(--accent-light);
 }
 
+.npm-link i,
 .jsr-link i {
   font-size: 0.9rem;
 }
@@ -1854,6 +1856,7 @@
     padding: 0.2rem 0.5rem;
   }
 
+  .npm-link,
   .jsr-link {
     font-size: 0.75rem;
   }

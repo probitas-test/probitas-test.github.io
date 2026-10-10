@@ -202,6 +202,14 @@ export async function PackagePage({ packageName }: PackagePageProps) {
                   <div class="content-header-meta">
                     <span class="package-version">v{doc.version}</span>
                     <a
+                      href={`https://www.npmjs.com/package/@probitas-test/${doc.name}`}
+                      class="npm-link"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <i class="ti ti-external-link" /> View on npm
+                    </a>
+                    <a
                       href={`https://jsr.io/${doc.specifier}`}
                       class="jsr-link"
                       target="_blank"
