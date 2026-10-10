@@ -1,17 +1,17 @@
 {
   "name": "builder",
   "specifier": "@probitas/builder",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "moduleDoc": "Builder module for creating scenario definitions with a fluent, type-safe API.\n\nThis package provides the {@linkcode scenario} fn function that returns a builder\nfor constructing scenario definitions. The builder uses method chaining to define\nresources, setup functions, and test steps with full TypeScript type inference.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions used by this builder |\n| [@probitas/runner](https://jsr.io/@probitas/runner) | Executes scenarios built with this package |\n\n## Key Features\n\n- **Fluent API**: Chain methods naturally to build complex scenarios\n- **Type-safe context**: Each step receives typed access to previous step results\n- **Resource management**: Register resources with automatic lifecycle handling\n- **Setup/Cleanup**: Define setup functions with automatic cleanup support\n- **Configurable defaults**: Override timeout and retry settings at any level\n\n## Core Exports\n\n- {@linkcode scenario} - Factory function to create a new scenario builder\n- {@linkcode StepContext} - Type representing the context passed to step functions\n- {@linkcode StepFunction} - Type signature for step functions\n- {@linkcode SetupFunction} - Type signature for setup functions\n- {@linkcode ResourceFunction} - Type signature for resource fn functions\n- {@linkcode BuilderScenarioOptions} - Partial options for scenario configuration\n- {@linkcode BuilderStepOptions} - Partial options for step configuration\n- {@linkcode DEFAULT_SCENARIO_OPTIONS} - Default values for scenario options\n- {@linkcode DEFAULT_STEP_OPTIONS} - Default values for step options\n",
   "exports": [
     {
       "name": "scenario",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.2/scenario_builder.ts",
+        "filename": "https://jsr.io/@probitas/builder/0.5.3/scenario_builder.ts",
         "line": 640,
         "col": 0,
-        "byteIndex": 20395
+        "byteIndex": 20464
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -37,15 +37,15 @@
           },
           {
             "kind": "example",
-            "doc": "Basic scenario with type-safe step chaining\n```ts\nimport { scenario } from \"@probitas/builder\";\n\n// Mock user service for example\nconst createUser = (_data: { email: string }) =>\n  Promise.resolve({ id: \"user-123\" });\nconst verifyEmail = (_userId: string) => Promise.resolve();\n\nexport default scenario(\"User Registration\")\n  .step(\"Create user\", async () => {\n    const user = await createUser({ email: \"test@example.com\" });\n    return { userId: user.id };\n  })\n  .step(\"Verify email\", async (ctx) => {\n    // ctx.previous is typed as { userId: string }\n    await verifyEmail(ctx.previous.userId);\n  })\n  .build();\n```\n"
+            "doc": "Basic scenario with type-safe step chaining\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock user service for example\nconst createUser = (_data: { email: string }) =>\n  Promise.resolve({ id: \"user-123\" });\nconst verifyEmail = (_userId: string) => Promise.resolve();\n\nexport default scenario(\"User Registration\")\n  .step(\"Create user\", async () => {\n    const user = await createUser({ email: \"test@example.com\" });\n    return { userId: user.id };\n  })\n  .step(\"Verify email\", async (ctx) => {\n    // ctx.previous is typed as { userId: string }\n    await verifyEmail(ctx.previous.userId);\n  })\n  .build();\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Scenario with tags for filtering\n```ts\nimport { scenario } from \"@probitas/builder\";\n\nscenario(\"Payment Integration\", {\n  tags: [\"integration\", \"payment\", \"slow\"],\n  stepOptions: { timeout: 60000 }  // 1 minute timeout for all steps\n})\n  .step(\"Process payment\", async () => {\n    return { success: true };\n  })\n  .build();\n\n// Run with: probitas run -s \"tag:payment\"\n```\n"
+            "doc": "Scenario with tags for filtering\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Payment Integration\", {\n  tags: [\"integration\", \"payment\", \"slow\"],\n  stepOptions: { timeout: 60000 }  // 1 minute timeout for all steps\n})\n  .step(\"Process payment\", async () => {\n    return { success: true };\n  })\n  .build();\n\n// Run with: probitas run -s \"tag:payment\"\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Scenario with resources and setup\n```ts\nimport { scenario } from \"@probitas/builder\";\n\n// Mock Database for example\nconst Database = {\n  connect: () =>\n    Promise.resolve({\n      rollback: () => {},\n      insert: (_data: { id: number }) => {},\n      query: (_sql: string) => [{ id: 1 }],\n    }),\n};\n\nscenario(\"Database Test\")\n  .resource(\"db\", async () => await Database.connect())\n  .setup((ctx) => {\n    // Run migrations\n    return () => ctx.resources.db.rollback();\n  })\n  .step(\"Insert data\", (ctx) => ctx.resources.db.insert({ id: 1 }))\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT * FROM users\"))\n  .build();\n```\n"
+            "doc": "Scenario with resources and setup\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock Database for example\nconst Database = {\n  connect: () =>\n    Promise.resolve({\n      rollback: () => {},\n      insert: (_data: { id: number }) => {},\n      query: (_sql: string) => [{ id: 1 }],\n    }),\n};\n\nscenario(\"Database Test\")\n  .resource(\"db\", async () => await Database.connect())\n  .setup((ctx) => {\n    // Run migrations\n    return () => ctx.resources.db.rollback();\n  })\n  .step(\"Insert data\", (ctx) => ctx.resources.db.insert({ id: 1 }))\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT * FROM users\"))\n  .build();\n```\n"
           },
           {
             "kind": "see",
@@ -102,10 +102,10 @@
       "name": "BuilderStepContext",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
         "line": 44,
         "col": 0,
-        "byteIndex": 1333
+        "byteIndex": 1347
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -128,11 +128,11 @@
           },
           {
             "kind": "example",
-            "doc": "Accessing previous result\n```ts\nimport { scenario } from \"@probitas/builder\";\n\nscenario(\"Chained Steps\")\n  .step(\"First\", () => ({ id: 123 }))\n  .step(\"Second\", (ctx) => {\n    console.log(ctx.previous.id);  // 123 (typed as number)\n  })\n  .build();\n```\n"
+            "doc": "Accessing previous result\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Chained Steps\")\n  .step(\"First\", () => ({ id: 123 }))\n  .step(\"Second\", (ctx) => {\n    console.log(ctx.previous.id);  // 123 (typed as number)\n  })\n  .build();\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Using shared store\n```ts\nimport { scenario } from \"@probitas/builder\";\n\nscenario(\"Store Example\")\n  .setup((ctx) => {\n    ctx.store.set(\"startTime\", Date.now());\n  })\n  .step(\"Check duration\", (ctx) => {\n    const start = ctx.store.get(\"startTime\") as number;\n    console.log(`Elapsed: ${Date.now() - start}ms`);\n  })\n  .build();\n```"
+            "doc": "Using shared store\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Store Example\")\n  .setup((ctx) => {\n    ctx.store.set(\"startTime\", Date.now());\n  })\n  .step(\"Check duration\", (ctx) => {\n    const start = ctx.store.get(\"startTime\") as number;\n    console.log(`Elapsed: ${Date.now() - start}ms`);\n  })\n  .build();\n```"
           }
         ]
       },
@@ -163,10 +163,10 @@
                       "doc": "Result from the previous step.\n\nFully typed based on what the previous step returned.\nFor the first step, this is `unknown`."
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
                       "line": 55,
                       "col": 2,
-                      "byteIndex": 1674
+                      "byteIndex": 1688
                     },
                     "params": [],
                     "readonly": true,
@@ -188,10 +188,10 @@
                       "doc": "All accumulated results as a typed tuple.\n\nAllows accessing any previous result by index:\n- `ctx.results[0]` - First step's result\n- `ctx.results[1]` - Second step's result"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
                       "line": 64,
                       "col": 2,
-                      "byteIndex": 1908
+                      "byteIndex": 1922
                     },
                     "params": [],
                     "readonly": true,
@@ -210,13 +210,13 @@
                   {
                     "name": "resources",
                     "jsDoc": {
-                      "doc": "Named resources registered with `.resource()`.\n\nResources are typed based on their registration:\n```ts\nimport { scenario } from \"@probitas/builder\";\n\n// Mock database connection for example\nconst createDbConnection = () => ({ query: (_sql: string) => [{ id: 1 }] });\n\nscenario(\"test\")\n  .resource(\"db\", () => createDbConnection())\n  .step((ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\n```"
+                      "doc": "Named resources registered with `.resource()`.\n\nResources are typed based on their registration:\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock database connection for example\nconst createDbConnection = () => ({ query: (_sql: string) => [{ id: 1 }] });\n\nscenario(\"test\")\n  .resource(\"db\", () => createDbConnection())\n  .step((ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\n```"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
                       "line": 82,
                       "col": 2,
-                      "byteIndex": 2411
+                      "byteIndex": 2430
                     },
                     "params": [],
                     "readonly": true,
@@ -331,10 +331,10 @@
       "name": "BuilderStepFunction",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
         "line": 117,
         "col": 0,
-        "byteIndex": 3424
+        "byteIndex": 3453
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -362,11 +362,11 @@
           },
           {
             "kind": "example",
-            "doc": "Sync step returning data\n```ts\nimport type { BuilderStepFunction } from \"@probitas/builder\";\n\nconst step: BuilderStepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```\n"
+            "doc": "Sync step returning data\n```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\nconst step: BuilderStepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Async step with API call\n```ts\nimport type { BuilderStepFunction } from \"@probitas/builder\";\n\ntype User = { id: string; name: string };\n\nconst step: BuilderStepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
+            "doc": "Async step with API call\n```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\ntype User = { id: string; name: string };\n\nconst step: BuilderStepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
           }
         ]
       },
@@ -551,10 +551,10 @@
       "name": "BuilderStepDefinition",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
         "line": 139,
         "col": 0,
-        "byteIndex": 4199
+        "byteIndex": 4228
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -613,10 +613,10 @@
                       "doc": "Step function to execute"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.2/types.ts",
+                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
                       "line": 146,
                       "col": 2,
-                      "byteIndex": 4439
+                      "byteIndex": 4468
                     },
                     "params": [],
                     "readonly": true,

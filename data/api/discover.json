@@ -1,17 +1,17 @@
 {
   "name": "discover",
   "specifier": "@probitas/discover",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "moduleDoc": "Scenario file discovery utilities for Probitas.\n\nThis package provides utilities for discovering scenario files (`.probitas.ts`)\nfrom file paths and directories. It supports glob patterns for flexible file\nmatching and is used internally by the CLI to find scenarios to execute.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/core](https://jsr.io/@probitas/core) | Load discovered files with `loadScenarios` |\n| [@probitas/cli](https://jsr.io/@probitas/cli) | CLI that uses this discovery |\n\n## Core Function\n\n- {@linkcode discoverScenarioFiles} - Discover scenario files from paths\n\n## Configuration Types\n\n- {@linkcode DiscoverOptions} - Options for customizing discovery behavior\n- {@linkcode DiscoverProgress} - Progress information during discovery\n\n## Default Behavior\n\nBy default, the discovery function:\n- Searches for files matching `**\\/*.probitas.ts` in directories\n- Returns direct file paths as-is (no pattern matching)\n- Returns absolute paths sorted alphabetically\n\n## Permissions\n\nRequires `--allow-read` permission to read the file system.\n",
   "exports": [
     {
       "name": "DiscoverProgress",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-        "line": 85,
+        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+        "line": 86,
         "col": 0,
-        "byteIndex": 2213
+        "byteIndex": 2263
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -29,10 +29,10 @@
               "doc": "The directory or file path currently being processed."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-              "line": 89,
+              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+              "line": 90,
               "col": 2,
-              "byteIndex": 2322
+              "byteIndex": 2372
             },
             "params": [],
             "computed": false,
@@ -50,10 +50,10 @@
               "doc": "Total number of matching files found so far."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-              "line": 94,
+              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+              "line": 95,
               "col": 2,
-              "byteIndex": 2408
+              "byteIndex": 2458
             },
             "params": [],
             "computed": false,
@@ -75,10 +75,10 @@
       "name": "DiscoverOptions",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-        "line": 102,
+        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+        "line": 103,
         "col": 0,
-        "byteIndex": 2561
+        "byteIndex": 2611
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -102,10 +102,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-              "line": 110,
+              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+              "line": 111,
               "col": 2,
-              "byteIndex": 2788
+              "byteIndex": 2838
             },
             "params": [],
             "computed": false,
@@ -140,10 +140,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-              "line": 117,
+              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+              "line": 118,
               "col": 2,
-              "byteIndex": 2962
+              "byteIndex": 3012
             },
             "params": [],
             "computed": false,
@@ -178,10 +178,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-              "line": 135,
+              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+              "line": 136,
               "col": 2,
-              "byteIndex": 3511
+              "byteIndex": 3561
             },
             "params": [],
             "computed": false,
@@ -226,10 +226,10 @@
       "name": "discoverScenarioFiles",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.0/discover.ts",
-        "line": 179,
+        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
+        "line": 180,
         "col": 0,
-        "byteIndex": 4872
+        "byteIndex": 4927
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -255,7 +255,7 @@
           },
           {
             "kind": "example",
-            "doc": "Discover from directories\n```ts\nimport { discoverScenarioFiles } from \"@probitas/discover\";\n\n// Use default patterns (*.probitas.ts)\nconst files = await discoverScenarioFiles([\"./tests\", \"./integration\"]);\n```\n"
+            "doc": "Discover from directories\n```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Use default patterns (*.probitas.ts)\nconst files = await discoverScenarioFiles([\"./tests\", \"./integration\"]);\n```\n"
           },
           {
             "kind": "example",
