@@ -1,4 +1,4 @@
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("gRPC Service Test", {
   tags: ["integration", "grpc"],

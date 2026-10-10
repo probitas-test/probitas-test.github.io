@@ -39,7 +39,15 @@ export const docPages: DocPage[] = [
     title: "Installation",
     label: "Installation",
     description:
-      "Install Probitas CLI via shell script, Homebrew, or Nix flake with project integration",
+      "Install the Probitas CLI binary via shell script, Homebrew, GitHub Actions, or Nix flake",
+  },
+  {
+    path: "/docs/migration",
+    file: "./docs/migration.md",
+    title: "Migration Guide",
+    label: "Migration",
+    description:
+      "Upgrade from Probitas 1.x (Deno) to 2.x (single binary on Bun): imports, dependencies, runtime APIs, and commands",
   },
   {
     path: "/docs/scenario",
@@ -78,10 +86,11 @@ export const docPages: DocPage[] = [
 /** Site-wide metadata for LLM and SEO */
 export const siteMetadata = {
   name: "Probitas",
-  tagline: "Scenario-based testing framework for Deno",
+  tagline: "Scenario-based testing framework for TypeScript",
   description:
-    "Probitas is a scenario-based testing framework for Deno that enables declarative, readable integration tests for APIs, databases, message queues, and other backend services.",
+    "Probitas is a scenario-based testing framework for TypeScript, shipped as a single binary, that enables declarative, readable integration tests for APIs, databases, message queues, and other backend services.",
   github: "https://github.com/probitas-test/probitas",
+  npm: "https://www.npmjs.com/package/@probitas-test/probitas",
   jsr: "https://jsr.io/@probitas/probitas",
   baseUrl: process.env.BASE_URL ?? "https://probitas-test.github.io/documents",
 };

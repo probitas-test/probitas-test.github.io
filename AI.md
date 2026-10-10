@@ -45,8 +45,11 @@ Example prompt snippet:
 - Keep steps in one scenario only when they depend on `ctx.previous`; otherwise
   split into separate scenarios.
 - Always `export default` and finish builders with `.build()`.
+- Import Probitas from `@probitas-test/probitas`. Use Node.js APIs
+  (`process.env`, `node:fs/promises`, ...), not `Deno.*`, and import other
+  packages by bare name after installing them with a package manager.
 - Register clients with `.resource()` and use env-driven URLs:
-  `Deno.env.get("API_URL") ?? "http://localhost:8080"`.
+  `process.env.API_URL ?? "http://localhost:8080"`.
 - Use fluent `expect()` chains—no manual `if/throw` checks.
 - `.setup()` should return a cleanup function when it creates fixtures.
 - One responsibility per step; return data needed by subsequent steps.
@@ -70,6 +73,7 @@ Local probitas CLI commands:
 - `probitas fmt` — format scenario files
 - `probitas lint` — lint scenario files
 - `probitas check` — type-check scenario files
+- `probitas cache duckdb` — pre-fetch the DuckDB native binding
 
 See `probitas <command> -h` for detailed CLI options.
 
@@ -79,14 +83,15 @@ See `probitas <command> -h` for detailed CLI options.
 - `/docs/scenario/index.md` — scenario authoring guide
 - `/docs/client/index.md` — client usage
 - `/docs/expect/index.md` — assertion API
-- For API details use `deno doc` directly (preferred over Markdown):
-  - `deno doc jsr:@probitas/probitas`
-  - `deno doc jsr:@probitas/probitas/client/http`
-  - `deno doc jsr:@probitas/probitas/expect`
+- `/docs/migration/index.md` — differences from Probitas 1.x (Deno)
+- For API details, read the type declarations installed by `probitas init` and
+  your package manager (`node_modules/@probitas-test/probitas/dist/**/*.d.ts`),
+  or the API reference under `/api/{package}/index.md`
 
 ## Links
 
 - Claude Code plugin: https://github.com/probitas-test/claude-plugins
 - Probitas documentation: https://probitas-test.github.io/documents
 - Probitas repository: https://github.com/probitas-test/probitas
+- npm package: https://www.npmjs.com/package/@probitas-test/probitas
 - JSR package: https://jsr.io/@probitas/probitas

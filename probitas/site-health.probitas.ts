@@ -1,15 +1,17 @@
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { readFile } from "node:fs/promises";
+import { client, expect, scenario } from "@probitas-test/probitas";
 import { getPackageList } from "../data/api-pages.ts";
 import { docPages } from "../data/docs.ts";
 
-const BASE_URL = Deno.env.get("DOCS_BASE_URL") ?? "http://localhost:8000";
+const BASE_URL = process.env.DOCS_BASE_URL ?? "http://localhost:8000";
 
 async function loadDocHeadings(): Promise<Record<string, string>> {
   const headings: Record<string, string> = {};
   for (const doc of docPages) {
     try {
-      const content = await Deno.readTextFile(
-        new URL(doc.file, import.meta.url),
+      const content = await readFile(
+        new URL(doc.file, new URL("../", import.meta.url)),
+        "utf8",
       );
       const match = content.match(/^# .+/m);
       if (match) {

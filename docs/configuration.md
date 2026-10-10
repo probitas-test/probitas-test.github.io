@@ -261,10 +261,10 @@ Run 'probitas run --help' for available options.
 ## Scenario Options
 
 Configure scenarios using the options parameter of
-[`scenario()`](/api/scenario/#scenario).
+[`scenario()`](/api/probitas/#scenario).
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("My Test", {
   tags: ["api", "integration"],
@@ -289,7 +289,7 @@ scenario("My Test", {
 Use tags to categorize and filter scenarios:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("API Integration", {
   tags: ["api", "integration", "slow"],
@@ -316,7 +316,7 @@ probitas run -s "tag:api,!tag:slow"
 Override scenario defaults for individual steps:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Mixed Timeouts")
   .step(
@@ -361,7 +361,7 @@ When a step times out:
 4. Cleanup hooks still execute
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 const url = "https://api.example.com/data";
 
@@ -400,7 +400,7 @@ Configure automatic retries for flaky operations.
 ### Custom Retry Logic
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Retry Example")
   .resource(
@@ -432,7 +432,7 @@ scenario("Retry Example")
 ### [HTTP Client](/api/client-http/#createHttpClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -453,7 +453,7 @@ client.http.createHttpClient({
 ### [PostgreSQL Client](/api/client-sql-postgres/#createPostgresClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.sql.postgres.createPostgresClient({
   url: {
@@ -477,7 +477,7 @@ client.sql.postgres.createPostgresClient({
 Connection can also be a URL string:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.sql.postgres.createPostgresClient({
   url: "postgres://user:pass@localhost:5432/mydb",
@@ -487,7 +487,7 @@ client.sql.postgres.createPostgresClient({
 ### [gRPC Client](/api/client-grpc/#createGrpcClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.grpc.createGrpcClient({
   url: "localhost:50051",
@@ -506,7 +506,7 @@ client.grpc.createGrpcClient({
 ### [GraphQL Client](/api/client-graphql/#createGraphqlClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -524,7 +524,7 @@ client.graphql.createGraphqlClient({
 ### [Redis Client](/api/client-redis/#createRedisClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.redis.createRedisClient({
   url: "redis://localhost:6379",
@@ -538,7 +538,7 @@ client.redis.createRedisClient({
 ### [MongoDB Client](/api/client-mongodb/#createMongoClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.mongodb.createMongoClient({
   url: "mongodb://localhost:27017",
@@ -554,7 +554,7 @@ client.mongodb.createMongoClient({
 ### [RabbitMQ Client](/api/client-rabbitmq/#createRabbitMqClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.rabbitmq.createRabbitMqClient({
   url: "amqp://guest:guest@localhost:5672",
@@ -568,7 +568,7 @@ client.rabbitmq.createRabbitMqClient({
 ### [SQS Client](/api/client-sqs/#createSqsClient)
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 client.sqs.createSqsClient({
   url: "http://localhost:4566",
@@ -590,26 +590,35 @@ client.sqs.createSqsClient({
 
 Probitas respects these environment variables:
 
-| Variable   | Purpose                |
-| ---------- | ---------------------- |
-| `NO_COLOR` | Disable colored output |
+| Variable              | Purpose                                                                   |
+| --------------------- | ------------------------------------------------------------------------- |
+| `NO_COLOR`            | Disable colored output                                                    |
+| `PROBITAS_DUCKDB_DIR` | Use an extracted DuckDB native binding instead of downloading and caching |
+| `XDG_CACHE_HOME`      | Cache root for the DuckDB native binding on Linux (default: `~/.cache`)   |
+
+`probitas run` and `probitas list` load a `.env` file before running scenarios.
+Use `--env <file>` to load a different file, or `--no-env` to skip it.
 
 ### Using Environment Variables
 
+Scenarios read environment variables through `process.env`. To type-check it,
+set up the Node.js type definitions (`@types/node` and `"types": ["node"]`) as
+described in [Editor Support](/docs/overview/#editor-support).
+
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Production Test")
   .resource("http", () =>
     client.http.createHttpClient({
-      url: Deno.env.get("API_URL") ?? "http://localhost:8080",
+      url: process.env.API_URL ?? "http://localhost:8080",
       headers: {
-        Authorization: `Bearer ${Deno.env.get("API_TOKEN")}`,
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
       },
     }))
   .resource("pg", () =>
     client.sql.postgres.createPostgresClient({
-      url: Deno.env.get("DATABASE_URL") ??
+      url: process.env.DATABASE_URL ??
         "postgres://user:pass@localhost/testdb",
     }))
   .step(() => {})
@@ -621,9 +630,9 @@ scenario("Production Test")
 ### Environment-Aware Configuration
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
-const isProduction = Deno.env.get("ENV") === "production";
+const isProduction = process.env.ENV === "production";
 
 scenario("API Test")
   .resource("http", () =>
@@ -641,7 +650,7 @@ scenario("API Test")
 ### Shared Configuration
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 const httpDefaults = {
   timeout: 10000,
@@ -670,11 +679,11 @@ scenario("Test")
 ### Resource Factory Pattern
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 function createApiClient() {
   return client.http.createHttpClient({
-    url: Deno.env.get("API_URL") ?? "http://localhost:8080",
+    url: process.env.API_URL ?? "http://localhost:8080",
     timeout: 10000,
     retry: { maxAttempts: 2 },
   });
@@ -683,8 +692,8 @@ function createApiClient() {
 function createTestDatabase() {
   return client.sql.postgres.createPostgresClient({
     url: {
-      host: Deno.env.get("DB_HOST") ?? "localhost",
-      port: Number(Deno.env.get("DB_PORT") ?? 5432),
+      host: process.env.DB_HOST ?? "localhost",
+      port: Number(process.env.DB_PORT ?? 5432),
       database: "testdb",
       username: "testuser",
       password: "testpass",
@@ -702,7 +711,7 @@ scenario("Test")
 ### Conditional Resources
 
 ```typescript
-import { client, scenario, Skip } from "jsr:@probitas/probitas";
+import { client, scenario, Skip } from "@probitas-test/probitas";
 
 scenario("Conditional Features")
   .resource(
@@ -710,7 +719,7 @@ scenario("Conditional Features")
     () => client.http.createHttpClient({ url: "http://localhost:8080" }),
   )
   .resource("redis", () => {
-    const redisUrl = Deno.env.get("REDIS_URL");
+    const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
       throw new Skip("Redis not configured");
     }

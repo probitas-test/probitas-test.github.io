@@ -16,7 +16,7 @@ scenario testing. All clients share common patterns:
 - **Built-in assertions**: Use `expect()` for response validation
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("API Test")
   .resource("http", () =>
@@ -43,7 +43,7 @@ Register clients as resources for automatic lifecycle management. Resources are
 disposed in reverse order after the scenario completes.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .resource(
@@ -58,7 +58,7 @@ scenario("Example")
 For manual control outside scenarios, use `await using`:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -72,7 +72,7 @@ The HTTP client provides a fluent API for making HTTP requests with built-in
 JSON handling and response assertions.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -88,7 +88,7 @@ See [Configuration](/docs/configuration#http-client) for all options.
 The client supports all standard HTTP methods:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -118,7 +118,7 @@ await http.delete("/users/1");
 Override client settings per request:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -143,7 +143,7 @@ if (!res2.ok) {
 Validate responses with chainable assertions:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -175,7 +175,7 @@ flows with token management.
 production.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = await client.http.oidc.createOidcHttpClient({
   url: "http://localhost:8080",
@@ -191,7 +191,7 @@ await using http = await client.http.oidc.createOidcHttpClient({
 Perform Authorization Code Grant login with automated form submission:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = await client.http.oidc.createOidcHttpClient({
   url: "http://localhost:8080",
@@ -223,7 +223,7 @@ After successful login, the Authorization header is automatically injected into
 all requests:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = await client.http.oidc.createOidcHttpClient({
   url: "http://localhost:8080",
@@ -256,7 +256,7 @@ OIDC Discovery (RFC 8414) automatically fetches endpoints from
 `/.well-known/openid-configuration`:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = await client.http.oidc.createOidcHttpClient({
   url: "http://localhost:8080",
@@ -275,7 +275,7 @@ await using http = await client.http.oidc.createOidcHttpClient({
 Access and manage tokens:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using http = await client.http.oidc.createOidcHttpClient({
   url: "http://localhost:8080",
@@ -313,8 +313,12 @@ Probitas supports multiple SQL databases with a consistent query interface.
 | SQLite     | [`client.sql.sqlite.createSqliteClient()`](/api/client-sql-sqlite/#createSqliteClient)         |
 | DuckDB     | [`client.sql.duckdb.createDuckDbClient()`](/api/client-sql-duckdb/#createDuckDbClient)         |
 
+The DuckDB native binding is downloaded the first time a scenario creates a
+DuckDB client. See [Native Dependencies](/docs/overview/#native-dependencies) to
+pre-fetch it for CI or offline use.
+
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://testuser:testpass@localhost:5432/testdb",
@@ -328,7 +332,7 @@ See [Configuration](/docs/configuration#postgresql-client) for all options.
 Run queries with parameterized values:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://testuser:testpass@localhost:5432/testdb",
@@ -355,7 +359,7 @@ const rowCount = result2.rowCount; // Row count
 Wrap multiple queries in a transaction:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://testuser:testpass@localhost:5432/testdb",
@@ -381,7 +385,7 @@ const result = await pg.transaction(async (tx) => {
 Validate query results:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://testuser:testpass@localhost:5432/testdb",
@@ -413,7 +417,7 @@ The gRPC client supports unary calls, server streaming, client streaming, and
 bidirectional streaming.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({
   url: "localhost:50051",
@@ -428,7 +432,7 @@ See [Configuration](/docs/configuration#grpc-client) for all options.
 Standard request-response pattern:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({ url: "localhost:50051" });
 
@@ -446,7 +450,7 @@ const data = res.data;
 Receive multiple responses from a single request:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({ url: "localhost:50051" });
 
@@ -466,7 +470,7 @@ for await (
 Send multiple requests, receive a single response:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({ url: "localhost:50051" });
 
@@ -487,7 +491,7 @@ expect(res).toBeOk();
 Stream in both directions simultaneously:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({ url: "localhost:50051" });
 
@@ -512,7 +516,7 @@ The ConnectRPC client supports Connect, gRPC, and gRPC-Web protocols with a
 unified API.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using connect = client.connectrpc.createConnectRpcClient({
   url: "localhost:8080",
@@ -522,7 +526,7 @@ await using connect = client.connectrpc.createConnectRpcClient({
 ### Unary Calls
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using connect = client.connectrpc.createConnectRpcClient({
   url: "localhost:8080",
@@ -539,7 +543,7 @@ expect(res).toBeOk().toHaveDataMatching({ message: "Hello" });
 ### Server Streaming
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using connect = client.connectrpc.createConnectRpcClient({
   url: "localhost:8080",
@@ -560,7 +564,7 @@ for await (
 The GraphQL client provides methods for queries, mutations, and subscriptions.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using graphql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -575,7 +579,7 @@ See [Configuration](/docs/configuration#graphql-client) for all options.
 Fetch data with GraphQL queries:
 
 ```typescript
-import { client, expect, outdent } from "jsr:@probitas/probitas";
+import { client, expect, outdent } from "@probitas-test/probitas";
 
 await using graphql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -606,7 +610,7 @@ const user =
 Modify data with GraphQL mutations:
 
 ```typescript
-import { client, expect, outdent } from "jsr:@probitas/probitas";
+import { client, expect, outdent } from "@probitas-test/probitas";
 
 await using graphql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -634,7 +638,7 @@ const newUser =
 Listen for real-time updates:
 
 ```typescript
-import { client, expect, outdent } from "jsr:@probitas/probitas";
+import { client, expect, outdent } from "@probitas-test/probitas";
 
 await using graphql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -663,7 +667,7 @@ for await (const res of subscription) {
 Check for GraphQL errors and extensions:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using graphql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -688,7 +692,7 @@ expect(res).toHaveExtensionsPropertyContaining("tracing", { version: 1 }); // Ex
 The Redis client provides operations for strings, hashes, lists, and sets.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using redis = await client.redis.createRedisClient({
   url: "redis://localhost:6379",
@@ -702,7 +706,7 @@ See [Configuration](/docs/configuration#redis-client) for all options.
 Common Redis operations:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using redis = await client.redis.createRedisClient({
   url: "redis://localhost:6379",
@@ -742,7 +746,7 @@ expect(result).toHaveValueContaining("substring"); // Value contains substring
 The MongoDB client provides document operations with a familiar API.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using mongo = await client.mongodb.createMongoClient({
   url: "mongodb://localhost:27017",
@@ -757,7 +761,7 @@ See [Configuration](/docs/configuration#mongodb-client) for all options.
 Work with collections and documents:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 interface User {
   name: string;
@@ -803,53 +807,12 @@ expect(allUsersResult).toHaveDocsMatching([{ name: "Alice" }]); // Match multipl
 expect(deleteResult).toHaveDeletedCount(1); // 1 document deleted
 ```
 
-## [Deno KV Client](/api/client-deno-kv/#createDenoKvClient)
-
-The Deno KV client provides access to Deno's built-in key-value store.
-
-```typescript
-import { client } from "jsr:@probitas/probitas";
-
-await using kv = await client.deno_kv.createDenoKvClient();
-```
-
-By default, an in-memory database is used for testing.
-
-### Operations
-
-```typescript
-import { client, expect } from "jsr:@probitas/probitas";
-
-await using kv = await client.deno_kv.createDenoKvClient();
-
-// Set and get
-await kv.set(["users", "1"], { name: "Alice" });
-const result = await kv.get(["users", "1"]);
-expect(result).toBeOk().toHaveValue({ name: "Alice" });
-
-// List by prefix
-const listResult = await kv.list({ prefix: ["users"] });
-for (const entry of listResult.entries) {
-  console.log(entry.key, entry.value);
-}
-
-// Atomic operations
-const atomic = kv.atomic();
-atomic
-  .check({ key: ["users", "1"], versionstamp: null })
-  .set(["users", "1"], { name: "Alice" });
-const commitResult = await atomic.commit();
-
-// Delete
-await kv.delete(["users", "1"]);
-```
-
 ## [RabbitMQ Client](/api/client-rabbitmq/#createRabbitMqClient)
 
 The RabbitMQ client provides AMQP messaging for publish/subscribe patterns.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using rabbitmq = await client.rabbitmq.createRabbitMqClient({
   url: "amqp://guest:guest@localhost:5672",
@@ -861,7 +824,7 @@ See [Configuration](/docs/configuration#rabbitmq-client) for all options.
 ### Operations
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using rabbitmq = await client.rabbitmq.createRabbitMqClient({
   url: "amqp://guest:guest@localhost:5672",
@@ -891,7 +854,7 @@ await channel.close();
 The AWS SQS client provides cloud message queue operations.
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using sqs = await client.sqs.createSqsClient({
   url: "http://localhost:4566", // LocalStack or AWS endpoint
@@ -908,7 +871,7 @@ See [Configuration](/docs/configuration#sqs-client) for all options.
 ### Operations
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using sqs = await client.sqs.createSqsClient({
   url: "http://localhost:4566",
@@ -946,7 +909,6 @@ for (const msg of receiveResult.messages ?? []) {
 | GraphQL    | [`client.graphql.createGraphqlClient()`](/api/client-graphql/#createGraphqlClient)             | GraphQL APIs         |
 | Redis      | [`client.redis.createRedisClient()`](/api/client-redis/#createRedisClient)                     | Cache, pub/sub       |
 | MongoDB    | [`client.mongodb.createMongoClient()`](/api/client-mongodb/#createMongoClient)                 | Document databases   |
-| Deno KV    | [`client.deno_kv.createDenoKvClient()`](/api/client-deno-kv/#createDenoKvClient)               | Deno KV store        |
 | RabbitMQ   | [`client.rabbitmq.createRabbitMqClient()`](/api/client-rabbitmq/#createRabbitMqClient)         | AMQP message queues  |
 | SQS        | [`client.sqs.createSqsClient()`](/api/client-sqs/#createSqsClient)                             | AWS message queues   |
 
@@ -957,7 +919,7 @@ for (const msg of receiveResult.messages ?? []) {
 Always register clients as resources for automatic cleanup:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 // Good - automatic lifecycle management
 scenario("Example")
@@ -983,9 +945,9 @@ Parameterize service URLs so scenarios run consistently across environments and
 avoid hard-coded localhost values.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
-const apiUrl = Deno.env.get("API_URL") ?? "http://localhost:8080";
+const apiUrl = process.env.API_URL ?? "http://localhost:8080";
 
 scenario("API check")
   .resource("http", () => client.http.createHttpClient({ url: apiUrl }))
@@ -1001,7 +963,7 @@ scenario("API check")
 Provide type parameters for type-safe responses:
 
 ```typescript
-import { client } from "jsr:@probitas/probitas";
+import { client } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://testuser:testpass@localhost:5432/testdb",
@@ -1025,7 +987,7 @@ const result2 = await pg.query("SELECT * FROM users");
 Use assertions for expected successes, explicit checks for expected failures:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -1046,7 +1008,7 @@ Use retry configuration for network-dependent operations. See
 [Configuration](/docs/configuration#retry-configuration) for all retry options.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 scenario("Retry Example")
   .resource(

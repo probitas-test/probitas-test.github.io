@@ -1,4 +1,4 @@
-import { client, expect, outdent, scenario } from "jsr:@probitas/probitas";
+import { client, expect, outdent, scenario } from "@probitas-test/probitas";
 
 export default scenario("GraphQL API Test", {
   tags: ["integration", "graphql"],

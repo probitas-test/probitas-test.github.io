@@ -229,7 +229,7 @@ export async function PackagePage({ packageName }: PackagePageProps) {
                   <h2>Installation</h2>
                   <pre>
                   <code class="language-bash">
-                    deno add jsr:{doc.specifier}
+                    npm install @probitas-test/{doc.name}
                   </code>
                   </pre>
                 </div>

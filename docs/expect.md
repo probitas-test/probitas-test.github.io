@@ -16,7 +16,7 @@ specialized expectations based on the input type:
 - **Consistent naming**: Methods follow `toBeXxx` or `toHaveXxx` patterns
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Assertion Example")
   .resource("http", () =>
@@ -43,7 +43,7 @@ All expectation types support the `.not` modifier to negate assertions. The
 non-negated state:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -81,7 +81,6 @@ appropriate expectation based on the input type:
 | `SqlQueryResult`     | [`SqlQueryResultExpectation`](/api/expect/#SqlQueryResultExpectation)         | SQL           |
 | `RedisResult`        | [`RedisExpectation`](/api/expect/#RedisExpectation)                           | Redis         |
 | `MongoResult`        | [`MongoExpectation`](/api/expect/#MongoExpectation)                           | MongoDB       |
-| `DenoKvResult`       | [`DenoKvExpectation`](/api/expect/#DenoKvExpectation)                         | Deno KV       |
 | `RabbitMqResult`     | [`RabbitMqExpectation`](/api/expect/#RabbitMqExpectation)                     | RabbitMQ      |
 | `SqsResult`          | [`SqsExpectation`](/api/expect/#SqsExpectation)                               | SQS           |
 | Other values         | [`AnythingExpectation`](/api/expect/#AnythingExpectation)                     | Generic       |
@@ -92,7 +91,7 @@ Use [`HttpResponseExpectation`](/api/expect/#HttpResponseExpectation) for HTTP
 client responses:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -136,7 +135,7 @@ Use [`SqlQueryResultExpectation`](/api/expect/#SqlQueryResultExpectation) for
 SQL client results:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using pg = await client.sql.postgres.createPostgresClient({
   url: "postgres://user:pass@localhost/db",
@@ -170,7 +169,7 @@ Use [`GraphqlResponseExpectation`](/api/expect/#GraphqlResponseExpectation) for
 GraphQL client responses:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using gql = client.graphql.createGraphqlClient({
   url: "http://localhost:4000/graphql",
@@ -200,7 +199,7 @@ Use [`GrpcResponseExpectation`](/api/expect/#GrpcResponseExpectation) or
 [`ConnectRpcResponseExpectation`](/api/expect/#ConnectRpcResponseExpectation):
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using grpc = client.grpc.createGrpcClient({ url: "localhost:50051" });
 const res = await grpc.call("users.UserService", "GetUser", { id: "123" });
@@ -217,7 +216,7 @@ Use [`RedisExpectation`](/api/expect/#RedisExpectation) for Redis client
 results:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using redis = await client.redis.createRedisClient({
   url: "redis://localhost:6379",
@@ -253,7 +252,7 @@ Use [`MongoExpectation`](/api/expect/#MongoExpectation) for MongoDB client
 results:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using mongo = await client.mongodb.createMongoClient({
   url: "mongodb://localhost:27017",
@@ -281,7 +280,7 @@ For values not matching specific client types,
 wrappers around `@std/expect` matchers:
 
 ```typescript
-import { expect } from "jsr:@probitas/probitas";
+import { expect } from "@probitas-test/probitas";
 
 // Numbers
 expect(42).toBe(42).toBeGreaterThan(40);
@@ -322,7 +321,7 @@ is thrown. In scenario steps, these errors are caught and reported
 automatically:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Error Example")
   .resource(
@@ -389,7 +388,7 @@ T┆ ✗ User API Test > Check user response (user.probitas.ts:15) [12.34ms]
 Prefer specific assertions over generic ones for better error messages:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -413,7 +412,7 @@ Keep related checks in a single `expect()` chain so failures stay grouped and
 the assertion state stays consistent:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -437,7 +436,7 @@ expect(res).toHaveJsonMatching({ id: 1, name: "Alice" });
 Use `.not` to explicitly check for absence or negative conditions:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -460,7 +459,7 @@ Use fluent assertions instead of `if/throw` logic or `JSON.stringify` checks.
 Assertions provide clearer diffs and consistent failure output.
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -484,7 +483,7 @@ expect(res)
 Check structure exists before asserting on specific values:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -505,7 +504,7 @@ expect(res)
 When you only care about specific fields, use partial matching:
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -527,7 +526,7 @@ For nested fields, prefer array paths over dot notation and keep positive and
 negative checks in the same chain.
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
