@@ -8,7 +8,7 @@ covering the builder API, step context, resources, and best practices.
 A Probitas scenario follows this structure:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("User API CRUD", {
   tags: ["integration", "api"],
@@ -41,7 +41,7 @@ export default scenario("User API CRUD", {
 Scenarios must be exported as the default export:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Single scenario
 export default scenario("Name")
@@ -52,7 +52,7 @@ export default scenario("Name")
 You can also export multiple scenarios as an array:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Multiple scenarios
 export default [
@@ -63,7 +63,7 @@ export default [
 
 ## Scenario Builder API
 
-### [`scenario(name, options?)`](/api/scenario/#scenario)
+### [`scenario(name, options?)`](/api/probitas/#scenario)
 
 Creates a new scenario builder.
 
@@ -87,7 +87,7 @@ result of the previous step.
 | `options?` | `object`     | Per-step timeout and retry (see [Configuration](/docs/configuration#step-options)) |
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Named step
 scenario("Example")
@@ -130,7 +130,7 @@ steps run and automatically disposed after the scenario completes.
 | `options?` | `object`     | Per-resource timeout and retry (see [Configuration](/docs/configuration#step-options)) |
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .resource("http", () =>
@@ -173,7 +173,7 @@ that runs after all steps complete (even on failure).
 | `options?` | `object`            | Per-setup timeout and retry (see [Configuration](/docs/configuration#step-options)) |
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 // Named setup with cleanup function
 scenario("Example")
@@ -255,7 +255,7 @@ Every step, resource factory, and setup function receives a context object
 Use this to chain data between steps:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .step("Create user", async (_ctx) => {
@@ -273,7 +273,7 @@ scenario("Example")
 Useful when you need data from steps other than the immediately previous one:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .step("Step 1", () => "first")
@@ -292,7 +292,7 @@ scenario("Example")
 Access registered resources:
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .resource(
@@ -317,7 +317,7 @@ scenario("Example")
 Pass data that doesn't fit the step return value pattern:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .step("Save to store", (ctx) => {
@@ -335,7 +335,7 @@ scenario("Example")
 Pass to fetch calls or other cancelable operations:
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 const url = "https://api.example.com/data";
 
@@ -358,7 +358,7 @@ Register a resource with a factory function. The resource becomes available to
 all subsequent steps via `ctx.resources`.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .resource("http", (_ctx) => {
@@ -374,11 +374,11 @@ scenario("Example")
 Resources can depend on earlier resources. They're created in declaration order.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Example")
   .resource("config", () => ({
-    url: Deno.env.get("API_URL") ?? "http://localhost:8080",
+    url: process.env.API_URL ?? "http://localhost:8080",
   }))
   .resource("http", (ctx) => {
     const { config } = ctx.resources;
@@ -394,7 +394,7 @@ All Probitas clients implement `AsyncDisposable`, so they're automatically
 cleaned up when the scenario ends.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 // All Probitas clients implement AsyncDisposable
 scenario("Example")
@@ -417,7 +417,7 @@ restore the environment afterward.
 You can chain multiple setup hooks. Each can return a cleanup function.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 scenario("Multi-setup")
   .resource("db", () =>
@@ -448,7 +448,7 @@ Cleanup functions run in **reverse order** (last setup's cleanup runs first).
 This ensures proper teardown of dependent resources.
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Cleanup Order Example")
   .setup(() => {
@@ -474,15 +474,15 @@ scenario("Cleanup Order Example")
 
 ### Skipping Scenarios
 
-Throw [`Skip`](/api/scenario/#Skip) to conditionally skip the remaining steps.
+Throw [`Skip`](/api/probitas/#Skip) to conditionally skip the remaining steps.
 This is useful for environment-specific tests.
 
 ```typescript
-import { scenario, Skip } from "jsr:@probitas/probitas";
+import { scenario, Skip } from "@probitas-test/probitas";
 
 scenario("Integration Test")
   .step("Check precondition", () => {
-    if (!Deno.env.get("INTEGRATION_ENABLED")) {
+    if (!process.env.INTEGRATION_ENABLED) {
       throw new Skip("Integration tests disabled");
     }
   })
@@ -495,10 +495,10 @@ scenario("Integration Test")
 You can also skip from resources or setup hooks:
 
 ```typescript
-import { client, scenario, Skip } from "jsr:@probitas/probitas";
+import { client, scenario, Skip } from "@probitas-test/probitas";
 
 function checkExternalService(): boolean {
-  return Deno.env.get("EXTERNAL_SERVICE_URL") !== undefined;
+  return process.env.EXTERNAL_SERVICE_URL !== undefined;
 }
 
 scenario("External Service Test")
@@ -507,7 +507,7 @@ scenario("External Service Test")
       throw new Skip("External service unavailable");
     }
     return client.http.createHttpClient({
-      url: Deno.env.get("EXTERNAL_SERVICE_URL")!,
+      url: process.env.EXTERNAL_SERVICE_URL!,
     });
   })
   .step(() => {})
@@ -520,7 +520,7 @@ When a step throws an error, the scenario fails but **cleanup still runs**. This
 ensures resources are properly disposed.
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Error Handling Example")
   .setup(() => {
@@ -540,7 +540,7 @@ For flaky operations, configure automatic retries. See
 options.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 scenario("Retry Example")
   .resource(
@@ -569,7 +569,7 @@ scenario("Retry Example")
 A typical CRUD test that creates, reads, updates, and deletes a resource.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("User CRUD API", { tags: ["api", "integration"] })
   .resource("http", () =>
@@ -624,7 +624,7 @@ export default scenario("User CRUD API", { tags: ["api", "integration"] })
 Testing database operations with setup/cleanup for table management.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Database Transaction", { tags: ["db", "postgres"] })
   .resource("pg", () =>
@@ -680,7 +680,7 @@ export default scenario("Database Transaction", { tags: ["db", "postgres"] })
 Testing gRPC services including unary calls and streaming.
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("gRPC Echo Service", { tags: ["grpc"] })
   .resource("grpc", () =>
@@ -716,7 +716,7 @@ export default scenario("gRPC Echo Service", { tags: ["grpc"] })
 Combining multiple clients (HTTP, database, Redis) in a single end-to-end test.
 
 ```typescript
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
 
 export default scenario("Full Stack Test", {
   tags: ["integration", "e2e"],
@@ -784,11 +784,11 @@ a step does not read the previous result, extract it into its own scenario and
 share a resource factory instead.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 function http() {
   return client.http.createHttpClient({
-    url: Deno.env.get("API_URL") ?? "http://localhost:8080",
+    url: process.env.API_URL ?? "http://localhost:8080",
   });
 }
 
@@ -816,14 +816,14 @@ Every scenario must end with `.build()` and be exported as `export default`,
 either as a single scenario or an array of scenarios.
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Correct - single scenario
 export default scenario("Example").step(() => {}).build();
 ```
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Correct - multiple scenarios
 export default [
@@ -838,9 +838,9 @@ Parameterize endpoints so tests run consistently across environments and avoid
 hard-coding localhost URLs.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
-const apiUrl = Deno.env.get("API_URL") ?? "http://localhost:8080";
+const apiUrl = process.env.API_URL ?? "http://localhost:8080";
 
 export default scenario("API test")
   .resource("http", () => client.http.createHttpClient({ url: apiUrl }))
@@ -854,7 +854,7 @@ Use `expect()` chains instead of manual `if/throw` checks, and keep related
 assertions in a single chain for clearer failures.
 
 ```typescript
-import { client, expect } from "jsr:@probitas/probitas";
+import { client, expect } from "@probitas-test/probitas";
 
 await using http = client.http.createHttpClient({
   url: "http://localhost:8080",
@@ -878,7 +878,7 @@ expect(res)
 Good names make test output readable and debugging easier.
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Good
 scenario("Email Test")
@@ -901,7 +901,7 @@ Return data that subsequent steps need. This enables type-safe data flow through
 Good - returns data needed by next step:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 scenario("User creation and retrieval")
   .resource(
@@ -928,7 +928,7 @@ scenario("User creation and retrieval")
 Avoid - loses useful data:
 
 ```ts
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 scenario("User creation and retrieval")
   .resource(
@@ -958,7 +958,7 @@ Tags let you run subsets of tests (e.g., only fast tests, or only tests that
 don't need Docker).
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 scenario("Slow Integration Test", {
   tags: ["integration", "slow", "requires-docker"],
@@ -973,7 +973,7 @@ Each step should do one thing. This makes failures easier to diagnose and tests
 easier to maintain.
 
 ```typescript
-import { scenario } from "jsr:@probitas/probitas";
+import { scenario } from "@probitas-test/probitas";
 
 // Good - single responsibility
 scenario("Order Flow - Good")
@@ -994,7 +994,7 @@ Setup hooks with cleanup are better than steps for managing test fixtures. They
 guarantee cleanup even on failure.
 
 ```typescript
-import { client, scenario } from "jsr:@probitas/probitas";
+import { client, scenario } from "@probitas-test/probitas";
 
 async function seedTestData(
   _db: Awaited<
@@ -1048,7 +1048,7 @@ Good - multiple focused scenarios:
 
 ```typescript
 // user-validation.probitas.ts
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default [
   scenario("User validation - rejects empty name", {
@@ -1120,7 +1120,7 @@ Avoid - one monolithic scenario:
 
 ```ts
 // user-validation.probitas.ts
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("User validation", { tags: ["api", "validation"] })
   .resource(
@@ -1170,7 +1170,7 @@ Good - sequential CRUD operations as a single scenario:
 
 ```ts
 // user-crud.probitas.ts
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("User CRUD workflow", { tags: ["api", "crud"] })
   .resource(
@@ -1210,7 +1210,7 @@ Avoid - splitting sequential workflow into separate scenarios:
 
 ```ts
 // user-crud.probitas.ts - DON'T do this!
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 // These scenarios cannot run in parallel - they share state!
 export default [

@@ -26,6 +26,7 @@ export interface SiteMetadata {
   name: string;
   description: string;
   github: string;
+  npm: string;
   jsr: string;
 }
 
@@ -135,6 +136,7 @@ export async function generateLlmsTxt(
     "## Links",
     "",
     `- [GitHub](${siteMetadata.github})`,
+    `- [npm Package](${siteMetadata.npm})`,
     `- [JSR Package](${siteMetadata.jsr})`,
     "",
   );

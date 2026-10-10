@@ -71,12 +71,6 @@ export const clients: Client[] = [
     protocol: "MongoDB",
   },
   {
-    name: "Deno KV",
-    url: "https://docs.deno.com/deploy/kv/manual/",
-    factory: "client.deno_kv.createDenoKvClient()",
-    protocol: "Deno KV",
-  },
-  {
     name: "RabbitMQ",
     url: "https://www.rabbitmq.com/",
     factory: "client.rabbitmq.createRabbitMqClient()",

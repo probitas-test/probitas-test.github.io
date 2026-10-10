@@ -1,17 +1,17 @@
 {
   "name": "client",
   "specifier": "@probitas/client",
-  "version": "0.5.0",
-  "moduleDoc": "Core utilities and types for Probitas client libraries.\n\nThis package provides shared types, error classes, and utilities used across\nall [`@probitas/*`](https://jsr.io/@probitas) client packages.\n\n## Features\n\n- **Common Options**: Shared configuration types like `CommonOptions` and `RetryOptions`\n- **Error Hierarchy**: Base error classes (`ClientError`, `ConnectionError`, `TimeoutError`, `AbortError`)\n\n## Installation\n\n```bash\ndeno add jsr:@probitas/client\n```\n\n## Usage\n\nThis package is typically used as a dependency by other client packages.\nEnd users rarely need to import from it directly.\n\n```ts\nimport type { CommonOptions, RetryOptions } from \"@probitas/client\";\nimport { ClientError, ConnectionError, TimeoutError } from \"@probitas/client\";\n\n// Use CommonOptions for timeout and abort signal support\nasync function fetchData(options?: CommonOptions) {\n  // Implementation with timeout and signal handling\n}\n\n// Catch and handle errors\ntry {\n  await fetchData({ timeout: 5000 });\n} catch (error) {\n  if (error instanceof TimeoutError) {\n    console.log(`Timed out after ${error.timeoutMs}ms`);\n  } else if (error instanceof ConnectionError) {\n    console.log(\"Failed to connect\");\n  }\n}\n```\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [`@probitas/client-http`](https://jsr.io/@probitas/client-http) | HTTP client |\n| [`@probitas/client-graphql`](https://jsr.io/@probitas/client-graphql) | GraphQL client |\n| [`@probitas/client-grpc`](https://jsr.io/@probitas/client-grpc) | gRPC client |\n| [`@probitas/client-connectrpc`](https://jsr.io/@probitas/client-connectrpc) | ConnectRPC client |\n| [`@probitas/client-sql-postgres`](https://jsr.io/@probitas/client-sql-postgres) | PostgreSQL client |\n| [`@probitas/client-sql-mysql`](https://jsr.io/@probitas/client-sql-mysql) | MySQL client |\n| [`@probitas/client-sql-sqlite`](https://jsr.io/@probitas/client-sql-sqlite) | SQLite client |\n| [`@probitas/client-sql-duckdb`](https://jsr.io/@probitas/client-sql-duckdb) | DuckDB client |\n| [`@probitas/client-deno-kv`](https://jsr.io/@probitas/client-deno-kv) | Deno KV client |\n| [`@probitas/client-redis`](https://jsr.io/@probitas/client-redis) | Redis client |\n| [`@probitas/client-mongodb`](https://jsr.io/@probitas/client-mongodb) | MongoDB client |\n| [`@probitas/client-rabbitmq`](https://jsr.io/@probitas/client-rabbitmq) | RabbitMQ client |\n| [`@probitas/client-sqs`](https://jsr.io/@probitas/client-sqs) | AWS SQS client |\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas-client)\n- [Probitas Framework](https://github.com/probitas-test/probitas)\n",
+  "version": "0.6.0",
+  "moduleDoc": "Core utilities and types for Probitas client libraries.\n\nThis package provides shared types, error classes, and utilities used across\nall [`@probitas/*`](https://jsr.io/@probitas) client packages.\n\n## Features\n\n- **Common Options**: Shared configuration types like `CommonOptions` and `RetryOptions`\n- **Error Hierarchy**: Base error classes (`ClientError`, `ConnectionError`, `TimeoutError`, `AbortError`)\n\n## Installation\n\n```bash\ndeno add jsr:@probitas/client\n```\n\n## Usage\n\nThis package is typically used as a dependency by other client packages.\nEnd users rarely need to import from it directly.\n\n```ts\nimport type { CommonOptions, RetryOptions } from \"@probitas-test/client\";\nimport { ClientError, ConnectionError, TimeoutError } from \"@probitas-test/client\";\n\n// Use CommonOptions for timeout and abort signal support\nasync function fetchData(options?: CommonOptions) {\n  // Implementation with timeout and signal handling\n}\n\n// Catch and handle errors\ntry {\n  await fetchData({ timeout: 5000 });\n} catch (error) {\n  if (error instanceof TimeoutError) {\n    console.log(`Timed out after ${error.timeoutMs}ms`);\n  } else if (error instanceof ConnectionError) {\n    console.log(\"Failed to connect\");\n  }\n}\n```\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [`@probitas/client-http`](https://jsr.io/@probitas/client-http) | HTTP client |\n| [`@probitas/client-graphql`](https://jsr.io/@probitas/client-graphql) | GraphQL client |\n| [`@probitas/client-grpc`](https://jsr.io/@probitas/client-grpc) | gRPC client |\n| [`@probitas/client-connectrpc`](https://jsr.io/@probitas/client-connectrpc) | ConnectRPC client |\n| [`@probitas/client-sql-postgres`](https://jsr.io/@probitas/client-sql-postgres) | PostgreSQL client |\n| [`@probitas/client-sql-mysql`](https://jsr.io/@probitas/client-sql-mysql) | MySQL client |\n| [`@probitas/client-sql-sqlite`](https://jsr.io/@probitas/client-sql-sqlite) | SQLite client |\n| [`@probitas/client-sql-duckdb`](https://jsr.io/@probitas/client-sql-duckdb) | DuckDB client |\n| [`@probitas/client-redis`](https://jsr.io/@probitas/client-redis) | Redis client |\n| [`@probitas/client-mongodb`](https://jsr.io/@probitas/client-mongodb) | MongoDB client |\n| [`@probitas/client-rabbitmq`](https://jsr.io/@probitas/client-rabbitmq) | RabbitMQ client |\n| [`@probitas/client-sqs`](https://jsr.io/@probitas/client-sqs) | AWS SQS client |\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas-client)\n- [Probitas Framework](https://github.com/probitas-test/probitas)\n",
   "exports": [
     {
       "name": "CommonConnectionConfig",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
         "line": 29,
         "col": 0,
-        "byteIndex": 829
+        "byteIndex": 839
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -19,11 +19,11 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "Use with string URL\n```ts\nimport { createHttpClient } from \"@probitas/client-http\";\nconst client = createHttpClient({ url: \"http://localhost:3000\" });\nawait client[Symbol.asyncDispose]();\n```\n"
+            "doc": "Use with string URL\n```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({ url: \"http://localhost:3000\" });\nawait client[Symbol.asyncDispose]();\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Use with config object\n```ts\nimport { createHttpClient } from \"@probitas/client-http\";\nconst client = createHttpClient({\n  url: {\n    host: \"api.example.com\",\n    port: 443,\n    username: \"user\",\n    password: \"secret\",\n  },\n});\nawait client[Symbol.asyncDispose]();\n```"
+            "doc": "Use with config object\n```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({\n  url: {\n    host: \"api.example.com\",\n    port: 443,\n    username: \"user\",\n    password: \"secret\",\n  },\n});\nawait client[Symbol.asyncDispose]();\n```"
           }
         ]
       },
@@ -45,10 +45,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 34,
               "col": 2,
-              "byteIndex": 940
+              "byteIndex": 950
             },
             "params": [],
             "readonly": true,
@@ -67,10 +67,10 @@
               "doc": "Port number. Each service has its own default."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 39,
               "col": 2,
-              "byteIndex": 1031
+              "byteIndex": 1041
             },
             "params": [],
             "readonly": true,
@@ -89,10 +89,10 @@
               "doc": "Username for authentication."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 44,
               "col": 2,
-              "byteIndex": 1104
+              "byteIndex": 1114
             },
             "params": [],
             "readonly": true,
@@ -111,10 +111,10 @@
               "doc": "Password for authentication."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 49,
               "col": 2,
-              "byteIndex": 1181
+              "byteIndex": 1191
             },
             "params": [],
             "readonly": true,
@@ -137,10 +137,10 @@
       "name": "RetryOptions",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
         "line": 55,
         "col": 0,
-        "byteIndex": 1252
+        "byteIndex": 1262
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -164,10 +164,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 60,
               "col": 2,
-              "byteIndex": 1362
+              "byteIndex": 1372
             },
             "params": [],
             "readonly": true,
@@ -192,10 +192,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 66,
               "col": 2,
-              "byteIndex": 1459
+              "byteIndex": 1469
             },
             "params": [],
             "readonly": true,
@@ -237,10 +237,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 72,
               "col": 2,
-              "byteIndex": 1574
+              "byteIndex": 1584
             },
             "params": [],
             "readonly": true,
@@ -265,10 +265,10 @@
               ]
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 78,
               "col": 2,
-              "byteIndex": 1677
+              "byteIndex": 1687
             },
             "params": [],
             "readonly": true,
@@ -287,10 +287,10 @@
               "doc": "Function to determine if the error should trigger a retry."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 83,
               "col": 2,
-              "byteIndex": 1784
+              "byteIndex": 1794
             },
             "params": [],
             "readonly": true,
@@ -336,10 +336,10 @@
       "name": "CommonOptions",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
         "line": 89,
         "col": 0,
-        "byteIndex": 1886
+        "byteIndex": 1896
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -357,10 +357,10 @@
               "doc": "Timeout in milliseconds."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 93,
               "col": 2,
-              "byteIndex": 1963
+              "byteIndex": 1973
             },
             "params": [],
             "readonly": true,
@@ -379,10 +379,10 @@
               "doc": "AbortSignal for cancellation."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 98,
               "col": 2,
-              "byteIndex": 2040
+              "byteIndex": 2050
             },
             "params": [],
             "readonly": true,
@@ -404,10 +404,10 @@
               "doc": "Retry configuration."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 103,
               "col": 2,
-              "byteIndex": 2112
+              "byteIndex": 2122
             },
             "params": [],
             "readonly": true,
@@ -433,10 +433,10 @@
       "name": "ClientResult",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
         "line": 157,
         "col": 0,
-        "byteIndex": 3577
+        "byteIndex": 3592
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -444,7 +444,7 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "```ts\nimport type { ClientResult } from \"@probitas/client\";\n\ninterface HttpResponse extends ClientResult {\n  readonly kind: \"http\";\n  readonly status: number;\n}\n\ninterface SqlQueryResult extends ClientResult {\n  readonly kind: \"sql\";\n  readonly rowCount: number;\n}\n\ntype MyResult = HttpResponse | SqlQueryResult;\n\nfunction handleResult(result: MyResult) {\n  // Check if request reached the server\n  if (!result.processed) {\n    console.error(\"Network failure:\", result.error);\n    return;\n  }\n\n  // Check if operation succeeded\n  if (!result.ok) {\n    console.error(\"Operation failed:\", result.error);\n    return;\n  }\n\n  // Type narrowing by kind\n  switch (result.kind) {\n    case \"http\":\n      console.log(`HTTP ${result.status} in ${result.duration}ms`);\n      break;\n    case \"sql\":\n      console.log(`${result.rowCount} rows in ${result.duration}ms`);\n      break;\n  }\n}\n```"
+            "doc": "```ts\nimport type { ClientResult } from \"@probitas-test/client\";\n\ninterface HttpResponse extends ClientResult {\n  readonly kind: \"http\";\n  readonly status: number;\n}\n\ninterface SqlQueryResult extends ClientResult {\n  readonly kind: \"sql\";\n  readonly rowCount: number;\n}\n\ntype MyResult = HttpResponse | SqlQueryResult;\n\nfunction handleResult(result: MyResult) {\n  // Check if request reached the server\n  if (!result.processed) {\n    console.error(\"Network failure:\", result.error);\n    return;\n  }\n\n  // Check if operation succeeded\n  if (!result.ok) {\n    console.error(\"Operation failed:\", result.error);\n    return;\n  }\n\n  // Type narrowing by kind\n  switch (result.kind) {\n    case \"http\":\n      console.log(`HTTP ${result.status} in ${result.duration}ms`);\n      break;\n    case \"sql\":\n      console.log(`${result.rowCount} rows in ${result.duration}ms`);\n      break;\n  }\n}\n```"
           }
         ]
       },
@@ -460,10 +460,10 @@
               "doc": "Result kind discriminator.\n\nThe `kind` property is typed as `string` to allow client-specific packages\nto define their own result kinds without modifying this core package.\nSubinterfaces can narrow the type using literal types with `as const`."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 165,
               "col": 2,
-              "byteIndex": 3891
+              "byteIndex": 3906
             },
             "params": [],
             "readonly": true,
@@ -482,10 +482,10 @@
               "doc": "Whether the operation was processed by the server.\n\n- `true`: Server received and processed the request (success or error response)\n- `false`: Request failed before reaching the server (network error, timeout, etc.)\n\nUse this to distinguish between \"server returned an error\" and \"couldn't reach server\"."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 175,
               "col": 2,
-              "byteIndex": 4262
+              "byteIndex": 4277
             },
             "params": [],
             "readonly": true,
@@ -504,10 +504,10 @@
               "doc": "Whether the operation succeeded.\n\nFor HTTP responses, this corresponds to status 200-299.\nFor database operations, this indicates successful execution.\nAlways `false` when `processed` is `false`."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 184,
               "col": 2,
-              "byteIndex": 4526
+              "byteIndex": 4541
             },
             "params": [],
             "readonly": true,
@@ -526,10 +526,10 @@
               "doc": "Error that occurred during the operation (null if successful).\n\nContains the error when `ok` is `false`. The specific error type depends\non the client kind (e.g., HttpError, GraphqlError, SqlError)."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 192,
               "col": 2,
-              "byteIndex": 4781
+              "byteIndex": 4796
             },
             "params": [],
             "readonly": true,
@@ -562,10 +562,10 @@
               "doc": "Operation duration in milliseconds.\n\nMeasured from operation start to completion, useful for performance analysis\nand timeout monitoring."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/types.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
               "line": 200,
               "col": 2,
-              "byteIndex": 4983
+              "byteIndex": 4998
             },
             "params": [],
             "readonly": true,
@@ -585,10 +585,95 @@
       }
     },
     {
+      "name": "Fetch",
+      "isDefault": false,
+      "location": {
+        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
+        "line": 210,
+        "col": 0,
+        "byteIndex": 5268
+      },
+      "declarationKind": "export",
+      "jsDoc": {
+        "doc": "A `fetch`-compatible function.\n\nDeclared structurally instead of as `typeof fetch` because runtime typings\nadd members (Bun's `fetch.preconnect`) that a custom implementation or test\ndouble should not have to provide."
+      },
+      "kind": "typeAlias",
+      "typeAliasDef": {
+        "tsType": {
+          "repr": "",
+          "kind": "fnOrConstructor",
+          "fnOrConstructor": {
+            "constructor": false,
+            "tsType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "Response",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Response"
+                    }
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "input",
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "union",
+                  "union": [
+                    {
+                      "repr": "RequestInfo",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "RequestInfo"
+                      }
+                    },
+                    {
+                      "repr": "URL",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "URL"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "init",
+                "optional": true,
+                "tsType": {
+                  "repr": "RequestInit",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "RequestInit"
+                  }
+                }
+              }
+            ],
+            "typeParams": []
+          }
+        },
+        "typeParams": []
+      }
+    },
+    {
       "name": "ClientError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
         "line": 8,
         "col": 0,
         "byteIndex": 275
@@ -646,7 +731,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 12,
               "col": 2,
               "byteIndex": 394
@@ -668,7 +753,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 9,
               "col": 2,
               "byteIndex": 318
@@ -687,7 +772,7 @@
             "isStatic": false,
             "name": "kind",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 10,
               "col": 2,
               "byteIndex": 368
@@ -706,7 +791,7 @@
       "name": "ConnectionError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
         "line": 25,
         "col": 0,
         "byteIndex": 615
@@ -749,7 +834,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 29,
               "col": 2,
               "byteIndex": 765
@@ -771,7 +856,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 26,
               "col": 2,
               "byteIndex": 668
@@ -794,7 +879,7 @@
             "isOverride": true,
             "name": "kind",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 27,
               "col": 2,
               "byteIndex": 714
@@ -813,7 +898,7 @@
       "name": "TimeoutError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
         "line": 37,
         "col": 0,
         "byteIndex": 923
@@ -866,7 +951,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 42,
               "col": 2,
               "byteIndex": 1094
@@ -888,7 +973,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 38,
               "col": 2,
               "byteIndex": 973
@@ -911,7 +996,7 @@
             "isOverride": true,
             "name": "kind",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 39,
               "col": 2,
               "byteIndex": 1016
@@ -930,7 +1015,7 @@
             "isStatic": false,
             "name": "timeoutMs",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 40,
               "col": 2,
               "byteIndex": 1063
@@ -949,7 +1034,7 @@
       "name": "AbortError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
         "line": 51,
         "col": 0,
         "byteIndex": 1317
@@ -992,7 +1077,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 55,
               "col": 2,
               "byteIndex": 1452
@@ -1014,7 +1099,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 52,
               "col": 2,
               "byteIndex": 1365
@@ -1037,7 +1122,7 @@
             "isOverride": true,
             "name": "kind",
             "location": {
-              "filename": "https://jsr.io/@probitas/client/0.5.0/errors.ts",
+              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
               "line": 53,
               "col": 2,
               "byteIndex": 1406

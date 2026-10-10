@@ -1,17 +1,17 @@
 {
   "name": "runner",
   "specifier": "@probitas/runner",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "moduleDoc": "Test execution and orchestration engine for Probitas scenarios.\n\nThis package provides the {@linkcode ScenarioRunner} class that executes\nscenario definitions built with `@probitas/builder`. It handles the complete\ntest lifecycle including resource initialization, setup/cleanup hooks,\nstep execution with retry logic, and result reporting.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/builder](https://jsr.io/@probitas/builder) | Build scenario definitions to execute |\n| [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions |\n| [@probitas/reporter](https://jsr.io/@probitas/reporter) | Output formatters for results |\n| [@probitas/cli](https://jsr.io/@probitas/cli) | CLI that uses this runner |\n\n## Key Features\n\n- **Concurrent execution**: Run multiple scenarios in parallel with configurable concurrency\n- **Failure control**: Stop after N failures or continue through all tests\n- **Resource lifecycle**: Automatic initialization and disposal of resources\n- **Retry logic**: Built-in retry with linear/exponential backoff strategies\n- **Reporter integration**: Pluggable reporters for custom output formatting\n- **Abort support**: Cancel running tests via AbortSignal\n\n## Core Exports\n\n- {@linkcode ScenarioRunner} - Main class for executing scenarios\n- {@linkcode Skip} - Exception class to skip scenarios conditionally\n- {@linkcode Reporter} - Interface for observing test execution events\n- {@linkcode RunOptions} - Configuration options for test runs\n- {@linkcode RunResult} - Aggregated results from a test run\n- {@linkcode ScenarioResult} - Result from executing a single scenario\n- {@linkcode StepResult} - Result from executing a single step\n\n## Error Types\n\n- {@linkcode StepTimeoutError} - Thrown when a step exceeds its timeout\n- {@linkcode ScenarioTimeoutError} - Thrown when a scenario exceeds its timeout\n",
   "exports": [
     {
       "name": "Skip",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/skip.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/skip.ts",
         "line": 76,
         "col": 0,
-        "byteIndex": 2082
+        "byteIndex": 2108
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -19,15 +19,15 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "Skip based on environment\n```ts\nimport { scenario } from \"@probitas/builder\";\nimport { Skip } from \"@probitas/runner\";\n\nconst def = scenario(\"Production Only\")\n  .step(\"Check environment\", () => {\n    if (Deno.env.get(\"ENV\") !== \"production\") {\n      throw new Skip(\"Only runs in production\");\n    }\n  })\n  .step(\"Production test\", () => {\n    console.log(\"Running in production\");\n  })\n  .build();\nconsole.log(def.name);\n```\n"
+            "doc": "Skip based on environment\n```ts\nimport { scenario } from \"@probitas-test/builder\";\nimport { Skip } from \"@probitas-test/runner\";\n\nconst def = scenario(\"Production Only\")\n  .step(\"Check environment\", () => {\n    if (process.env.ENV !== \"production\") {\n      throw new Skip(\"Only runs in production\");\n    }\n  })\n  .step(\"Production test\", () => {\n    console.log(\"Running in production\");\n  })\n  .build();\nconsole.log(def.name);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Skip based on resource availability\n```ts\nimport { scenario } from \"@probitas/builder\";\nimport { Skip } from \"@probitas/runner\";\n\nconst Database = { connect: async () => ({ query: (sql: string) => sql }) };\n\nconst def = scenario(\"Database Test\")\n  .resource(\"db\", async () => {\n    try {\n      return await Database.connect();\n    } catch {\n      throw new Skip(\"Database not available\");\n    }\n  })\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\nconsole.log(def.name);\n```\n"
+            "doc": "Skip based on resource availability\n```ts\nimport { scenario } from \"@probitas-test/builder\";\nimport { Skip } from \"@probitas-test/runner\";\n\nconst Database = { connect: async () => ({ query: (sql: string) => sql }) };\n\nconst def = scenario(\"Database Test\")\n  .resource(\"db\", async () => {\n    try {\n      return await Database.connect();\n    } catch {\n      throw new Skip(\"Database not available\");\n    }\n  })\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\nconsole.log(def.name);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Skip with feature flag\n```ts\nimport { scenario } from \"@probitas/builder\";\nimport { Skip } from \"@probitas/runner\";\n\nconst def = scenario(\"Beta Feature\")\n  .step(\"Check feature flag\", (ctx) => {\n    if (!ctx.store.get(\"betaEnabled\")) {\n      throw new Skip(\"Beta feature not enabled\");\n    }\n  })\n  .build();\nconsole.log(def.name);\n```"
+            "doc": "Skip with feature flag\n```ts\nimport { scenario } from \"@probitas-test/builder\";\nimport { Skip } from \"@probitas-test/runner\";\n\nconst def = scenario(\"Beta Feature\")\n  .step(\"Check feature flag\", (ctx) => {\n    if (!ctx.store.get(\"betaEnabled\")) {\n      throw new Skip(\"Beta feature not enabled\");\n    }\n  })\n  .build();\nconsole.log(def.name);\n```"
           }
         ]
       },
@@ -46,7 +46,7 @@
                 },
                 {
                   "kind": "example",
-                  "doc": "```ts\nimport { Skip } from \"@probitas/runner\";\n\nconst skip1 = new Skip();                    // message: \"Skipped\", reason: undefined\nconst skip2 = new Skip(\"Not on Windows\");    // message: \"Not on Windows\", reason: \"Not on Windows\"\nconsole.log(skip1.message, skip2.reason);\n```"
+                  "doc": "```ts\nimport { Skip } from \"@probitas-test/runner\";\n\nconst skip1 = new Skip();                    // message: \"Skipped\", reason: undefined\nconst skip2 = new Skip(\"Not on Windows\");    // message: \"Not on Windows\", reason: \"Not on Windows\"\nconsole.log(skip1.message, skip2.reason);\n```"
                 }
               ]
             },
@@ -66,10 +66,10 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/skip.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/skip.ts",
               "line": 101,
               "col": 2,
-              "byteIndex": 2897
+              "byteIndex": 2928
             }
           }
         ],
@@ -90,10 +90,10 @@
             "isStatic": false,
             "name": "reason",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/skip.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/skip.ts",
               "line": 84,
               "col": 2,
-              "byteIndex": 2336
+              "byteIndex": 2362
             }
           }
         ],
@@ -109,10 +109,10 @@
       "name": "Runner",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/runner.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/runner.ts",
         "line": 42,
         "col": 0,
-        "byteIndex": 1277
+        "byteIndex": 1288
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -120,7 +120,7 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "```ts\nimport { Runner } from \"@probitas/runner\";\nimport type { Reporter } from \"@probitas/runner\";\nimport type { ScenarioDefinition } from \"@probitas/core\";\n\nconst reporter: Reporter = {};\nconst scenarios: ScenarioDefinition[] = [];\nconst runner = new Runner(reporter);\n\nconst result = await runner.run(scenarios, {\n  maxConcurrency: 4,\n  maxFailures: 1,\n});\nconsole.log(result);\n```"
+            "doc": "```ts\nimport { Runner } from \"@probitas-test/runner\";\nimport type { Reporter } from \"@probitas-test/runner\";\nimport type { ScenarioDefinition } from \"@probitas-test/core\";\n\nconst reporter: Reporter = {};\nconst scenarios: ScenarioDefinition[] = [];\nconst runner = new Runner(reporter);\n\nconst result = await runner.run(scenarios, {\n  maxConcurrency: 4,\n  maxFailures: 1,\n});\nconsole.log(result);\n```"
           }
         ]
       },
@@ -159,10 +159,10 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/runner.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/runner.ts",
               "line": 48,
               "col": 2,
-              "byteIndex": 1430
+              "byteIndex": 1441
             }
           }
         ],
@@ -258,10 +258,10 @@
               "typeParams": []
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/runner.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/runner.ts",
               "line": 64,
               "col": 2,
-              "byteIndex": 2063
+              "byteIndex": 2074
             }
           }
         ],
@@ -275,10 +275,10 @@
       "name": "toScenarioMetadata",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/metadata.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/metadata.ts",
         "line": 22,
         "col": 0,
-        "byteIndex": 478
+        "byteIndex": 475
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -319,10 +319,10 @@
       "name": "toStepMetadata",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/metadata.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/metadata.ts",
         "line": 37,
         "col": 0,
-        "byteIndex": 825
+        "byteIndex": 822
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -363,7 +363,7 @@
       "name": "ScenarioTimeoutError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
         "line": 83,
         "col": 0,
         "byteIndex": 2423
@@ -437,7 +437,7 @@
                           {
                             "name": "currentStepName",
                             "location": {
-                              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+                              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
                               "line": 96,
                               "col": 6,
                               "byteIndex": 2817
@@ -455,7 +455,7 @@
                           {
                             "name": "currentStepIndex",
                             "location": {
-                              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+                              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
                               "line": 97,
                               "col": 6,
                               "byteIndex": 2849
@@ -480,7 +480,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 91,
               "col": 2,
               "byteIndex": 2695
@@ -502,7 +502,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 84,
               "col": 2,
               "byteIndex": 2475
@@ -521,7 +521,7 @@
             "isStatic": false,
             "name": "scenarioName",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 85,
               "col": 2,
               "byteIndex": 2526
@@ -540,7 +540,7 @@
             "isStatic": false,
             "name": "timeoutMs",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 86,
               "col": 2,
               "byteIndex": 2559
@@ -559,7 +559,7 @@
             "isStatic": false,
             "name": "elapsedMs",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 87,
               "col": 2,
               "byteIndex": 2589
@@ -578,7 +578,7 @@
             "isStatic": false,
             "name": "currentStepName",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 88,
               "col": 2,
               "byteIndex": 2619
@@ -597,7 +597,7 @@
             "isStatic": false,
             "name": "currentStepIndex",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 89,
               "col": 2,
               "byteIndex": 2656
@@ -658,7 +658,7 @@
                         {
                           "name": "scenarioName",
                           "location": {
-                            "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+                            "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
                             "line": 131,
                             "col": 6,
                             "byteIndex": 3924
@@ -708,7 +708,7 @@
               "typeParams": []
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 128,
               "col": 2,
               "byteIndex": 3861
@@ -725,7 +725,7 @@
       "name": "StepTimeoutError",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
         "line": 7,
         "col": 0,
         "byteIndex": 198
@@ -798,7 +798,7 @@
               }
             ],
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 14,
               "col": 2,
               "byteIndex": 417
@@ -820,7 +820,7 @@
             "isOverride": true,
             "name": "name",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 8,
               "col": 2,
               "byteIndex": 246
@@ -839,7 +839,7 @@
             "isStatic": false,
             "name": "stepName",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 9,
               "col": 2,
               "byteIndex": 293
@@ -858,7 +858,7 @@
             "isStatic": false,
             "name": "timeoutMs",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 10,
               "col": 2,
               "byteIndex": 322
@@ -877,7 +877,7 @@
             "isStatic": false,
             "name": "attemptNumber",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 11,
               "col": 2,
               "byteIndex": 352
@@ -896,7 +896,7 @@
             "isStatic": false,
             "name": "elapsedMs",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 12,
               "col": 2,
               "byteIndex": 386
@@ -957,7 +957,7 @@
                         {
                           "name": "stepName",
                           "location": {
-                            "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+                            "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
                             "line": 45,
                             "col": 6,
                             "byteIndex": 1340
@@ -975,7 +975,7 @@
                         {
                           "name": "attemptNumber",
                           "location": {
-                            "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+                            "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
                             "line": 46,
                             "col": 6,
                             "byteIndex": 1364
@@ -1025,7 +1025,7 @@
               "typeParams": []
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/errors.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/errors.ts",
               "line": 42,
               "col": 2,
               "byteIndex": 1277
@@ -1042,10 +1042,10 @@
       "name": "Reporter",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
         "line": 13,
         "col": 0,
-        "byteIndex": 477
+        "byteIndex": 481
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -1063,10 +1063,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 17,
               "col": 2,
-              "byteIndex": 587
+              "byteIndex": 591
             },
             "params": [
               {
@@ -1129,10 +1129,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 22,
               "col": 2,
-              "byteIndex": 713
+              "byteIndex": 717
             },
             "params": [
               {
@@ -1208,10 +1208,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 30,
               "col": 2,
-              "byteIndex": 879
+              "byteIndex": 883
             },
             "params": [
               {
@@ -1263,10 +1263,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 35,
               "col": 2,
-              "byteIndex": 998
+              "byteIndex": 1002
             },
             "params": [
               {
@@ -1331,10 +1331,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 43,
               "col": 2,
-              "byteIndex": 1145
+              "byteIndex": 1149
             },
             "params": [
               {
@@ -1399,10 +1399,10 @@
             },
             "kind": "method",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/reporter.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/reporter.ts",
               "line": 55,
               "col": 2,
-              "byteIndex": 1517
+              "byteIndex": 1521
             },
             "params": [
               {
@@ -1484,10 +1484,10 @@
       "name": "RunResult",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
         "line": 36,
         "col": 0,
-        "byteIndex": 853
+        "byteIndex": 862
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -1495,7 +1495,7 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "```ts\nimport type { RunResult } from \"@probitas/runner\";\n\nconst summary: RunResult = {\n  total: 10,\n  passed: 8,\n  failed: 1,\n  skipped: 1,\n  duration: 5432,\n  scenarios: []\n};\n\nconsole.log(`${summary.passed}/${summary.total} passed`);\n// → \"8/10 passed\"\n```"
+            "doc": "```ts\nimport type { RunResult } from \"@probitas-test/runner\";\n\nconst summary: RunResult = {\n  total: 10,\n  passed: 8,\n  failed: 1,\n  skipped: 1,\n  duration: 5432,\n  scenarios: []\n};\n\nconsole.log(`${summary.passed}/${summary.total} passed`);\n// → \"8/10 passed\"\n```"
           }
         ]
       },
@@ -1511,10 +1511,10 @@
               "doc": "Total number of scenarios in the run"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 38,
               "col": 2,
-              "byteIndex": 930
+              "byteIndex": 939
             },
             "params": [],
             "readonly": true,
@@ -1533,10 +1533,10 @@
               "doc": "Number of scenarios that passed"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 41,
               "col": 2,
-              "byteIndex": 998
+              "byteIndex": 1007
             },
             "params": [],
             "readonly": true,
@@ -1555,10 +1555,10 @@
               "doc": "Number of scenarios that failed"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 44,
               "col": 2,
-              "byteIndex": 1067
+              "byteIndex": 1076
             },
             "params": [],
             "readonly": true,
@@ -1577,10 +1577,10 @@
               "doc": "Number of scenarios that were skipped"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 47,
               "col": 2,
-              "byteIndex": 1142
+              "byteIndex": 1151
             },
             "params": [],
             "readonly": true,
@@ -1599,10 +1599,10 @@
               "doc": "Total execution time in milliseconds"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 50,
               "col": 2,
-              "byteIndex": 1217
+              "byteIndex": 1226
             },
             "params": [],
             "readonly": true,
@@ -1621,10 +1621,10 @@
               "doc": "Detailed result for each scenario"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 53,
               "col": 2,
-              "byteIndex": 1290
+              "byteIndex": 1299
             },
             "params": [],
             "readonly": true,
@@ -1661,10 +1661,10 @@
       "name": "RunFilter",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
         "line": 76,
         "col": 0,
-        "byteIndex": 1816
+        "byteIndex": 1825
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -1692,10 +1692,10 @@
               "doc": "Tags that scenarios must have (all must match)"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 78,
               "col": 2,
-              "byteIndex": 1903
+              "byteIndex": 1912
             },
             "params": [],
             "readonly": true,
@@ -1725,10 +1725,10 @@
               "doc": "Pattern to match against scenario name"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 81,
               "col": 2,
-              "byteIndex": 1989
+              "byteIndex": 1998
             },
             "params": [],
             "readonly": true,
@@ -1765,10 +1765,10 @@
       "name": "RunOptions",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
         "line": 124,
         "col": 0,
-        "byteIndex": 2985
+        "byteIndex": 3009
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -1776,15 +1776,15 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "Sequential execution with fail-fast\n```ts\nimport type { RunOptions } from \"@probitas/runner\";\n\nconst options: RunOptions = {\n  maxConcurrency: 1,  // Run one at a time\n  maxFailures: 1      // Stop after first failure\n};\nconsole.log(options);\n```\n"
+            "doc": "Sequential execution with fail-fast\n```ts\nimport type { RunOptions } from \"@probitas-test/runner\";\n\nconst options: RunOptions = {\n  maxConcurrency: 1,  // Run one at a time\n  maxFailures: 1      // Stop after first failure\n};\nconsole.log(options);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Parallel execution with limit\n```ts\nimport type { RunOptions } from \"@probitas/runner\";\n\nconst options: RunOptions = {\n  maxConcurrency: 4   // Run up to 4 scenarios at once\n};\nconsole.log(options);\n```\n"
+            "doc": "Parallel execution with limit\n```ts\nimport type { RunOptions } from \"@probitas-test/runner\";\n\nconst options: RunOptions = {\n  maxConcurrency: 4   // Run up to 4 scenarios at once\n};\nconsole.log(options);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "With stepOptions\n```ts\nimport type { RunOptions } from \"@probitas/runner\";\n\nconst options: RunOptions = {\n  stepOptions: {\n    timeout: 60000,\n    retry: { maxAttempts: 3, backoff: \"exponential\" }\n  }\n};\nconsole.log(options);\n```"
+            "doc": "With stepOptions\n```ts\nimport type { RunOptions } from \"@probitas-test/runner\";\n\nconst options: RunOptions = {\n  stepOptions: {\n    timeout: 60000,\n    retry: { maxAttempts: 3, backoff: \"exponential\" }\n  }\n};\nconsole.log(options);\n```"
           }
         ]
       },
@@ -1800,10 +1800,10 @@
               "doc": "Maximum number of scenarios to run in parallel.\n\n- `undefined` or `0`: Unlimited (all scenarios run in parallel)\n- `1`: Sequential execution (one at a time)\n- `n`: Run up to n scenarios concurrently"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 132,
               "col": 2,
-              "byteIndex": 3252
+              "byteIndex": 3276
             },
             "params": [],
             "readonly": true,
@@ -1822,10 +1822,10 @@
               "doc": "Maximum number of failures before stopping the run.\n\n- `undefined`: Continue all scenarios regardless of failures\n- `1`: Fail-fast (stop immediately on first failure)\n- `n`: Stop after n failures"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 141,
               "col": 2,
-              "byteIndex": 3521
+              "byteIndex": 3545
             },
             "params": [],
             "readonly": true,
@@ -1844,10 +1844,10 @@
               "doc": "Timeout for scenario execution in milliseconds.\n\n- `undefined`: No timeout (unlimited execution time)\n- `0`: No timeout\n- `n`: Timeout after n milliseconds\n\nWhen timeout occurs, a {@linkcode ScenarioTimeoutError} is thrown.\nThis is independent from step-level timeouts."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 153,
               "col": 2,
-              "byteIndex": 3875
+              "byteIndex": 3899
             },
             "params": [],
             "readonly": true,
@@ -1866,10 +1866,10 @@
               "doc": "Abort signal for external cancellation.\n\nWhen aborted, running scenarios complete but no new ones start.\nIf both `timeout` and `signal` are provided, either one can trigger cancellation."
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 161,
               "col": 2,
-              "byteIndex": 4123
+              "byteIndex": 4147
             },
             "params": [],
             "readonly": true,
@@ -1891,10 +1891,10 @@
               "doc": "Default step options applied when step uses default values.\n\nThese options override builder defaults but are themselves overridden\nby scenario-level or step-level options.\n\nPriority: step options > scenario.stepOptions > config.stepOptions > defaults"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/run.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/run.ts",
               "line": 171,
               "col": 2,
-              "byteIndex": 4448
+              "byteIndex": 4472
             },
             "params": [],
             "readonly": true,
@@ -1920,10 +1920,10 @@
       "name": "ScenarioContext",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
         "line": 40,
         "col": 0,
-        "byteIndex": 1164
+        "byteIndex": 1173
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -1936,7 +1936,7 @@
           },
           {
             "kind": "example",
-            "doc": "ScenarioContext structure\n```ts\nimport type { ScenarioContext } from \"@probitas/runner\";\n\n// ScenarioContext is created by the runner for each scenario execution\nconst ctx: ScenarioContext = {\n  name: \"My Test\",\n  tags: [\"api\", \"integration\"],\n  results: [],\n  store: new Map(),\n  resources: {},\n  signal: undefined,\n};\nconsole.log(`Running: ${ctx.name}`);\nconsole.log(`Tags: ${ctx.tags.join(\", \")}`);\nconsole.log(`Previous results: ${ctx.results.length}`);\n```"
+            "doc": "ScenarioContext structure\n```ts\nimport type { ScenarioContext } from \"@probitas-test/runner\";\n\n// ScenarioContext is created by the runner for each scenario execution\nconst ctx: ScenarioContext = {\n  name: \"My Test\",\n  tags: [\"api\", \"integration\"],\n  results: [],\n  store: new Map(),\n  resources: {},\n  signal: undefined,\n};\nconsole.log(`Running: ${ctx.name}`);\nconsole.log(`Tags: ${ctx.tags.join(\", \")}`);\nconsole.log(`Previous results: ${ctx.results.length}`);\n```"
           }
         ]
       },
@@ -1952,10 +1952,10 @@
               "doc": "Human-readable scenario name"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 42,
               "col": 2,
-              "byteIndex": 1239
+              "byteIndex": 1248
             },
             "params": [],
             "readonly": true,
@@ -1971,10 +1971,10 @@
           {
             "name": "tags",
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 44,
               "col": 2,
-              "byteIndex": 1265
+              "byteIndex": 1274
             },
             "params": [],
             "readonly": true,
@@ -2004,10 +2004,10 @@
               "doc": "Array of all exec step results so far"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 47,
               "col": 2,
-              "byteIndex": 1349
+              "byteIndex": 1358
             },
             "params": [],
             "readonly": true,
@@ -2030,10 +2030,10 @@
               "doc": "Shared key-value storage for cross-step communication"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 50,
               "col": 2,
-              "byteIndex": 1444
+              "byteIndex": 1453
             },
             "params": [],
             "readonly": true,
@@ -2066,10 +2066,10 @@
               "doc": "Named resources registered with `.resource()`"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 53,
               "col": 2,
-              "byteIndex": 1540
+              "byteIndex": 1549
             },
             "params": [],
             "readonly": true,
@@ -2102,10 +2102,10 @@
               "doc": "Abort signal (fires on timeout or manual cancellation)"
             },
             "location": {
-              "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+              "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
               "line": 56,
               "col": 2,
-              "byteIndex": 1652
+              "byteIndex": 1661
             },
             "params": [],
             "readonly": true,
@@ -2131,10 +2131,10 @@
       "name": "ScenarioResult",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
         "line": 93,
         "col": 0,
-        "byteIndex": 2762
+        "byteIndex": 2781
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -2142,11 +2142,11 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "Passed scenario\n```ts\nimport type { ScenarioResult } from \"@probitas/runner\";\n\nconst result: ScenarioResult = {\n  metadata: { name: \"Login Flow\", tags: [], steps: [], origin: { path: \"\", line: 0 } },\n  status: \"passed\",\n  duration: 1250,\n  steps: [{ metadata: { kind: \"step\", name: \"step1\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } }, status: \"passed\", value: null, duration: 100 }]\n};\nconsole.log(result);\n```\n"
+            "doc": "Passed scenario\n```ts\nimport type { ScenarioResult } from \"@probitas-test/runner\";\n\nconst result: ScenarioResult = {\n  metadata: { name: \"Login Flow\", tags: [], steps: [], origin: { path: \"\", line: 0 } },\n  status: \"passed\",\n  duration: 1250,\n  steps: [{ metadata: { kind: \"step\", name: \"step1\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } }, status: \"passed\", value: null, duration: 100 }]\n};\nconsole.log(result);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Skipped scenario\n```ts\nimport type { ScenarioResult } from \"@probitas/runner\";\n\nconst result: ScenarioResult = {\n  metadata: { name: \"Premium Feature\", tags: [], steps: [], origin: { path: \"\", line: 0 } },\n  status: \"skipped\",\n  duration: 5,\n  steps: [],\n  error: \"Feature flag not enabled\"\n};\nconsole.log(result);\n```"
+            "doc": "Skipped scenario\n```ts\nimport type { ScenarioResult } from \"@probitas-test/runner\";\n\nconst result: ScenarioResult = {\n  metadata: { name: \"Premium Feature\", tags: [], steps: [], origin: { path: \"\", line: 0 } },\n  status: \"skipped\",\n  duration: 5,\n  steps: [],\n  error: \"Feature flag not enabled\"\n};\nconsole.log(result);\n```"
           }
         ]
       },
@@ -2166,10 +2166,10 @@
                   {
                     "name": "status",
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 94,
                       "col": 2,
-                      "byteIndex": 2795
+                      "byteIndex": 2814
                     },
                     "params": [],
                     "readonly": true,
@@ -2191,10 +2191,10 @@
                       "doc": "Scenario metadata (serializable, without functions)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 97,
                       "col": 2,
-                      "byteIndex": 2886
+                      "byteIndex": 2905
                     },
                     "params": [],
                     "readonly": true,
@@ -2216,10 +2216,10 @@
                       "doc": "Total execution time in milliseconds (including setup/teardown)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 100,
                       "col": 2,
-                      "byteIndex": 2999
+                      "byteIndex": 3018
                     },
                     "params": [],
                     "readonly": true,
@@ -2238,10 +2238,10 @@
                       "doc": "Results from each executed step"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 103,
                       "col": 2,
-                      "byteIndex": 3070
+                      "byteIndex": 3089
                     },
                     "params": [],
                     "readonly": true,
@@ -2286,10 +2286,10 @@
                       "doc": "Overall execution outcome"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 106,
                       "col": 2,
-                      "byteIndex": 3152
+                      "byteIndex": 3171
                     },
                     "params": [],
                     "readonly": true,
@@ -2325,10 +2325,10 @@
                       "doc": "Scenario metadata (serializable, without functions)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 109,
                       "col": 2,
-                      "byteIndex": 3255
+                      "byteIndex": 3274
                     },
                     "params": [],
                     "readonly": true,
@@ -2350,10 +2350,10 @@
                       "doc": "Total execution time in milliseconds (including setup/teardown)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 112,
                       "col": 2,
-                      "byteIndex": 3368
+                      "byteIndex": 3387
                     },
                     "params": [],
                     "readonly": true,
@@ -2372,10 +2372,10 @@
                       "doc": "Results from each executed step"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 115,
                       "col": 2,
-                      "byteIndex": 3439
+                      "byteIndex": 3458
                     },
                     "params": [],
                     "readonly": true,
@@ -2408,10 +2408,10 @@
                       "doc": "Error if failed during resource/setup/teardown (not step errors)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/scenario.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/scenario.ts",
                       "line": 118,
                       "col": 2,
-                      "byteIndex": 3555
+                      "byteIndex": 3574
                     },
                     "params": [],
                     "readonly": true,
@@ -2438,10 +2438,10 @@
       "name": "StepResult",
       "isDefault": false,
       "location": {
-        "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+        "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
         "line": 69,
         "col": 0,
-        "byteIndex": 2094
+        "byteIndex": 2128
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -2449,15 +2449,15 @@
         "tags": [
           {
             "kind": "example",
-            "doc": "Passed step result\n```ts\nimport type { StepResult } from \"@probitas/runner\";\nimport type { StepMetadata } from \"@probitas/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Create user\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"passed\",\n  duration: 150,\n  value: { userId: \"123\" }\n};\nconsole.log(result);\n```\n"
+            "doc": "Passed step result\n```ts\nimport type { StepResult } from \"@probitas-test/runner\";\nimport type { StepMetadata } from \"@probitas-test/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Create user\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"passed\",\n  duration: 150,\n  value: { userId: \"123\" }\n};\nconsole.log(result);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Failed step result\n```ts\nimport type { StepResult } from \"@probitas/runner\";\nimport type { StepMetadata } from \"@probitas/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Validate input\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"failed\",\n  duration: 50,\n  error: new Error(\"Invalid email format\")\n};\nconsole.log(result);\n```\n"
+            "doc": "Failed step result\n```ts\nimport type { StepResult } from \"@probitas-test/runner\";\nimport type { StepMetadata } from \"@probitas-test/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Validate input\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"failed\",\n  duration: 50,\n  error: new Error(\"Invalid email format\")\n};\nconsole.log(result);\n```\n"
           },
           {
             "kind": "example",
-            "doc": "Skipped step result\n```ts\nimport type { StepResult } from \"@probitas/runner\";\nimport type { StepMetadata } from \"@probitas/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Optional step\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"skipped\",\n  duration: 0,\n  error: \"Prerequisite not met\"\n};\nconsole.log(result);\n```"
+            "doc": "Skipped step result\n```ts\nimport type { StepResult } from \"@probitas-test/runner\";\nimport type { StepMetadata } from \"@probitas-test/core\";\n\nconst metadata: StepMetadata = { kind: \"step\", name: \"Optional step\", timeout: 30000, retry: { maxAttempts: 1, backoff: \"linear\" } };\nconst result: StepResult = {\n  metadata,\n  status: \"skipped\",\n  duration: 0,\n  error: \"Prerequisite not met\"\n};\nconsole.log(result);\n```"
           }
         ]
       },
@@ -2477,10 +2477,10 @@
                   {
                     "name": "status",
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 70,
                       "col": 2,
-                      "byteIndex": 2123
+                      "byteIndex": 2157
                     },
                     "params": [],
                     "readonly": true,
@@ -2502,10 +2502,10 @@
                       "doc": "Step metadata (serializable, without function)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 73,
                       "col": 2,
-                      "byteIndex": 2209
+                      "byteIndex": 2243
                     },
                     "params": [],
                     "readonly": true,
@@ -2527,10 +2527,10 @@
                       "doc": "Execution time in milliseconds"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 76,
                       "col": 2,
-                      "byteIndex": 2285
+                      "byteIndex": 2319
                     },
                     "params": [],
                     "readonly": true,
@@ -2549,10 +2549,10 @@
                       "doc": "Return value from step function (only if status is \"passed\")"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 79,
                       "col": 2,
-                      "byteIndex": 2385
+                      "byteIndex": 2419
                     },
                     "params": [],
                     "readonly": true,
@@ -2580,10 +2580,10 @@
                   {
                     "name": "status",
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 81,
                       "col": 2,
-                      "byteIndex": 2418
+                      "byteIndex": 2452
                     },
                     "params": [],
                     "readonly": true,
@@ -2619,10 +2619,10 @@
                       "doc": "Step metadata (serializable, without function)"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 84,
                       "col": 2,
-                      "byteIndex": 2516
+                      "byteIndex": 2550
                     },
                     "params": [],
                     "readonly": true,
@@ -2644,10 +2644,10 @@
                       "doc": "Execution time in milliseconds"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 87,
                       "col": 2,
-                      "byteIndex": 2592
+                      "byteIndex": 2626
                     },
                     "params": [],
                     "readonly": true,
@@ -2666,10 +2666,10 @@
                       "doc": "Error that caused failure (only if status is \"failed\")"
                     },
                     "location": {
-                      "filename": "https://jsr.io/@probitas/runner/0.5.6/types/step.ts",
+                      "filename": "https://jsr.io/@probitas/runner/0.5.7/types/step.ts",
                       "line": 90,
                       "col": 2,
-                      "byteIndex": 2686
+                      "byteIndex": 2720
                     },
                     "params": [],
                     "readonly": true,
