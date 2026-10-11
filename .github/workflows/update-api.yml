@@ -1,0 +1,132 @@
+name: Update API Reference
+
+# Regenerates data/api/ from the npm packages and opens (or updates) a pull
+# request with the result.
+#
+# probitas and probitas-packages send a `packages-published` repository
+# dispatch after each release, with the versions they published as
+# `client_payload.packages` ({"@probitas-test/<name>": "<version>"}). Running
+# the workflow manually regenerates from whatever npm has as latest.
+
+on:
+  repository_dispatch:
+    types: [packages-published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Releases of the two repositories can land close together. Each run waits
+# only for the versions its own dispatch names, so every dispatch must run:
+# queue them all instead of letting a newer one replace a pending one.
+concurrency:
+  group: update-api
+  cancel-in-progress: false
+  queue: max
+
+env:
+  BRANCH: api-docs/update
+
+jobs:
+  update-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # push the branch
+      pull-requests: write # open the pull request
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The pull request targets main; a manual run from another branch
+          # must not carry that branch's commits into it.
+          ref: main
+          persist-credentials: false
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: nicknovitski/nix-develop@v1
+
+      # A release dispatches as soon as `npm publish` returns, before the
+      # registry reports the new version as latest everywhere. The generator
+      # documents whatever `latest` resolves to, so wait until `latest` is the
+      # published version or a newer one (a later release, or a re-run of an
+      # older release's workflow).
+      - name: Wait for the published versions
+        if: github.event_name == 'repository_dispatch'
+        env:
+          PACKAGES: ${{ toJSON(github.event.client_payload.packages) }}
+        run: |
+          echo "$PACKAGES" | jq -r '(. // {}) | to_entries[] | "\(.key) \(.value)"' |
+            while read -r name version; do
+              for attempt in $(seq 1 30); do
+                latest=$(npm view "$name" dist-tags.latest 2>/dev/null || true)
+                if [ -n "$latest" ] &&
+                  [ "$(printf '%s\n%s\n' "$version" "$latest" | sort -V | head -n 1)" = "$version" ]; then
+                  echo "$name: latest is $latest (published $version)"
+                  continue 2
+                fi
+                echo "$name: latest is ${latest:-unknown}, waiting for $version ($attempt)"
+                sleep 20
+              done
+              echo "::error::$name@$version did not become latest on npm"
+              exit 1
+            done
+
+      - run: npm ci
+      - run: npm run generate-api
+      - run: npm run build
+      - run: npm test
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if git diff --quiet -- data/api; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/api is up to date"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/api
+          fi
+
+      - name: Push the branch
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          versions=$(jq -r '.packages[] | "- \(.specifier) \(.version)"' data/api/index.json)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add data/api
+          git commit -F - <<EOF
+          docs(api): regenerate the API reference
+
+          Generated from the latest versions on npm:
+
+          $versions
+          EOF
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+
+      - name: Open the pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body="$RUNNER_TEMP/body.md"
+          cat > "$body" <<'EOF'
+          Regenerated `data/api/` with `npm run generate-api` from the latest versions on npm:
+
+          EOF
+          jq -r '.packages[] | "- `\(.specifier)` \(.version)"' data/api/index.json >> "$body"
+          cat >> "$body" <<'EOF'
+
+          The build and the link check passed in the run that generated it.
+          EOF
+          if [ -n "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr edit "$BRANCH" --body-file "$body"
+          else
+            gh pr create --head "$BRANCH" --base main \
+              --title "Regenerate the API reference" --body-file "$body"
+          fi
