@@ -20,11 +20,14 @@ scenario-based testing framework shipped as a single binary.
 git clone https://github.com/probitas-test/probitas-test.github.io.git
 cd probitas-test.github.io
 
+# Enter the development shell (Node.js, Pagefind, just)
+nix develop
+
 # Install dependencies
-npm ci
+just install
 
 # Start development server
-npm run dev
+just dev
 ```
 
 ## Commands
@@ -36,6 +39,7 @@ npm run dev
 | `npm run preview`      | Preview built site                                   |
 | `npm test`             | Check internal links in the built site               |
 | `npm run generate-api` | Regenerate API documentation JSON                    |
+| `just ci`              | Everything CI checks (Nix format, build, link check) |
 
 ## Project Structure
 
@@ -71,7 +75,8 @@ npm run dev
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS)
+- [Nix](https://nixos.org/) with flakes enabled; `nix develop` provides Node.js,
+  Pagefind and [just](https://just.systems/). Without Nix, install Node.js 24.
 
 ### Regenerating API Documentation
 
@@ -105,7 +110,7 @@ The `npm run build` command performs the following steps:
 This site is deployed to **GitHub Pages** via GitHub Actions.
 
 1. Push to `main` branch
-2. GitHub Actions runs `npm run build`
+2. GitHub Actions runs `just ci`, which builds the site and checks its links
 3. Static files in `dist/` are deployed to GitHub Pages
 
 Live site: https://probitas-test.github.io/

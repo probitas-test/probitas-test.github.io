@@ -4,3 +4,7 @@
 .playwright-mcp
 dist/
 node_modules/
+/.envrc
+.direnv/
+result
+/.claude/worktrees/

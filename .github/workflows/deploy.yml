@@ -7,49 +7,63 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    # A pull request only needs its latest commit checked. A run on main waits
+    # for the one before it instead of cancelling it, so each one finishes.
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: lts/*
-          cache: npm
-
-      - run: npm ci
-
-      - run: npm run build
-
-      - run: npm test
-
-      # Upload artifact for GitHub Pages
+          persist-credentials: false
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      # The store the development shell comes from. Only an exact match is
+      # restored, and only main saves, so pull requests cannot evict the
+      # caches each other start from.
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.nix', 'flake.lock') }}
+          save: ${{ github.ref == 'refs/heads/main' }}
+      # Load the development shell (flake.nix) into the job.
+      - uses: nicknovitski/nix-develop@v1
+      # The same gate as local development (justfile).
+      - run: just ci
+        env:
+          CI: "1"
       - name: Upload artifact
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
+          # Keep dist/.vite in the artifact as earlier versions of this action
+          # did; v4 started dropping dotfiles by default.
+          include-hidden-files: true
 
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: build
+    needs: ci
     runs-on: ubuntu-latest
+    # Deployments queue up and never cancel each other.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
