@@ -1,6 +1,6 @@
 # Probitas Documentation
 
-[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://probitas-test.github.io/documents)
+[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://probitas-test.github.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 Documentation site for [Probitas](https://github.com/probitas-test/probitas) - a
@@ -34,7 +34,8 @@ npm run dev
 | `npm run dev`          | Start dev server with HMR                            |
 | `npm run build`        | Build static site to `dist/` (client + SSG + search) |
 | `npm run preview`      | Preview built site                                   |
-| `npm run generate-api` | Regenerate API documentation JSON (requires Deno)    |
+| `npm test`             | Check internal links in the built site               |
+| `npm run generate-api` | Regenerate API documentation JSON                    |
 
 ## Project Structure
 
@@ -43,7 +44,7 @@ npm run dev
 ├── app/                 # HonoX routes, templates, components, and libraries
 ├── docs/                # Markdown documentation source
 ├── data/
-│   ├── api/             # Generated API JSON (deno doc --json)
+│   ├── api/             # Generated API JSON (TypeDoc)
 │   ├── index/           # Example scenarios shown on the home page
 │   └── docs.ts          # Documentation pages configuration
 ├── public/              # Static assets (CSS, images, favicon)
@@ -71,11 +72,11 @@ npm run dev
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (LTS)
-- [Deno](https://deno.land/) 2.6 to regenerate the API documentation
 
 ### Regenerating API Documentation
 
-API documentation is generated from the JSR packages using `deno doc`:
+API documentation is generated from the npm packages using
+[TypeDoc](https://typedoc.org/):
 
 ```bash
 npm run generate-api
@@ -83,15 +84,11 @@ npm run generate-api
 
 This script:
 
-1. Fetches all `@probitas/*` packages from JSR API (skipping packages that are
-   no longer part of Probitas)
-2. Runs `deno doc --json` for each package
-3. Processes and saves the output to `data/api/`
-4. Formats the generated JSON files
-
-The site renders version 1 of the `deno doc --json` schema. Newer Deno releases
-emit version 2, which the script rejects; until the site supports the new
-schema, run it with Deno 2.6 first on `PATH` (the script spawns `deno` itself).
+1. Lists the `@probitas-test/*` packages of the npm organization
+2. Installs their latest versions into a temporary directory
+3. Runs TypeDoc on each package's entry point
+4. Saves each package's TypeDoc JSON to `data/api/`, with an index of the
+   packages in `data/api/index.json`
 
 ### Build Process
 

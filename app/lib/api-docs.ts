@@ -1,9 +1,10 @@
 /**
  * API documentation types and utilities
  *
- * These types represent the structure of deno doc --json output
- * and provide utilities for working with API documentation.
+ * The API data is TypeDoc's JSON output (one project per package, see
+ * scripts/generate-api-docs.ts). These helpers read it for display.
  */
+import type { JSONOutput } from "typedoc";
 
 // ============================================================================
 // Built-in Type Links
@@ -78,267 +79,96 @@ export const BUILTIN_TYPE_LINKS: Record<string, string> = {
   unknown: `${TS_BASE}/2/basic-types.html#unknown`,
 };
 
+// ============================================================================
+// TypeDoc Model
+// ============================================================================
+
+export type DeclarationReflection = JSONOutput.DeclarationReflection;
+export type SignatureReflection = JSONOutput.SignatureReflection;
+export type ParameterReflection = JSONOutput.ParameterReflection;
+export type TypeParameterReflection = JSONOutput.TypeParameterReflection;
+export type ProjectReflection = JSONOutput.ProjectReflection;
+export type SomeType = JSONOutput.SomeType;
+export type Comment = JSONOutput.Comment;
+export type CommentDisplayPart = JSONOutput.CommentDisplayPart;
+
 /**
- * Check if a type name is a built-in type
+ * TypeDoc's `ReflectionKind` values, copied so that the site does not load
+ * TypeDoc at runtime
  */
-export function isBuiltinType(typeName: string): boolean {
-  return typeName in BUILTIN_TYPE_LINKS;
-}
+export const ReflectionKind = {
+  Project: 0x1,
+  Module: 0x2,
+  Namespace: 0x4,
+  Enum: 0x8,
+  EnumMember: 0x10,
+  Variable: 0x20,
+  Function: 0x40,
+  Class: 0x80,
+  Interface: 0x100,
+  Constructor: 0x200,
+  Property: 0x400,
+  Method: 0x800,
+  CallSignature: 0x1000,
+  IndexSignature: 0x2000,
+  ConstructorSignature: 0x4000,
+  Parameter: 0x8000,
+  TypeLiteral: 0x10000,
+  TypeParameter: 0x20000,
+  Accessor: 0x40000,
+  GetSignature: 0x80000,
+  SetSignature: 0x100000,
+  TypeAlias: 0x200000,
+  Reference: 0x400000,
+  Document: 0x800000,
+} as const;
+
+/** The kinds of export an API page lists, in display order */
+export const EXPORT_KINDS = [
+  "class",
+  "interface",
+  "function",
+  "typeAlias",
+  "variable",
+  "enum",
+] as const;
+
+export type ExportKind = typeof EXPORT_KINDS[number];
+
+const EXPORT_KIND_BY_REFLECTION_KIND = new Map<number, ExportKind>([
+  [ReflectionKind.Class, "class"],
+  [ReflectionKind.Interface, "interface"],
+  [ReflectionKind.Function, "function"],
+  [ReflectionKind.TypeAlias, "typeAlias"],
+  [ReflectionKind.Variable, "variable"],
+  [ReflectionKind.Enum, "enum"],
+]);
 
 /**
- * Get the documentation URL for a built-in type
+ * The export kind of a top-level reflection, or undefined for reflections an
+ * API page does not list (namespaces, re-export references)
  */
-export function getBuiltinTypeUrl(typeName: string): string | undefined {
-  return BUILTIN_TYPE_LINKS[typeName];
-}
-
-// ============================================================================
-// JSDoc Types
-// ============================================================================
-
-export interface JsDocTag {
-  kind: string;
-  name?: string;
-  doc?: string;
-}
-
-export interface JsDoc {
-  doc?: string;
-  tags?: JsDocTag[];
-}
-
-// ============================================================================
-// Type Definition Types
-// ============================================================================
-
-export interface TsTypeDef {
-  repr: string;
-  kind: string;
-  keyword?: string;
-  typeRef?: {
-    typeParams: TsTypeDef[] | null;
-    typeName: string;
-  };
-  array?: TsTypeDef;
-  union?: TsTypeDef[];
-  intersection?: TsTypeDef[];
-  literal?: {
-    kind: string;
-    string?: string;
-    number?: number;
-    boolean?: boolean;
-  };
-  fnOrConstructor?: {
-    constructor: boolean;
-    typeParams: TsTypeParamDef[];
-    params: ParamDef[];
-    returnType: TsTypeDef;
-  };
-  typeOperator?: {
-    operator: string;
-    tsType: TsTypeDef;
-  };
-  tuple?: TsTypeDef[];
-  typeLiteral?: {
-    methods: MethodDef[];
-    properties: PropertyDef[];
-    callSignatures: CallSignatureDef[];
-    indexSignatures: IndexSignatureDef[];
-  };
-  conditionalType?: {
-    checkType: TsTypeDef;
-    extendsType: TsTypeDef;
-    trueType: TsTypeDef;
-    falseType: TsTypeDef;
-  };
-  infer?: {
-    typeParam: TsTypeParamDef;
-  };
-}
-
-export interface TsTypeParamDef {
-  name: string;
-  constraint?: TsTypeDef;
-  default?: TsTypeDef;
-}
-
-// ============================================================================
-// Parameter Types
-// ============================================================================
-
-export interface ParamDef {
-  kind: string;
-  name?: string;
-  optional?: boolean;
-  tsType?: TsTypeDef;
-  left?: ParamDef;
-  right?: string;
-  elements?: ParamDef[];
-  props?: PropertyDef[];
-}
-
-// ============================================================================
-// Method and Property Types
-// ============================================================================
-
-export interface MethodDef {
-  name: string;
-  jsDoc?: JsDoc;
-  accessibility?: "public" | "private" | "protected" | null;
-  optional?: boolean;
-  isAbstract?: boolean;
-  isStatic?: boolean;
-  typeParams: TsTypeParamDef[];
-  params: ParamDef[];
-  returnType?: TsTypeDef;
-}
-
-export interface PropertyDef {
-  name: string;
-  jsDoc?: JsDoc;
-  tsType?: TsTypeDef;
-  readonly?: boolean;
-  accessibility?: "public" | "private" | "protected" | null;
-  optional?: boolean;
-  isAbstract?: boolean;
-  isStatic?: boolean;
-}
-
-export interface CallSignatureDef {
-  jsDoc?: JsDoc;
-  typeParams: TsTypeParamDef[];
-  params: ParamDef[];
-  returnType?: TsTypeDef;
-}
-
-export interface IndexSignatureDef {
-  readonly?: boolean;
-  params: ParamDef[];
-  tsType?: TsTypeDef;
-}
-
-// ============================================================================
-// Definition Types (function, class, interface, etc.)
-// ============================================================================
-
-export interface FunctionDef {
-  params: ParamDef[];
-  returnType?: TsTypeDef;
-  hasBody: boolean;
-  isAsync: boolean;
-  isGenerator: boolean;
-  typeParams: TsTypeParamDef[];
-}
-
-export interface ConstructorDef {
-  jsDoc?: JsDoc;
-  accessibility?: "public" | "private" | "protected" | null;
-  hasBody: boolean;
-  name: string;
-  params: ParamDef[];
-}
-
-export interface ClassDef {
-  isAbstract: boolean;
-  constructors: ConstructorDef[];
-  properties: PropertyDef[];
-  indexSignatures: IndexSignatureDef[];
-  methods: MethodDef[];
-  extends?: string;
-  implements: TsTypeDef[];
-  typeParams: TsTypeParamDef[];
-  superTypeParams: TsTypeDef[];
-}
-
-export interface InterfaceDef {
-  extends: TsTypeDef[];
-  methods: MethodDef[];
-  properties: PropertyDef[];
-  callSignatures: CallSignatureDef[];
-  indexSignatures: IndexSignatureDef[];
-  typeParams: TsTypeParamDef[];
-}
-
-export interface TypeAliasDef {
-  typeParams: TsTypeParamDef[];
-  tsType: TsTypeDef;
-}
-
-export interface EnumMemberDef {
-  name: string;
-  jsDoc?: JsDoc;
-  init?: TsTypeDef;
-}
-
-export interface EnumDef {
-  members: EnumMemberDef[];
-}
-
-export interface VariableDef {
-  tsType?: TsTypeDef;
-  kind: "var" | "let" | "const";
-}
-
-export interface NamespaceDef {
-  elements: DocNode[];
-}
-
-// ============================================================================
-// DocNode - The main node type
-// ============================================================================
-
-export interface Location {
-  filename: string;
-  line: number;
-  col: number;
-  byteIndex: number;
-}
-
-export interface DocNode {
-  name: string;
-  isDefault?: boolean;
-  location: Location;
-  declarationKind: string;
-  jsDoc?: JsDoc;
-  kind:
-    | "moduleDoc"
-    | "function"
-    | "class"
-    | "interface"
-    | "typeAlias"
-    | "enum"
-    | "variable"
-    | "namespace"
-    | "import";
-  functionDef?: FunctionDef;
-  classDef?: ClassDef;
-  interfaceDef?: InterfaceDef;
-  typeAliasDef?: TypeAliasDef;
-  enumDef?: EnumDef;
-  variableDef?: VariableDef;
-  namespaceDef?: NamespaceDef;
+export function exportKind(
+  reflection: DeclarationReflection,
+): ExportKind | undefined {
+  return EXPORT_KIND_BY_REFLECTION_KIND.get(reflection.kind);
 }
 
 // ============================================================================
 // Package Documentation
 // ============================================================================
 
-export interface DenoDocOutput {
-  version: number;
-  nodes: DocNode[];
-}
-
 export interface PackageDoc {
-  /** Package name (e.g., "probitas", "client-http") */
+  /** Package name without the scope (e.g., "probitas", "client-http") */
   name: string;
-  /** Full package specifier (e.g., "@probitas/probitas") */
+  /** npm package name (e.g., "@probitas-test/probitas") */
   specifier: string;
   /** Package version */
   version: string;
   /** Module-level documentation */
-  moduleDoc?: string;
+  moduleDoc?: Comment;
   /** Exported items */
-  exports: DocNode[];
+  exports: DeclarationReflection[];
 }
 
 export interface ApiDocsIndex {
@@ -363,187 +193,162 @@ export interface PackageInfo {
   counts: ExportCounts;
 }
 
-// ============================================================================
-// Utilities
-// ============================================================================
+/**
+ * Read a package's TypeDoc project as the site's package model
+ */
+export function toPackageDoc(
+  name: string,
+  project: ProjectReflection,
+): PackageDoc {
+  resolveLinkTargets(project);
+  return {
+    name,
+    specifier: project.name,
+    version: project.packageVersion ?? "",
+    moduleDoc: project.comment,
+    exports: project.children ?? [],
+  };
+}
 
 /**
- * Format a type definition as a readable string
+ * Replace the reflection IDs that `{@link}` tags point at with the names the
+ * page anchors use: `Name` for an export, `Name.member` for its member
  *
- * @param type - The type definition to format
- * @param indent - Current indentation level (used for nested conditionals)
+ * A link to a reflection the site does not render (such as a dropped
+ * namespace) loses its target and renders as plain text.
  */
-export function formatType(type?: TsTypeDef, indent = 0): string {
-  if (!type) return "unknown";
-
-  switch (type.kind) {
-    case "keyword":
-      return type.keyword ?? type.repr;
-
-    case "typeRef":
-      if (type.typeRef) {
-        const params = type.typeRef.typeParams;
-        if (params && params.length > 0) {
-          return `${type.typeRef.typeName}<${
-            params.map((p) => formatType(p, indent)).join(", ")
-          }>`;
-        }
-        return type.typeRef.typeName;
-      }
-      return type.repr;
-
-    case "array":
-      return `${formatType(type.array, indent)}[]`;
-
-    case "union": {
-      if (!type.union) return type.repr;
-      const members = type.union.map((t) => formatType(t, indent));
-      const inline = members.join(" | ");
-      // Break into multiple lines if too long (>80 chars) and has multiple members
-      if (inline.length > 80 && members.length > 1) {
-        const spaces = "  ".repeat(indent);
-        return members.map((m, i) => i === 0 ? m : `${spaces}| ${m}`).join(
-          "\n",
-        );
-      }
-      return inline;
+function resolveLinkTargets(project: ProjectReflection): void {
+  const names = new Map<number, string>();
+  for (const reflection of project.children ?? []) {
+    names.set(reflection.id, reflection.name);
+    for (const member of reflection.children ?? []) {
+      names.set(member.id, `${reflection.name}.${member.name}`);
     }
-
-    case "intersection": {
-      if (!type.intersection) return type.repr;
-      const members = type.intersection.map((t) => formatType(t, indent));
-      const inline = members.join(" & ");
-      // Break into multiple lines if too long (>80 chars) and has multiple members
-      if (inline.length > 80 && members.length > 1) {
-        const spaces = "  ".repeat(indent);
-        return members.map((m, i) => i === 0 ? m : `${spaces}& ${m}`).join(
-          "\n",
-        );
-      }
-      return inline;
-    }
-
-    case "literal":
-      if (type.literal) {
-        if (type.literal.kind === "string") return `"${type.literal.string}"`;
-        if (type.literal.kind === "number") return String(type.literal.number);
-        if (type.literal.kind === "boolean") {
-          return String(type.literal.boolean);
-        }
-      }
-      return type.repr;
-
-    case "tuple":
-      return `[${
-        type.tuple?.map((t) => formatType(t, indent)).join(", ") ?? ""
-      }]`;
-
-    case "fnOrConstructor": {
-      const fn = type.fnOrConstructor;
-      if (!fn) return type.repr;
-      const params = fn.params.map((p) =>
-        `${p.name ?? "_"}: ${formatType(p.tsType, indent)}`
-      ).join(", ");
-      return `(${params}) => ${formatType(fn.returnType, indent)}`;
-    }
-
-    case "typeOperator": {
-      const op = type.typeOperator;
-      if (!op) return type.repr;
-      return `${op.operator} ${formatType(op.tsType, indent)}`;
-    }
-
-    case "typeLiteral": {
-      const lit = type.typeLiteral;
-      if (!lit) return type.repr;
-      const propStrings = lit.properties.map((p) =>
-        `${p.name}${p.optional ? "?" : ""}: ${formatType(p.tsType, indent + 1)}`
-      );
-      if (propStrings.length === 0) return "{}";
-      const inline = `{ ${propStrings.join("; ")} }`;
-      // Break into multiple lines if too long (>80 chars) or has many properties
-      if (inline.length > 80 || propStrings.length > 3) {
-        const spaces = "  ".repeat(indent);
-        const multiline = propStrings
-          .map((s) => `${spaces}  ${s};`)
-          .join("\n");
-        return `{\n${multiline}\n${spaces}}`;
-      }
-      return inline;
-    }
-
-    case "conditional": {
-      const cond = type.conditionalType;
-      if (!cond) return type.repr;
-
-      const check = formatType(cond.checkType, indent);
-      const ext = formatType(cond.extendsType, indent);
-      const trueT = formatType(cond.trueType, indent);
-
-      // If falseType is also conditional, format with line breaks for readability
-      if (cond.falseType.kind === "conditional") {
-        const spaces = "  ".repeat(indent);
-        const falseT = formatType(cond.falseType, indent + 1);
-        return `${check} extends ${ext}\n${spaces}  ? ${trueT}\n${spaces}  : ${falseT}`;
-      }
-
-      const falseT = formatType(cond.falseType, indent);
-      return `${check} extends ${ext} ? ${trueT} : ${falseT}`;
-    }
-
-    case "infer": {
-      const inf = type.infer;
-      if (!inf) return type.repr;
-      return `infer ${inf.typeParam.name}`;
-    }
-
-    default:
-      return type.repr || "unknown";
   }
+
+  const visit = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    const part = value as Record<string, unknown>;
+    if (part.kind === "inline-tag" && typeof part.target === "number") {
+      const qualifiedName = names.get(part.target);
+      if (qualifiedName === undefined) {
+        const text = String(part.text);
+        const isCode = part.tag === "@linkcode";
+        delete part.tag;
+        delete part.target;
+        Object.assign(
+          part,
+          isCode ? { kind: "code", text: `\`${text}\`` } : { kind: "text", text },
+        );
+      } else {
+        part.target = { packageName: project.name, packagePath: "", qualifiedName };
+      }
+      return;
+    }
+    Object.values(value).forEach(visit);
+  };
+  visit(project);
 }
 
 /**
- * Format a parameter list as a readable string
+ * Count exports by kind
  */
-export function formatParams(params?: ParamDef[]): string {
-  if (!params) return "";
-  return params.map((p) => {
-    const optional = p.optional ? "?" : "";
-    const name = p.name ?? "_";
-    const type = formatType(p.tsType);
-    return `${name}${optional}: ${type}`;
-  }).join(", ");
+export function countExports(exports: DeclarationReflection[]): ExportCounts {
+  const count = (kind: ExportKind) =>
+    exports.filter((r) => exportKind(r) === kind).length;
+  return {
+    classes: count("class"),
+    interfaces: count("interface"),
+    functions: count("function"),
+    types: count("typeAlias"),
+    variables: count("variable"),
+    enums: count("enum"),
+  };
+}
+
+// ============================================================================
+// Comments
+// ============================================================================
+
+/**
+ * Convert comment display parts to Markdown
+ *
+ * Inline `{@link}` tags are written back in JSDoc syntax; the Markdown
+ * renderer turns them into links to API anchors.
+ */
+export function partsToMarkdown(parts?: CommentDisplayPart[]): string {
+  if (!parts) return "";
+  return parts.map((part) => {
+    if (part.kind === "inline-tag") {
+      if (
+        part.tag === "@link" || part.tag === "@linkcode" ||
+        part.tag === "@linkplain"
+      ) {
+        // A string target is a URL: link to it directly
+        if (typeof part.target === "string") {
+          const text = part.tag === "@linkcode" ? `\`${part.text}\`` : part.text;
+          return `[${text}](${part.target})`;
+        }
+        const tag = part.tag === "@linkcode" ? "linkcode" : "link";
+        const target = linkTargetName(part.target) ?? part.text;
+        return target === part.text
+          ? `{@${tag} ${target}}`
+          : `{@${tag} ${target} ${part.text}}`;
+      }
+      return part.text;
+    }
+    return part.text;
+  }).join("").trim();
+}
+
+function linkTargetName(
+  target: JSONOutput.InlineTagDisplayPart["target"],
+): string | undefined {
+  return target && typeof target === "object"
+    ? target.qualifiedName
+    : undefined;
 }
 
 /**
- * Format type parameters (generics)
+ * The comment documenting a reflection
+ *
+ * TypeDoc attaches the comment of a function or method to its signature, and
+ * that of an accessor to its getter.
  */
-export function formatTypeParams(typeParams?: TsTypeParamDef[]): string {
-  if (!typeParams || typeParams.length === 0) return "";
-  return `<${
-    typeParams.map((p) => {
-      let result = p.name;
-      if (p.constraint) result += ` extends ${formatType(p.constraint)}`;
-      if (p.default) result += ` = ${formatType(p.default)}`;
-      return result;
-    }).join(", ")
-  }>`;
+export function commentOf(
+  reflection: DeclarationReflection | SignatureReflection,
+): Comment | undefined {
+  const declaration = reflection as DeclarationReflection;
+  return reflection.comment ??
+    declaration.signatures?.find((s) => s.comment)?.comment ??
+    declaration.getSignature?.comment;
 }
 
 /**
- * Get the JSDoc description for a node
+ * Get the description of a reflection (its summary and remarks) as Markdown
  */
-export function getDescription(node: { jsDoc?: JsDoc }): string | undefined {
-  return node.jsDoc?.doc;
+export function getDescription(
+  reflection: DeclarationReflection | SignatureReflection,
+): string | undefined {
+  const comment = commentOf(reflection);
+  const paragraphs = [
+    partsToMarkdown(comment?.summary),
+    ...blockTags(comment, "@remarks"),
+  ].filter(Boolean);
+  return paragraphs.join("\n\n") || undefined;
 }
 
 /**
  * Get just the first sentence or line of the description (for summaries)
  */
 export function getDescriptionSummary(
-  node: { jsDoc?: JsDoc },
+  reflection: DeclarationReflection | SignatureReflection,
 ): string | undefined {
-  const doc = node.jsDoc?.doc;
+  const doc = getDescription(reflection);
   if (!doc) return undefined;
 
   // Try to get first sentence (ending with period followed by space/newline)
@@ -558,110 +363,102 @@ export function getDescriptionSummary(
 }
 
 /**
- * Get JSDoc tags by kind
+ * Get the contents of a comment's block tags as Markdown
+ *
+ * A tag's name comes first when it has one, as with an `@example` whose first
+ * line titles it.
  */
-export function getTagsByKind(
-  node: { jsDoc?: JsDoc },
-  kind: string,
-): JsDocTag[] {
-  return node.jsDoc?.tags?.filter((t) => t.kind === kind) ?? [];
+function blockTags(comment: Comment | undefined, tag: string): string[] {
+  return (comment?.blockTags ?? [])
+    .filter((t) => t.tag === tag)
+    .map((t) =>
+      [t.name, partsToMarkdown(t.content)].filter(Boolean).join("\n\n")
+    )
+    .filter(Boolean);
 }
 
 /**
- * Get the @example tags from a node
+ * Get the @example blocks of a reflection as Markdown
  */
-export function getExamples(node: { jsDoc?: JsDoc }): string[] {
-  return getTagsByKind(node, "example").map((t) => t.doc ?? "").filter(Boolean);
+export function getExamples(
+  reflection: DeclarationReflection | SignatureReflection,
+): string[] {
+  return blockTags(commentOf(reflection), "@example");
 }
 
 /**
- * Get the @param tags from a node
+ * Get the documentation of each parameter of a signature, by name
  */
 export function getParamDocs(
-  node: { jsDoc?: JsDoc },
+  signature: SignatureReflection | undefined,
 ): Map<string, string> {
   const result = new Map<string, string>();
-  for (const tag of getTagsByKind(node, "param")) {
-    if (tag.name && tag.doc) {
-      result.set(tag.name, tag.doc);
-    }
+  for (const param of signature?.parameters ?? []) {
+    const doc = partsToMarkdown(param.comment?.summary);
+    if (doc) result.set(param.name, doc);
   }
   return result;
 }
 
 /**
- * Get the @return/@returns tag from a node
+ * Get the @returns documentation of a signature
  */
-export function getReturnDoc(node: { jsDoc?: JsDoc }): string | undefined {
-  const returnTag = getTagsByKind(node, "return")[0] ??
-    getTagsByKind(node, "returns")[0];
-  return returnTag?.doc;
+export function getReturnDoc(
+  signature: SignatureReflection | undefined,
+): string | undefined {
+  return blockTags(signature?.comment, "@returns")[0];
+}
+
+// ============================================================================
+// Filtering and Grouping
+// ============================================================================
+
+/**
+ * Check if a reflection should be included in documentation (not private)
+ */
+export function isPublic(
+  reflection: DeclarationReflection | SignatureReflection,
+): boolean {
+  if (reflection.name.startsWith("_")) return false;
+  if (reflection.flags.isPrivate || reflection.flags.isProtected) return false;
+  const modifiers = reflection.comment?.modifierTags ?? [];
+  return !modifiers.includes("@internal") && !modifiers.includes("@private");
 }
 
 /**
- * Check if a node should be included in documentation (not private)
+ * Check if a top-level reflection is an export an API page lists
  */
-export function isPublic(node: DocNode): boolean {
-  // Skip private or internal items
-  if (node.name.startsWith("_")) return false;
+export function isDocumentedExport(reflection: DeclarationReflection): boolean {
+  return exportKind(reflection) !== undefined && isPublic(reflection);
+}
 
-  // Skip moduleDoc entries (they're handled separately)
-  if (node.kind === "moduleDoc") return false;
-
-  // Check for @internal or @private tags
-  const tags = node.jsDoc?.tags ?? [];
-  if (tags.some((t) => t.kind === "internal" || t.kind === "private")) {
-    return false;
-  }
-
-  return true;
+/**
+ * The members of a class, interface, or object type that the page documents:
+ * public, and declared on the type itself rather than inherited
+ */
+export function ownMembers(
+  reflection: DeclarationReflection,
+): DeclarationReflection[] {
+  return (reflection.children ?? []).filter((member) =>
+    isPublic(member) && !member.inheritedFrom
+  );
 }
 
 /**
  * Group exports by kind for display
  */
 export function groupByKind(
-  nodes: DocNode[],
-): Record<string, DocNode[]> {
-  const groups: Record<string, DocNode[]> = {};
-  for (const node of nodes) {
-    const kind = node.kind;
-    if (!groups[kind]) groups[kind] = [];
-    groups[kind].push(node);
+  reflections: DeclarationReflection[],
+): Partial<Record<ExportKind, DeclarationReflection[]>> {
+  const groups: Partial<Record<ExportKind, DeclarationReflection[]>> = {};
+  for (const reflection of reflections) {
+    const kind = exportKind(reflection);
+    if (!kind) continue;
+    (groups[kind] ??= []).push(reflection);
   }
   // Sort each group by name
-  for (const kind of Object.keys(groups)) {
-    groups[kind].sort((a, b) => a.name.localeCompare(b.name));
-  }
-  return groups;
-}
-
-/**
- * Deduplicate nodes by name (keep first occurrence)
- * This is needed because overloaded functions appear multiple times
- */
-export function deduplicateByName(nodes: DocNode[]): DocNode[] {
-  const seen = new Set<string>();
-  return nodes.filter((node) => {
-    const key = `${node.kind}:${node.name}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-/**
- * Group nodes by name to handle overloads
- * Returns a map where key is "kind:name" and value is array of all overloads
- */
-export function groupByName(nodes: DocNode[]): Map<string, DocNode[]> {
-  const groups = new Map<string, DocNode[]>();
-  for (const node of nodes) {
-    const key = `${node.kind}:${node.name}`;
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-    groups.get(key)!.push(node);
+  for (const group of Object.values(groups)) {
+    group.sort((a, b) => a.name.localeCompare(b.name));
   }
   return groups;
 }

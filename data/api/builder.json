@@ -1,772 +1,1130 @@
 {
-  "name": "builder",
-  "specifier": "@probitas/builder",
-  "version": "0.5.3",
-  "moduleDoc": "Builder module for creating scenario definitions with a fluent, type-safe API.\n\nThis package provides the {@linkcode scenario} fn function that returns a builder\nfor constructing scenario definitions. The builder uses method chaining to define\nresources, setup functions, and test steps with full TypeScript type inference.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions used by this builder |\n| [@probitas/runner](https://jsr.io/@probitas/runner) | Executes scenarios built with this package |\n\n## Key Features\n\n- **Fluent API**: Chain methods naturally to build complex scenarios\n- **Type-safe context**: Each step receives typed access to previous step results\n- **Resource management**: Register resources with automatic lifecycle handling\n- **Setup/Cleanup**: Define setup functions with automatic cleanup support\n- **Configurable defaults**: Override timeout and retry settings at any level\n\n## Core Exports\n\n- {@linkcode scenario} - Factory function to create a new scenario builder\n- {@linkcode StepContext} - Type representing the context passed to step functions\n- {@linkcode StepFunction} - Type signature for step functions\n- {@linkcode SetupFunction} - Type signature for setup functions\n- {@linkcode ResourceFunction} - Type signature for resource fn functions\n- {@linkcode BuilderScenarioOptions} - Partial options for scenario configuration\n- {@linkcode BuilderStepOptions} - Partial options for step configuration\n- {@linkcode DEFAULT_SCENARIO_OPTIONS} - Default values for scenario options\n- {@linkcode DEFAULT_STEP_OPTIONS} - Default values for step options\n",
-  "exports": [
-    {
-      "name": "scenario",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.3/scenario_builder.ts",
-        "line": 640,
-        "col": 0,
-        "byteIndex": 20464
+  "schemaVersion": "2.0",
+  "id": 0,
+  "name": "@probitas-test/builder",
+  "variant": "project",
+  "kind": 1,
+  "flags": {},
+  "comment": {
+    "summary": [
+      {
+        "kind": "text",
+        "text": "Builder module for creating scenario definitions with a fluent, type-safe API.\n\nThis package provides the "
       },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Create a new scenario builder with a fluent API.\n\nThis is the primary entry point for defining scenarios. It returns a builder\nthat provides a type-safe, chainable API for constructing test scenarios.\n",
-        "tags": [
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "scenario",
+        "target": 24
+      },
+      {
+        "kind": "text",
+        "text": " fn function that returns a builder\nfor constructing scenario definitions. The builder uses method chaining to define\nresources, setup functions, and test steps with full TypeScript type inference.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas-test/probitas](https://www.npmjs.com/package/@probitas-test/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas-test/core](https://www.npmjs.com/package/@probitas-test/core) | Core type definitions used by this builder |\n| [@probitas-test/runner](https://www.npmjs.com/package/@probitas-test/runner) | Executes scenarios built with this package |\n\n## Key Features\n\n- **Fluent API**: Chain methods naturally to build complex scenarios\n- **Type-safe context**: Each step receives typed access to previous step results\n- **Resource management**: Register resources with automatic lifecycle handling\n- **Setup/Cleanup**: Define setup functions with automatic cleanup support\n- **Configurable defaults**: Override timeout and retry settings at any level\n\n## Core Exports\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "scenario",
+        "target": 24
+      },
+      {
+        "kind": "text",
+        "text": " - Factory function to create a new scenario builder\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepContext"
+      },
+      {
+        "kind": "text",
+        "text": " - Type representing the context passed to step functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepFunction"
+      },
+      {
+        "kind": "text",
+        "text": " - Type signature for step functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "SetupFunction"
+      },
+      {
+        "kind": "text",
+        "text": " - Type signature for setup functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "ResourceFunction"
+      },
+      {
+        "kind": "text",
+        "text": " - Type signature for resource fn functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "BuilderScenarioOptions"
+      },
+      {
+        "kind": "text",
+        "text": " - Partial options for scenario configuration\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "BuilderStepOptions"
+      },
+      {
+        "kind": "text",
+        "text": " - Partial options for step configuration\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "DEFAULT_SCENARIO_OPTIONS"
+      },
+      {
+        "kind": "text",
+        "text": " - Default values for scenario options\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "DEFAULT_STEP_OPTIONS"
+      },
+      {
+        "kind": "text",
+        "text": " - Default values for step options"
+      }
+    ],
+    "blockTags": [
+      {
+        "tag": "@example",
+        "name": "Basic scenario building",
+        "content": [
           {
-            "kind": "param",
-            "name": "name",
-            "doc": "- Human-readable scenario name (shown in test reports)"
-          },
-          {
-            "kind": "param",
-            "name": "options",
-            "doc": "- Optional configuration for tags, timeouts, and retry behavior"
-          },
-          {
-            "kind": "return",
-            "doc": "New {@linkcode ScenarioBuilderInit} instance ready for chaining\n"
-          },
-          {
-            "kind": "unsupported",
-            "value": "@remarks\nThe builder pattern enables:\n- **Type-safe chaining**: Return values flow through steps with full type inference\n- **Resource management**: Automatic lifecycle handling with Disposable support\n- **Flexible configuration**: Override defaults at scenario or step level\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Basic scenario with type-safe step chaining\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock user service for example\nconst createUser = (_data: { email: string }) =>\n  Promise.resolve({ id: \"user-123\" });\nconst verifyEmail = (_userId: string) => Promise.resolve();\n\nexport default scenario(\"User Registration\")\n  .step(\"Create user\", async () => {\n    const user = await createUser({ email: \"test@example.com\" });\n    return { userId: user.id };\n  })\n  .step(\"Verify email\", async (ctx) => {\n    // ctx.previous is typed as { userId: string }\n    await verifyEmail(ctx.previous.userId);\n  })\n  .build();\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Scenario with tags for filtering\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Payment Integration\", {\n  tags: [\"integration\", \"payment\", \"slow\"],\n  stepOptions: { timeout: 60000 }  // 1 minute timeout for all steps\n})\n  .step(\"Process payment\", async () => {\n    return { success: true };\n  })\n  .build();\n\n// Run with: probitas run -s \"tag:payment\"\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Scenario with resources and setup\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock Database for example\nconst Database = {\n  connect: () =>\n    Promise.resolve({\n      rollback: () => {},\n      insert: (_data: { id: number }) => {},\n      query: (_sql: string) => [{ id: 1 }],\n    }),\n};\n\nscenario(\"Database Test\")\n  .resource(\"db\", async () => await Database.connect())\n  .setup((ctx) => {\n    // Run migrations\n    return () => ctx.resources.db.rollback();\n  })\n  .step(\"Insert data\", (ctx) => ctx.resources.db.insert({ id: 1 }))\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT * FROM users\"))\n  .build();\n```\n"
-          },
-          {
-            "kind": "see",
-            "doc": "{@linkcode ScenarioBuilderInit} for available builder methods"
-          },
-          {
-            "kind": "see",
-            "doc": "{@linkcode BuilderScenarioOptions} for configuration options"
+            "kind": "code",
+            "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nexport default scenario(\"My Scenario\")\n  .step(\"First step\", () => {\n    return { value: 42 };\n  })\n  .step(\"Second step\", (ctx) => {\n    console.log(ctx.previous.value); // 42 - fully typed!\n  })\n  .build();\n```"
           }
         ]
       },
-      "kind": "function",
-      "functionDef": {
-        "params": [
+      {
+        "tag": "@example",
+        "name": "With resources and setup",
+        "content": [
           {
-            "kind": "identifier",
-            "name": "name",
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            }
+            "kind": "code",
+            "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock database connection for example\nconst connectDatabase = () =>\n  Promise.resolve({\n    query: (_sql: string) => Promise.resolve(),\n    async [Symbol.asyncDispose]() {},\n  });\n\nexport default scenario(\"Database Test\")\n  .resource(\"db\", async () => {\n    const conn = await connectDatabase();\n    return conn; // Automatically disposed if it has [Symbol.asyncDispose]\n  })\n  .setup(async (ctx) => {\n    await ctx.resources.db.query(\"DELETE FROM test_table\");\n    return () => ctx.resources.db.query(\"DROP TABLE test_table\");\n  })\n  .step(\"Insert data\", async (ctx) => {\n    await ctx.resources.db.query(\"INSERT INTO test_table VALUES (1)\");\n  })\n  .build();\n```"
+          }
+        ]
+      },
+      {
+        "tag": "@example",
+        "name": "Custom step options",
+        "content": [
+          {
+            "kind": "code",
+            "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nexport default scenario(\"Retry Test\", {\n  stepOptions: { timeout: 30000 } // Default timeout for all steps\n})\n  .step(\"Flaky operation\", async () => {\n    // This step will retry up to 3 times with exponential backoff\n  }, { retry: { maxAttempts: 3, backoff: \"exponential\" } })\n  .build();\n```"
+          }
+        ]
+      }
+    ]
+  },
+  "children": [
+    {
+      "id": 1,
+      "name": "BuilderStepContext",
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Execution context provided to steps, resources, and setup hooks.\n\nThe context provides access to:\n- Previous step results with full type inference\n- All accumulated results as a typed tuple\n- Named resources registered with "
           },
           {
-            "kind": "identifier",
-            "name": "options",
-            "optional": true,
-            "tsType": {
-              "repr": "ScenarioOptions",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "ScenarioOptions"
-              }
-            }
+            "kind": "code",
+            "text": "`.resource()`"
+          },
+          {
+            "kind": "text",
+            "text": "\n- Shared storage for cross-step communication\n- Abort signal for timeout and cancellation handling"
           }
         ],
-        "returnType": {
-          "repr": "ScenarioBuilderInit",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "ScenarioBuilderInit"
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Accessing previous result",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Chained Steps\")\n  .step(\"First\", () => ({ id: 123 }))\n  .step(\"Second\", (ctx) => {\n    console.log(ctx.previous.id);  // 123 (typed as number)\n  })\n  .build();\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Using shared store",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Store Example\")\n  .setup((ctx) => {\n    ctx.store.set(\"startTime\", Date.now());\n  })\n  .step(\"Check duration\", (ctx) => {\n    const start = ctx.store.get(\"startTime\") as number;\n    console.log(`Elapsed: ${Date.now() - start}ms`);\n  })\n  .build();\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "typeParameters": [
+        {
+          "id": 6,
+          "name": "P",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of the previous step's return value"
+              }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
           }
         },
-        "hasBody": true,
-        "isAsync": false,
-        "isGenerator": false,
-        "typeParams": []
-      }
-    },
-    {
-      "name": "BuilderStepContext",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-        "line": 44,
-        "col": 0,
-        "byteIndex": 1347
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Execution context provided to steps, resources, and setup hooks.\n\nThe context provides access to:\n- Previous step results with full type inference\n- All accumulated results as a typed tuple\n- Named resources registered with `.resource()`\n- Shared storage for cross-step communication\n- Abort signal for timeout and cancellation handling\n",
-        "tags": [
-          {
-            "kind": "template",
-            "name": "P",
-            "doc": "- Type of the previous step's return value"
-          },
-          {
-            "kind": "template",
-            "name": "A",
-            "doc": "- Tuple type of all accumulated results from previous steps"
-          },
-          {
-            "kind": "template",
-            "name": "R",
-            "doc": "- Record type mapping resource names to their types\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Accessing previous result\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Chained Steps\")\n  .step(\"First\", () => ({ id: 123 }))\n  .step(\"Second\", (ctx) => {\n    console.log(ctx.previous.id);  // 123 (typed as number)\n  })\n  .build();\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Using shared store\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Store Example\")\n  .setup((ctx) => {\n    ctx.store.set(\"startTime\", Date.now());\n  })\n  .step(\"Check duration\", (ctx) => {\n    const start = ctx.store.get(\"startTime\") as number;\n    console.log(`Elapsed: ${Date.now() - start}ms`);\n  })\n  .build();\n```"
-          }
-        ]
-      },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "intersection",
-          "intersection": [
-            {
-              "repr": "StepContext",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "StepContext"
+        {
+          "id": 7,
+          "name": "A",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tuple type of all accumulated results from previous steps"
               }
-            },
-            {
-              "repr": "",
-              "kind": "typeLiteral",
-              "typeLiteral": {
-                "constructors": [],
-                "methods": [],
-                "properties": [
-                  {
-                    "name": "previous",
-                    "jsDoc": {
-                      "doc": "Result from the previous step.\n\nFully typed based on what the previous step returned.\nFor the first step, this is `unknown`."
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-                      "line": 55,
-                      "col": 2,
-                      "byteIndex": 1688
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": false,
-                    "tsType": {
-                      "repr": "P",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "P"
-                      }
-                    },
-                    "typeParams": []
-                  },
-                  {
-                    "name": "results",
-                    "jsDoc": {
-                      "doc": "All accumulated results as a typed tuple.\n\nAllows accessing any previous result by index:\n- `ctx.results[0]` - First step's result\n- `ctx.results[1]` - Second step's result"
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-                      "line": 64,
-                      "col": 2,
-                      "byteIndex": 1922
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": false,
-                    "tsType": {
-                      "repr": "A",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "A"
-                      }
-                    },
-                    "typeParams": []
-                  },
-                  {
-                    "name": "resources",
-                    "jsDoc": {
-                      "doc": "Named resources registered with `.resource()`.\n\nResources are typed based on their registration:\n```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock database connection for example\nconst createDbConnection = () => ({ query: (_sql: string) => [{ id: 1 }] });\n\nscenario(\"test\")\n  .resource(\"db\", () => createDbConnection())\n  .step((ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\n```"
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-                      "line": 82,
-                      "col": 2,
-                      "byteIndex": 2430
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": false,
-                    "tsType": {
-                      "repr": "R",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "R"
-                      }
-                    },
-                    "typeParams": []
-                  }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
               }
             }
-          ]
+          },
+          "default": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          }
         },
-        "typeParams": [
-          {
-            "name": "P",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          },
-          {
-            "name": "A",
-            "constraint": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
+        {
+          "id": 8,
+          "name": "R",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Record type mapping resource names to their types"
               }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
             },
-            "default": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
               }
-            }
+            ],
+            "name": "Record",
+            "package": "typescript"
           },
-          {
-            "name": "R",
-            "constraint": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
+          "default": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
             },
-            "default": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
               }
-            }
+            ],
+            "name": "Record",
+            "package": "typescript"
           }
-        ]
-      }
-    },
-    {
-      "name": "BuilderStepFunction",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-        "line": 117,
-        "col": 0,
-        "byteIndex": 3453
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Function signature for step execution.\n\nA step function receives the execution context and returns a value\n(sync or async) that becomes available to subsequent steps.\n",
-        "tags": [
+        }
+      ],
+      "type": {
+        "type": "intersection",
+        "types": [
           {
-            "kind": "template",
-            "name": "T",
-            "doc": "- Type of this step's return value"
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/core",
+              "packagePath": "dist/types/step.d.ts",
+              "qualifiedName": "StepContext"
+            },
+            "name": "StepContext",
+            "package": "@probitas-test/core"
           },
           {
-            "kind": "template",
-            "name": "P",
-            "doc": "- Type of the previous step's result (from `ctx.previous`)"
-          },
-          {
-            "kind": "template",
-            "name": "A",
-            "doc": "- Tuple type of all accumulated results"
-          },
-          {
-            "kind": "template",
-            "name": "R",
-            "doc": "- Record of available resources\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Sync step returning data\n```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\nconst step: BuilderStepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Async step with API call\n```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\ntype User = { id: string; name: string };\n\nconst step: BuilderStepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
-          }
-        ]
-      },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "fnOrConstructor",
-          "fnOrConstructor": {
-            "constructor": false,
-            "tsType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
+            "type": "reflection",
+            "declaration": {
+              "id": 2,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "children": [
                 {
-                  "repr": "T",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "T"
+                  "id": 3,
+                  "name": "previous",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "Result from the previous step.\n\nFully typed based on what the previous step returned.\nFor the first step, this is "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`unknown`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": "."
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": 6,
+                    "name": "P",
+                    "package": "@probitas-test/builder",
+                    "refersToTypeParameter": true
                   }
                 },
                 {
-                  "repr": "Promise",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": [
+                  "id": 5,
+                  "name": "resources",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
                       {
-                        "repr": "T",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": null,
-                          "typeName": "T"
-                        }
+                        "kind": "text",
+                        "text": "Named resources registered with "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`.resource()`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": ".\n\nResources are typed based on their registration:\n"
+                      },
+                      {
+                        "kind": "code",
+                        "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock database connection for example\nconst createDbConnection = () => ({ query: (_sql: string) => [{ id: 1 }] });\n\nscenario(\"test\")\n  .resource(\"db\", () => createDbConnection())\n  .step((ctx) => ctx.resources.db.query(\"SELECT 1\"))\n  .build();\n```"
                       }
-                    ],
-                    "typeName": "Promise"
+                    ]
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": 8,
+                    "name": "R",
+                    "package": "@probitas-test/builder",
+                    "refersToTypeParameter": true
+                  }
+                },
+                {
+                  "id": 4,
+                  "name": "results",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "All accumulated results as a typed tuple.\n\nAllows accessing any previous result by index:\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`ctx.results[0]`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " - First step's result\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`ctx.results[1]`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " - Second step's result"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": 7,
+                    "name": "A",
+                    "package": "@probitas-test/builder",
+                    "refersToTypeParameter": true
                   }
                 }
               ]
-            },
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "ctx",
-                "optional": false,
-                "tsType": {
-                  "repr": "BuilderStepContext",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": [
-                      {
-                        "repr": "P",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": null,
-                          "typeName": "P"
-                        }
-                      },
-                      {
-                        "repr": "A",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": null,
-                          "typeName": "A"
-                        }
-                      },
-                      {
-                        "repr": "R",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": null,
-                          "typeName": "R"
-                        }
-                      }
-                    ],
-                    "typeName": "BuilderStepContext"
-                  }
-                }
-              }
-            ],
-            "typeParams": []
-          }
-        },
-        "typeParams": [
-          {
-            "name": "T",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          },
-          {
-            "name": "P",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          },
-          {
-            "name": "A",
-            "constraint": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
-              }
-            },
-            "default": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
-              }
-            }
-          },
-          {
-            "name": "R",
-            "constraint": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
-            },
-            "default": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
             }
           }
         ]
       }
     },
     {
+      "id": 17,
       "name": "BuilderStepDefinition",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-        "line": 139,
-        "col": 0,
-        "byteIndex": 4228
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Immutable definition of a scenario step.\n\nContains all information needed to execute a single step:\nthe step function, its options, and debugging metadata.\n",
-        "tags": [
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "kind": "template",
-            "name": "T",
-            "doc": "- Type of this step's return value"
-          },
+            "kind": "text",
+            "text": "Immutable definition of a scenario step.\n\nContains all information needed to execute a single step:\nthe step function, its options, and debugging metadata."
+          }
+        ],
+        "blockTags": [
           {
-            "kind": "template",
-            "name": "P",
-            "doc": "- Type of the previous step's result"
-          },
-          {
-            "kind": "template",
-            "name": "A",
-            "doc": "- Tuple type of accumulated results"
-          },
-          {
-            "kind": "template",
-            "name": "R",
-            "doc": "- Record of available resources\n"
-          },
-          {
-            "kind": "unsupported",
-            "value": "@remarks\nStep definitions are created by the builder and consumed by the runner.\nThey are immutable and should not be modified after creation."
+            "tag": "@remarks",
+            "content": [
+              {
+                "kind": "text",
+                "text": "Step definitions are created by the builder and consumed by the runner.\nThey are immutable and should not be modified after creation."
+              }
+            ]
           }
         ]
       },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "intersection",
-          "intersection": [
-            {
-              "repr": "StepDefinition",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "StepDefinition"
+      "typeParameters": [
+        {
+          "id": 20,
+          "name": "T",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of this step's return value"
               }
-            },
-            {
-              "repr": "",
-              "kind": "typeLiteral",
-              "typeLiteral": {
-                "constructors": [],
-                "methods": [],
-                "properties": [
-                  {
-                    "name": "fn",
-                    "jsDoc": {
-                      "doc": "Step function to execute"
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/builder/0.5.3/types.ts",
-                      "line": 146,
-                      "col": 2,
-                      "byteIndex": 4468
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": false,
-                    "tsType": {
-                      "repr": "BuilderStepFunction",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": [
-                          {
-                            "repr": "T",
-                            "kind": "typeRef",
-                            "typeRef": {
-                              "typeParams": null,
-                              "typeName": "T"
-                            }
-                          },
-                          {
-                            "repr": "P",
-                            "kind": "typeRef",
-                            "typeRef": {
-                              "typeParams": null,
-                              "typeName": "P"
-                            }
-                          },
-                          {
-                            "repr": "A",
-                            "kind": "typeRef",
-                            "typeRef": {
-                              "typeParams": null,
-                              "typeName": "A"
-                            }
-                          },
-                          {
-                            "repr": "R",
-                            "kind": "typeRef",
-                            "typeRef": {
-                              "typeParams": null,
-                              "typeName": "R"
-                            }
-                          }
-                        ],
-                        "typeName": "BuilderStepFunction"
-                      }
-                    },
-                    "typeParams": []
-                  }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
-              }
-            }
-          ]
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
         },
-        "typeParams": [
-          {
-            "name": "T",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
+        {
+          "id": 21,
+          "name": "P",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of the previous step's result"
+              }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        },
+        {
+          "id": 22,
+          "name": "A",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tuple type of accumulated results"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
             }
           },
-          {
-            "name": "P",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
+          "default": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
             }
+          }
+        },
+        {
+          "id": 23,
+          "name": "R",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Record of available resources"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Record",
+            "package": "typescript"
+          },
+          "default": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Record",
+            "package": "typescript"
+          }
+        }
+      ],
+      "type": {
+        "type": "intersection",
+        "types": [
+          {
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/core",
+              "packagePath": "dist/types/step.d.ts",
+              "qualifiedName": "StepDefinition"
+            },
+            "name": "StepDefinition",
+            "package": "@probitas-test/core"
           },
           {
-            "name": "A",
-            "constraint": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
+            "type": "reflection",
+            "declaration": {
+              "id": 18,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "children": [
+                {
+                  "id": 19,
+                  "name": "fn",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "Step function to execute"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": 9,
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "target": 20,
+                        "name": "T",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      },
+                      {
+                        "type": "reference",
+                        "target": 21,
+                        "name": "P",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      },
+                      {
+                        "type": "reference",
+                        "target": 22,
+                        "name": "A",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      },
+                      {
+                        "type": "reference",
+                        "target": 23,
+                        "name": "R",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      }
+                    ],
+                    "name": "BuilderStepFunction",
+                    "package": "@probitas-test/builder"
                   }
                 }
-              }
-            },
-            "default": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
-              }
-            }
-          },
-          {
-            "name": "R",
-            "constraint": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
-            },
-            "default": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
+              ]
             }
           }
         ]
       }
+    },
+    {
+      "id": 9,
+      "name": "BuilderStepFunction",
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Function signature for step execution.\n\nA step function receives the execution context and returns a value\n(sync or async) that becomes available to subsequent steps."
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Sync step returning data",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\nconst step: BuilderStepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Async step with API call",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { BuilderStepFunction } from \"@probitas-test/builder\";\n\ntype User = { id: string; name: string };\n\nconst step: BuilderStepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "typeParameters": [
+        {
+          "id": 13,
+          "name": "T",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of this step's return value"
+              }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        },
+        {
+          "id": 14,
+          "name": "P",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of the previous step's result (from "
+              },
+              {
+                "kind": "code",
+                "text": "`ctx.previous`"
+              },
+              {
+                "kind": "text",
+                "text": ")"
+              }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        },
+        {
+          "id": 15,
+          "name": "A",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tuple type of all accumulated results"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          },
+          "default": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          }
+        },
+        {
+          "id": 16,
+          "name": "R",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Record of available resources"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Record",
+            "package": "typescript"
+          },
+          "default": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Record",
+            "package": "typescript"
+          }
+        }
+      ],
+      "type": {
+        "type": "reflection",
+        "declaration": {
+          "id": 10,
+          "name": "__type",
+          "variant": "declaration",
+          "kind": 65536,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 11,
+              "name": "__type",
+              "variant": "signature",
+              "kind": 4096,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 12,
+                  "name": "ctx",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "reference",
+                    "target": 1,
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "target": 14,
+                        "name": "P",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      },
+                      {
+                        "type": "reference",
+                        "target": 15,
+                        "name": "A",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      },
+                      {
+                        "type": "reference",
+                        "target": 16,
+                        "name": "R",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      }
+                    ],
+                    "name": "BuilderStepContext",
+                    "package": "@probitas-test/builder"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "target": 13,
+                    "name": "T",
+                    "package": "@probitas-test/builder",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es5.d.ts",
+                      "qualifiedName": "Promise"
+                    },
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "target": 13,
+                        "name": "T",
+                        "package": "@probitas-test/builder",
+                        "refersToTypeParameter": true
+                      }
+                    ],
+                    "name": "Promise",
+                    "package": "typescript"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 24,
+      "name": "scenario",
+      "variant": "declaration",
+      "kind": 64,
+      "flags": {},
+      "signatures": [
+        {
+          "id": 25,
+          "name": "scenario",
+          "variant": "signature",
+          "kind": 4096,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Create a new scenario builder with a fluent API.\n\nThis is the primary entry point for defining scenarios. It returns a builder\nthat provides a type-safe, chainable API for constructing test scenarios."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@returns",
+                "content": [
+                  {
+                    "kind": "text",
+                    "text": "New "
+                  },
+                  {
+                    "kind": "inline-tag",
+                    "tag": "@linkcode",
+                    "text": "ScenarioBuilderInit",
+                    "target": {
+                      "packageName": "@probitas-test/builder",
+                      "packagePath": "scenario_builder.ts",
+                      "qualifiedName": "ScenarioBuilderInit"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "text": " instance ready for chaining"
+                  }
+                ]
+              },
+              {
+                "tag": "@remarks",
+                "content": [
+                  {
+                    "kind": "text",
+                    "text": "The builder pattern enables:\n- **Type-safe chaining**: Return values flow through steps with full type inference\n- **Resource management**: Automatic lifecycle handling with Disposable support\n- **Flexible configuration**: Override defaults at scenario or step level"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Basic scenario with type-safe step chaining",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock user service for example\nconst createUser = (_data: { email: string }) =>\n  Promise.resolve({ id: \"user-123\" });\nconst verifyEmail = (_userId: string) => Promise.resolve();\n\nexport default scenario(\"User Registration\")\n  .step(\"Create user\", async () => {\n    const user = await createUser({ email: \"test@example.com\" });\n    return { userId: user.id };\n  })\n  .step(\"Verify email\", async (ctx) => {\n    // ctx.previous is typed as { userId: string }\n    await verifyEmail(ctx.previous.userId);\n  })\n  .build();\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Scenario with tags for filtering",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Payment Integration\", {\n  tags: [\"integration\", \"payment\", \"slow\"],\n  stepOptions: { timeout: 60000 }  // 1 minute timeout for all steps\n})\n  .step(\"Process payment\", async () => {\n    return { success: true };\n  })\n  .build();\n\n// Run with: probitas run -s \"tag:payment\"\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Scenario with resources and setup",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\n// Mock Database for example\nconst Database = {\n  connect: () =>\n    Promise.resolve({\n      rollback: () => {},\n      insert: (_data: { id: number }) => {},\n      query: (_sql: string) => [{ id: 1 }],\n    }),\n};\n\nscenario(\"Database Test\")\n  .resource(\"db\", async () => await Database.connect())\n  .setup((ctx) => {\n    // Run migrations\n    return () => ctx.resources.db.rollback();\n  })\n  .step(\"Insert data\", (ctx) => ctx.resources.db.insert({ id: 1 }))\n  .step(\"Query data\", (ctx) => ctx.resources.db.query(\"SELECT * FROM users\"))\n  .build();\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@see",
+                "content": [
+                  {
+                    "kind": "text",
+                    "text": " - "
+                  },
+                  {
+                    "kind": "inline-tag",
+                    "tag": "@linkcode",
+                    "text": "ScenarioBuilderInit",
+                    "target": {
+                      "packageName": "@probitas-test/builder",
+                      "packagePath": "scenario_builder.ts",
+                      "qualifiedName": "ScenarioBuilderInit"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "text": " for available builder methods"
+                  },
+                  {
+                    "kind": "text",
+                    "text": "\n"
+                  },
+                  {
+                    "kind": "text",
+                    "text": " - "
+                  },
+                  {
+                    "kind": "inline-tag",
+                    "tag": "@linkcode",
+                    "text": "BuilderScenarioOptions"
+                  },
+                  {
+                    "kind": "text",
+                    "text": " for configuration options"
+                  },
+                  {
+                    "kind": "text",
+                    "text": "\n"
+                  }
+                ]
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": 26,
+              "name": "name",
+              "variant": "param",
+              "kind": 32768,
+              "flags": {},
+              "comment": {
+                "summary": [
+                  {
+                    "kind": "text",
+                    "text": "Human-readable scenario name (shown in test reports)"
+                  }
+                ]
+              },
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "id": 27,
+              "name": "options",
+              "variant": "param",
+              "kind": 32768,
+              "flags": {
+                "isOptional": true
+              },
+              "comment": {
+                "summary": [
+                  {
+                    "kind": "text",
+                    "text": "Optional configuration for tags, timeouts, and retry behavior"
+                  }
+                ]
+              },
+              "type": {
+                "type": "reference",
+                "target": {
+                  "packageName": "@probitas-test/core",
+                  "packagePath": "dist/types/scenario.d.ts",
+                  "qualifiedName": "ScenarioOptions"
+                },
+                "name": "ScenarioOptions",
+                "package": "@probitas-test/core"
+              }
+            }
+          ],
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/builder",
+              "packagePath": "scenario_builder.ts",
+              "qualifiedName": "ScenarioBuilderInit"
+            },
+            "name": "ScenarioBuilderInit",
+            "package": "@probitas-test/builder"
+          }
+        }
+      ]
     }
-  ]
+  ],
+  "packageName": "@probitas-test/builder",
+  "packageVersion": "0.5.4"
 }

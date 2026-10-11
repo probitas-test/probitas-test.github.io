@@ -42,16 +42,17 @@ documents/
 │       ├── llms.ts              # LLM-friendly endpoints generation
 │       ├── path.ts              # basePath() helper for GitHub Pages
 │       ├── signature-formatters.ts  # Type signature formatting
+│       ├── type-format.ts       # Type formatting (TypeDoc types to text and links)
 │       └── type-references.ts   # Type reference resolution
 ├── data/                        # Data modules
-│   ├── api/                     # Generated API JSON (deno doc --json)
+│   ├── api/                     # Generated API JSON (TypeDoc)
 │   ├── docs.ts                  # Documentation pages configuration
 │   └── api-pages.ts             # API documentation loader
 ├── docs/                        # Markdown documentation source
 ├── public/                      # Static assets (CSS, images, favicon)
 ├── scripts/                     # Build and generation scripts
 │   ├── post-build.js            # Pagefind indexing & llms.txt.html→llms.txt rename
-│   └── generate-api-docs.ts     # Fetch & process API docs from JSR
+│   └── generate-api-docs.ts     # Generate API docs from the npm packages
 ├── package.json                 # npm dependencies
 ├── vite.config.ts               # Vite + HonoX SSG configuration
 └── tsconfig.json                # TypeScript configuration
@@ -76,14 +77,20 @@ documents/
 ### 1. API Documentation Generation
 
 ```bash
-deno run -A scripts/generate-api-docs.ts
+npm run generate-api
 ```
 
-1. Fetches all `@probitas/*` packages from JSR API
-2. Runs `deno doc --json` for each package
-3. Processes and filters exports (removes private items, imports, etc.)
-4. Saves to `data/api/{package}.json`
+1. Lists the `@probitas-test/*` packages of the npm organization
+2. Installs their latest versions into a temporary directory
+3. Runs TypeDoc on each package's entry point (the published `.ts` sources),
+   documenting other `@probitas-test` packages' symbols a package re-exports
+4. Drops namespaces and TypeDoc's theme-only data, and saves the TypeDoc JSON
+   to `data/api/{package}.json`
 5. Generates `data/api/index.json` with package metadata
+
+The site reads the TypeDoc JSON for types only and never loads TypeDoc at
+runtime. `vite.config.ts` keeps Vite from resolving `typedoc`, because HonoX
+otherwise walks into it while looking for islands.
 
 ### 2. Static Site Generation
 

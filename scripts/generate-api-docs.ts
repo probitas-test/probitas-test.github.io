@@ -1,281 +1,258 @@
-#!/usr/bin/env -S deno run --allow-run --allow-write --allow-read --allow-net
 /**
- * Generate API documentation from @probitas/* packages
+ * Generate API documentation from the @probitas-test/* npm packages
  *
- * This script fetches the list of @probitas packages from JSR,
- * runs `deno doc --json` for each package, and saves the output
- * to data/api/ for use by the documentation site.
+ * This script lists the packages of the probitas-test npm organization,
+ * installs their latest versions into a temporary directory, runs TypeDoc
+ * on each package's entry point, and saves the resulting TypeDoc JSON to
+ * data/api/ for use by the documentation site.
  *
  * Usage: npm run generate-api
  */
 
-import type {
-  ApiDocsIndex,
-  DenoDocOutput,
-  DocNode,
-  ExportCounts,
-  PackageDoc,
-  PackageInfo,
+import { execFile } from "node:child_process";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import {
+  Application,
+  type JSONOutput,
+  LogLevel,
+  normalizePath,
+} from "typedoc";
+import {
+  type ApiDocsIndex,
+  countExports,
+  isDocumentedExport,
+  type PackageInfo,
+  ReflectionKind,
 } from "../app/lib/api-docs.ts";
 
-const API_DIR = new URL("../data/api/", import.meta.url);
+const API_DIR = fileURLToPath(new URL("../data/api/", import.meta.url));
+const SCOPE = "@probitas-test";
+const REGISTRY = "https://registry.npmjs.org";
 
-// Packages to exclude from API documentation. `client-deno-kv` and `scenario`
-// stay listed on JSR but are no longer part of Probitas.
-const EXCLUDED_PACKAGES = new Set(["cli", "client-deno-kv", "scenario"]);
-
-interface JsrPackage {
-  scope: string;
+interface NpmPackage {
+  /** Package name without the scope (e.g., "client-http") */
   name: string;
-  latestVersion: string;
+  version: string;
 }
 
 /**
- * Fetch all @probitas packages from JSR API
+ * List the packages of the npm organization with their latest versions
  */
-async function fetchPackages(): Promise<JsrPackage[]> {
-  console.log("Fetching package list from JSR...");
-
-  const response = await fetch(
-    "https://jsr.io/api/scopes/probitas/packages",
-  );
+async function fetchPackages(): Promise<NpmPackage[]> {
+  console.log(`Fetching package list for ${SCOPE} from npm...`);
+  const response = await fetch(`${REGISTRY}/-/org/probitas-test/package`);
   if (!response.ok) {
     throw new Error(`Failed to fetch packages: ${response.status}`);
   }
+  const names = Object.keys(await response.json())
+    .filter((name) => name.startsWith(`${SCOPE}/`))
+    .map((name) => name.slice(SCOPE.length + 1))
+    .sort();
 
-  const data = await response.json();
-  return data.items.map((item: JsrPackage) => ({
-    scope: item.scope,
-    name: item.name,
-    latestVersion: item.latestVersion,
-  }));
-}
-
-/**
- * Run deno doc --json for a package
- */
-async function getPackageDoc(
-  specifier: string,
-): Promise<DenoDocOutput | null> {
-  const command = new Deno.Command("deno", {
-    args: ["doc", "--no-lock", "--json", specifier],
-    stdout: "piped",
-    stderr: "piped",
-    env: {
-      ...Deno.env.toObject(),
-      NO_COLOR: "1",
-    },
-  });
-
-  const { code, stdout, stderr } = await command.output();
-
-  if (code !== 0) {
-    const errorText = new TextDecoder().decode(stderr);
-    console.error(`  Failed to get docs for ${specifier}: ${errorText}`);
-    return null;
-  }
-
-  const text = new TextDecoder().decode(stdout);
-  const output = JSON.parse(text);
-  // The site renders the version 1 schema (a flat `nodes` array). Newer Deno
-  // releases emit version 2, which nests symbols per module.
-  if (output.version !== 1 || !Array.isArray(output.nodes)) {
-    throw new Error(
-      `deno doc emitted JSON schema version ${output.version}; this script ` +
-        "needs version 1 (put Deno 2.6 first on PATH)",
-    );
-  }
-  return output;
-}
-
-/**
- * Extract module-level documentation
- */
-function extractModuleDoc(nodes: DocNode[]): string | undefined {
-  const moduleDoc = nodes.find((n) => n.kind === "moduleDoc");
-  return moduleDoc?.jsDoc?.doc;
-}
-
-/**
- * Filter and process exports
- */
-function processExports(nodes: DocNode[]): DocNode[] {
-  return nodes.filter((node) => {
-    // Skip moduleDoc entries
-    if (node.kind === "moduleDoc") return false;
-    // Skip import re-exports without explicit declaration
-    if (node.kind === "import") return false;
-    // Skip private items
-    if (node.name.startsWith("_")) return false;
-    return true;
-  });
-}
-
-/**
- * Count exports by kind
- */
-function countExports(exports: DocNode[]): ExportCounts {
-  return {
-    classes: exports.filter((n) => n.kind === "class").length,
-    interfaces: exports.filter((n) => n.kind === "interface").length,
-    functions: exports.filter((n) => n.kind === "function").length,
-    types: exports.filter((n) => n.kind === "typeAlias").length,
-    variables: exports.filter((n) => n.kind === "variable").length,
-    enums: exports.filter((n) => n.kind === "enum").length,
-  };
-}
-
-/**
- * Generate documentation for a single package
- */
-async function generatePackageDoc(pkg: JsrPackage): Promise<PackageDoc | null> {
-  const specifier = `jsr:@${pkg.scope}/${pkg.name}@${pkg.latestVersion}`;
-  console.log(`Processing ${specifier}...`);
-
-  const docOutput = await getPackageDoc(specifier);
-  if (!docOutput) return null;
-
-  const moduleDoc = extractModuleDoc(docOutput.nodes);
-  const exports = processExports(docOutput.nodes);
-
-  return {
-    name: pkg.name,
-    specifier: `@${pkg.scope}/${pkg.name}`,
-    version: pkg.latestVersion,
-    moduleDoc,
-    exports,
-  };
-}
-
-/**
- * Save package documentation to file
- */
-async function savePackageDoc(doc: PackageDoc): Promise<void> {
-  const filename = new URL(`${doc.name}.json`, API_DIR);
-  await Deno.writeTextFile(
-    filename,
-    JSON.stringify(doc, null, 2),
-  );
-  console.log(`  Saved ${doc.exports.length} exports to ${doc.name}.json`);
-}
-
-/**
- * Generate and save index file
- */
-async function saveIndex(packages: PackageInfo[]): Promise<void> {
-  const index: ApiDocsIndex = {
-    packages,
-  };
-
-  const filename = new URL("index.json", API_DIR);
-  await Deno.writeTextFile(
-    filename,
-    JSON.stringify(index, null, 2),
-  );
-  console.log(`Saved index with ${packages.length} packages`);
-}
-
-/**
- * Main entry point
- */
-async function main(): Promise<void> {
-  // Ensure output directory exists
-  await Deno.mkdir(API_DIR, { recursive: true });
-
-  // Fetch all packages
-  const packages = (await fetchPackages()).filter((pkg) => {
-    if (EXCLUDED_PACKAGES.has(pkg.name)) {
-      console.log(`Skipping ${pkg.name} (excluded)`);
-      return false;
+  const packages: NpmPackage[] = [];
+  for (const name of names) {
+    const latest = await fetch(`${REGISTRY}/${SCOPE}/${name}/latest`);
+    if (!latest.ok) {
+      throw new Error(`Failed to resolve ${SCOPE}/${name}: ${latest.status}`);
     }
-    return true;
+    const { version } = await latest.json() as { version: string };
+    packages.push({ name, version });
+  }
+  return packages;
+}
+
+/**
+ * Install the packages into a fresh directory so TypeDoc sees exactly the
+ * published files
+ */
+async function installPackages(
+  workDir: string,
+  packages: NpmPackage[],
+): Promise<void> {
+  console.log("Installing packages...");
+  await writeFile(
+    path.join(workDir, "package.json"),
+    JSON.stringify({ private: true }),
+  );
+  await promisify(execFile)(
+    "npm",
+    [
+      "install",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+      ...packages.map((pkg) => `${SCOPE}/${pkg.name}@${pkg.version}`),
+    ],
+    { cwd: workDir },
+  );
+}
+
+/**
+ * Resolve the TypeScript source a package exposes as its main entry point
+ *
+ * The packages publish their sources next to the compiled output and point
+ * the `bun` condition at them; the sources carry the module documentation
+ * that the declaration files drop.
+ */
+async function resolveEntryPoint(packageDir: string): Promise<string> {
+  const manifest = JSON.parse(
+    await readFile(path.join(packageDir, "package.json"), "utf-8"),
+  );
+  const main = manifest.exports?.["."];
+  const entry = typeof main === "string" ? main : main?.bun ?? main?.types;
+  if (!entry) {
+    throw new Error(`${manifest.name} has no main entry point`);
+  }
+  return path.join(packageDir, entry);
+}
+
+/**
+ * Run TypeDoc on a package and return its project JSON
+ */
+async function convertPackage(
+  workDir: string,
+  pkg: NpmPackage,
+): Promise<JSONOutput.ProjectReflection> {
+  const packageDir = path.join(workDir, "node_modules", SCOPE, pkg.name);
+  const entryPoint = await resolveEntryPoint(packageDir);
+
+  const tsconfig = path.join(workDir, `tsconfig.${pkg.name}.json`);
+  await writeFile(
+    tsconfig,
+    JSON.stringify({
+      compilerOptions: {
+        target: "ESNext",
+        module: "ESNext",
+        moduleResolution: "bundler",
+        allowImportingTsExtensions: true,
+        noEmit: true,
+        skipLibCheck: true,
+        strict: true,
+        types: [],
+      },
+      files: [entryPoint],
+    }),
+  );
+
+  const app = await Application.bootstrap({
+    entryPoints: [entryPoint],
+    tsconfig,
+    name: `${SCOPE}/${pkg.name}`,
+    readme: "none",
+    disableSources: true,
+    // The published sources are not type-checked against every optional
+    // peer dependency; documentation does not need a clean compile.
+    skipErrorChecking: true,
+    excludeExternals: true,
+    // Other @probitas-test packages are part of the documented surface: a
+    // package re-exporting their symbols documents them as its own, the way
+    // users import them.
+    externalPattern: [`**/node_modules/!(${SCOPE})/**`],
+    excludePrivate: true,
+    excludeProtected: true,
+    excludeInternal: true,
+    logLevel: LogLevel.Warn,
   });
+
+  const project = await app.convert();
+  if (!project) {
+    throw new Error(`TypeDoc failed to convert ${SCOPE}/${pkg.name}`);
+  }
+  const json = app.serializer.projectToObject(
+    project,
+    normalizePath(workDir),
+  );
+  json.packageVersion = pkg.version;
+  return json;
+}
+
+/**
+ * Drop what the site does not use
+ *
+ * Namespaces (e.g. `export * as client`) repeat other packages' whole API and
+ * are not rendered, and groups, categories, and the file registry only serve
+ * TypeDoc's own HTML theme.
+ */
+function trimProject(
+  json: JSONOutput.ProjectReflection,
+): JSONOutput.ProjectReflection {
+  const { groups: _g, categories: _c, files: _f, symbolIdMap: _s, ...rest } =
+    json;
+  return {
+    ...rest,
+    children: (json.children ?? []).filter((child) =>
+      child.kind !== ReflectionKind.Namespace &&
+      child.kind !== ReflectionKind.Module
+    ).map(stripGroups),
+  } as JSONOutput.ProjectReflection;
+}
+
+function stripGroups<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(stripGroups) as T;
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value)) {
+      if (key === "groups" || key === "categories") continue;
+      result[key] = stripGroups(child);
+    }
+    return result as T;
+  }
+  return value;
+}
+
+async function writeJson(
+  dir: string,
+  file: string,
+  value: unknown,
+): Promise<void> {
+  await writeFile(path.join(dir, file), `${JSON.stringify(value, null, 2)}\n`);
+}
+
+async function main(): Promise<void> {
+  const packages = await fetchPackages();
   console.log(`Found ${packages.length} packages\n`);
 
-  // Generate docs for each package
-  const packageInfos: PackageInfo[] = [];
-  const results: PackageDoc[] = [];
+  const workDir = await mkdtemp(path.join(tmpdir(), "probitas-api-docs-"));
+  try {
+    await installPackages(workDir, packages);
 
-  await updatePackageDependencies(packages);
+    // Write everything aside first so that a failure leaves data/api intact
+    const outDir = path.join(workDir, "api");
+    await mkdir(outDir);
 
-  for (const pkg of packages) {
-    const doc = await generatePackageDoc(pkg);
-    if (doc) {
-      results.push(doc);
-      packageInfos.push({
-        name: doc.name,
-        specifier: doc.specifier,
-        version: doc.version,
-        exportCount: doc.exports.length,
-        counts: countExports(doc.exports),
+    const infos: PackageInfo[] = [];
+    for (const pkg of packages) {
+      console.log(`Processing ${SCOPE}/${pkg.name}@${pkg.version}...`);
+      const project = trimProject(await convertPackage(workDir, pkg));
+      await writeJson(outDir, `${pkg.name}.json`, project);
+
+      const exports = (project.children ?? []).filter(isDocumentedExport);
+      infos.push({
+        name: pkg.name,
+        specifier: `${SCOPE}/${pkg.name}`,
+        version: pkg.version,
+        exportCount: exports.length,
+        counts: countExports(exports),
       });
+      console.log(`  Saved ${exports.length} exports to ${pkg.name}.json`);
     }
-  }
 
-  console.log(`\nGenerated docs for ${results.length} packages`);
+    const index: ApiDocsIndex = { packages: infos };
+    await writeJson(outDir, "index.json", index);
 
-  // Save individual package docs
-  for (const doc of results) {
-    await savePackageDoc(doc);
-  }
-
-  // Save index
-  await saveIndex(packageInfos);
-
-  // Format generated files
-  console.log("\nFormatting generated files...");
-  await formatGeneratedFiles();
-
-  console.log("\nDone!");
-}
-
-/**
- * Update package dependencies by forcing a cache refresh
- *
- * This ensures we have the latest versions of all packages
- * before generating documentation.
- */
-async function updatePackageDependencies(
-  packages: JsrPackage[],
-): Promise<void> {
-  const specifiers = packages.map(
-    (pkg) => `jsr:@${pkg.scope}/${pkg.name}@${pkg.latestVersion}`,
-  );
-
-  console.log("Updating package dependencies...");
-
-  const command = new Deno.Command("deno", {
-    args: ["cache", "--no-lock", "-r", ...specifiers],
-    stdout: "inherit",
-    stderr: "inherit",
-  });
-
-  const { code } = await command.output();
-  if (code !== 0) {
-    throw new Error("Failed to update package dependencies");
-  }
-
-  console.log("Package dependencies updated\n");
-}
-
-/**
- * Run deno fmt on generated API docs
- */
-async function formatGeneratedFiles(): Promise<void> {
-  const command = new Deno.Command("deno", {
-    args: ["fmt", API_DIR.pathname],
-    stdout: "inherit",
-    stderr: "inherit",
-  });
-
-  const { code } = await command.output();
-  if (code !== 0) {
-    console.error("Warning: deno fmt failed");
+    await rm(API_DIR, { recursive: true, force: true });
+    await cp(outDir, API_DIR, { recursive: true });
+    console.log(`\nSaved index with ${infos.length} packages`);
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
   }
 }
 
-// Run
 main().catch((error) => {
   console.error("Error:", error);
-  Deno.exit(1);
+  process.exit(1);
 });

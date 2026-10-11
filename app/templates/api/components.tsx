@@ -3,29 +3,24 @@
  */
 import type { Child } from "hono/jsx";
 import type {
-  ClassDef,
-  DocNode,
-  FunctionDef,
-  InterfaceDef,
-  MethodDef,
-  ParamDef,
-  TsTypeDef,
-  TsTypeParamDef,
-  TypeAliasDef,
+  DeclarationReflection,
+  ParameterReflection,
+  SignatureReflection,
+  SomeType,
 } from "../../lib/api-docs.ts";
 import {
-  formatType,
-  formatTypeParams,
+  exportKind,
+  type ExportKind,
   getDescription,
   getDescriptionSummary,
   getExamples,
   getParamDocs,
   getReturnDoc,
+  isPublic,
+  ownMembers,
+  ReflectionKind,
 } from "../../lib/api-docs.ts";
-import {
-  type ApiMarkdownOptions,
-  parseApiMarkdown,
-} from "../../lib/markdown.ts";
+import { parseApiMarkdown } from "../../lib/markdown.ts";
 import {
   formatClassSignature,
   formatConstructorSignature,
@@ -33,13 +28,12 @@ import {
   formatInterfaceSignature,
   formatMethodSignature,
   formatTypeAliasSignature,
+  formatVariableSignature,
 } from "../../lib/signature-formatters.ts";
+import { typeTokens } from "../../lib/type-format.ts";
 import {
-  extractClassRefs,
-  extractFunctionRefs,
-  extractInterfaceRefs,
-  extractTypeParamRefs,
-  extractTypeRefs,
+  extractDeclarationRefs,
+  TypeRefCollector,
 } from "../../lib/type-references.ts";
 import { basePath } from "../../lib/path.ts";
 
@@ -56,158 +50,26 @@ interface TypeLinkContext {
   currentPackage?: string;
 }
 
-interface TypeDisplayProps extends TypeLinkContext {
-  type?: TsTypeDef;
-}
-
-export function TypeDisplay(
-  { type, localTypes, typeToPackage, currentPackage }: TypeDisplayProps,
-) {
-  if (!type) return <span class="type-unknown">unknown</span>;
-  const ctx: TypeLinkContext = { localTypes, typeToPackage, currentPackage };
-  return <code class="type-code">{renderType(type, ctx)}</code>;
-}
-
 /**
- * Render a type definition as JSX with links
+ * The URL of an export's anchor on its package page
  */
-function renderType(type: TsTypeDef | undefined, ctx: TypeLinkContext): Child {
-  if (!type) return "unknown";
+function apiHref(packageName: string, name: string): string {
+  return basePath(`/api/${packageName}#${name}`);
+}
 
-  switch (type.kind) {
-    case "keyword":
-      return renderTypeName(type.keyword ?? type.repr, ctx);
+interface TypeDisplayProps extends TypeLinkContext {
+  type?: SomeType;
+}
 
-    case "typeRef": {
-      if (!type.typeRef) return type.repr;
-      const typeName = type.typeRef.typeName;
-      const params = type.typeRef.typeParams;
-
-      if (params && params.length > 0) {
-        return (
-          <>
-            {renderTypeName(typeName, ctx)}
-            {"<"}
-            {params.map((p, i) => (
-              <>
-                {i > 0 && ", "}
-                {renderType(p, ctx)}
-              </>
-            ))}
-            {">"}
-          </>
-        );
-      }
-      return renderTypeName(typeName, ctx);
-    }
-
-    case "array":
-      return (
-        <>
-          {renderType(type.array!, ctx)}
-          {"[]"}
-        </>
-      );
-
-    case "union":
-      return (
-        <>
-          {type.union?.map((t, i) => (
-            <>
-              {i > 0 && " | "}
-              {renderType(t, ctx)}
-            </>
-          ))}
-        </>
-      );
-
-    case "intersection":
-      return (
-        <>
-          {type.intersection?.map((t, i) => (
-            <>
-              {i > 0 && " & "}
-              {renderType(t, ctx)}
-            </>
-          ))}
-        </>
-      );
-
-    case "literal":
-      if (type.literal) {
-        if (type.literal.kind === "string") return `"${type.literal.string}"`;
-        if (type.literal.kind === "number") return String(type.literal.number);
-        if (type.literal.kind === "boolean") {
-          return String(type.literal.boolean);
-        }
-      }
-      return type.repr;
-
-    case "tuple":
-      return (
-        <>
-          {"["}
-          {type.tuple?.map((t, i) => (
-            <>
-              {i > 0 && ", "}
-              {renderType(t, ctx)}
-            </>
-          ))}
-          {"]"}
-        </>
-      );
-
-    case "fnOrConstructor": {
-      const fn = type.fnOrConstructor;
-      if (!fn) return type.repr;
-      return (
-        <>
-          {"("}
-          {fn.params.map((p, i) => (
-            <>
-              {i > 0 && ", "}
-              {p.name ?? "_"}: {renderType(p.tsType, ctx)}
-            </>
-          ))}
-          {") => "}
-          {renderType(fn.returnType, ctx)}
-        </>
-      );
-    }
-
-    case "typeOperator": {
-      const op = type.typeOperator;
-      if (!op) return type.repr;
-      return (
-        <>
-          {op.operator} {renderType(op.tsType, ctx)}
-        </>
-      );
-    }
-
-    case "typeLiteral": {
-      const lit = type.typeLiteral;
-      if (!lit) return type.repr;
-      return (
-        <>
-          {"{ "}
-          {lit.properties.map((p, i) => (
-            <>
-              {i > 0 && "; "}
-              {p.name}
-              {p.optional && "?"}
-              {": "}
-              {renderType(p.tsType, ctx)}
-            </>
-          ))}
-          {" }"}
-        </>
-      );
-    }
-
-    default:
-      return type.repr || "unknown";
-  }
+export function TypeDisplay({ type, ...ctx }: TypeDisplayProps) {
+  if (!type) return <span class="type-unknown">unknown</span>;
+  return (
+    <code class="type-code">
+      {typeTokens(type).map((token) =>
+        typeof token === "string" ? token : renderTypeName(token.ref, ctx)
+      )}
+    </code>
+  );
 }
 
 /**
@@ -231,19 +93,16 @@ function renderTypeName(name: string, ctx: TypeLinkContext): Child {
   }
 
   // Check for cross-package type
-  if (typeToPackage?.has(name)) {
-    const targetPackage = typeToPackage.get(name)!;
-    // Don't link to self (already handled by localTypes)
-    if (targetPackage !== currentPackage) {
-      return (
-        <a
-          href={basePath(`/api/${targetPackage}/#${name}`)}
-          class="type-link type-link-cross-package"
-        >
-          {name}
-        </a>
-      );
-    }
+  const targetPackage = typeToPackage?.get(name);
+  if (targetPackage && targetPackage !== currentPackage) {
+    return (
+      <a
+        href={apiHref(targetPackage, name)}
+        class="type-link type-link-cross-package"
+      >
+        {name}
+      </a>
+    );
   }
 
   // Built-in types and unknown types - no link
@@ -254,44 +113,34 @@ function renderTypeName(name: string, ctx: TypeLinkContext): Child {
 // Type Reference Linking
 // ============================================================================
 
-/**
- * Filter type refs to only linkable ones (local or cross-package)
- */
 interface LinkableType {
   name: string;
   href: string;
   isCrossPackage: boolean;
 }
 
+/**
+ * Filter type refs to only linkable ones (local or cross-package)
+ */
 function getLinkableTypes(
   refs: Set<string>,
-  localTypes: Set<string> | undefined,
-  typeToPackage: Map<string, string> | undefined,
-  currentPackage: string | undefined,
+  { localTypes, typeToPackage, currentPackage }: TypeLinkContext,
 ): LinkableType[] {
   const result: LinkableType[] = [];
 
   for (const name of refs) {
-    // Local type
     if (localTypes?.has(name)) {
-      result.push({
-        name,
-        href: `#${name}`,
-        isCrossPackage: false,
-      });
+      result.push({ name, href: `#${name}`, isCrossPackage: false });
       continue;
     }
 
-    // Cross-package type
-    if (typeToPackage?.has(name)) {
-      const targetPackage = typeToPackage.get(name)!;
-      if (targetPackage !== currentPackage) {
-        result.push({
-          name,
-          href: basePath(`/api/${targetPackage}/#${name}`),
-          isCrossPackage: true,
-        });
-      }
+    const targetPackage = typeToPackage?.get(name);
+    if (targetPackage && targetPackage !== currentPackage) {
+      result.push({
+        name,
+        href: apiHref(targetPackage, name),
+        isCrossPackage: true,
+      });
     }
   }
 
@@ -299,23 +148,16 @@ function getLinkableTypes(
   return result.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Related Types section component
- */
 interface RelatedTypesProps extends TypeLinkContext {
-  /** All type refs extracted from the signature */
+  /** All type refs extracted from the declaration */
   typeRefs: Set<string>;
 }
 
-function RelatedTypes(
-  { typeRefs, localTypes, typeToPackage, currentPackage }: RelatedTypesProps,
-) {
-  const linkable = getLinkableTypes(
-    typeRefs,
-    localTypes,
-    typeToPackage,
-    currentPackage,
-  );
+/**
+ * Related Types section component
+ */
+function RelatedTypes({ typeRefs, ...ctx }: RelatedTypesProps) {
+  const linkable = getLinkableTypes(typeRefs, ctx);
 
   if (linkable.length === 0) return null;
 
@@ -337,7 +179,7 @@ function RelatedTypes(
             </a>
             {t.isCrossPackage && (
               <span class="related-type-package">
-                {typeToPackage?.get(t.name)}
+                {ctx.typeToPackage?.get(t.name)}
               </span>
             )}
           </li>
@@ -347,37 +189,22 @@ function RelatedTypes(
   );
 }
 
-interface TypeParamsDisplayProps {
-  typeParams: TsTypeParamDef[];
-}
-
-export function TypeParamsDisplay({ typeParams }: TypeParamsDisplayProps) {
-  if (typeParams.length === 0) return null;
-  return <span class="type-params">{formatTypeParams(typeParams)}</span>;
-}
-
 // ============================================================================
 // Member Summary Table (for interface/type overview)
 // ============================================================================
 
-interface MemberSummaryItem {
-  name: string;
-  description?: string;
-  isMethod?: boolean;
-}
-
 interface MemberSummaryTableProps {
   /** Parent type name (used for generating anchor IDs) */
   parentName: string;
-  items: MemberSummaryItem[];
+  members: DeclarationReflection[];
 }
 
 /**
  * Summary table for properties/methods overview
  * Each name links to the detailed section below
  */
-function MemberSummaryTable({ parentName, items }: MemberSummaryTableProps) {
-  if (items.length === 0) return null;
+function MemberSummaryTable({ parentName, members }: MemberSummaryTableProps) {
+  if (members.length === 0) return null;
 
   return (
     <div class="api-member-summary">
@@ -389,16 +216,20 @@ function MemberSummaryTable({ parentName, items }: MemberSummaryTableProps) {
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
-            <tr key={item.name}>
+          {members.map((member) => (
+            <tr key={member.name}>
               <td>
-                <a href={`#${parentName}-${item.name}`} class="member-link">
-                  <code>{item.name}</code>
-                  {item.isMethod && <span class="method-indicator">()</span>}
+                <a href={`#${parentName}-${member.name}`} class="member-link">
+                  <code>{member.name}</code>
+                  {isMethod(member) && (
+                    <span class="method-indicator">()</span>
+                  )}
                 </a>
               </td>
               <td class="member-summary-desc">
-                {item.description || <span class="no-desc">—</span>}
+                {getDescriptionSummary(member) || (
+                  <span class="no-desc">—</span>
+                )}
               </td>
             </tr>
           ))}
@@ -409,120 +240,283 @@ function MemberSummaryTable({ parentName, items }: MemberSummaryTableProps) {
 }
 
 // ============================================================================
-// Parameter Display
+// Markdown Display
 // ============================================================================
 
-interface ParamListProps extends TypeLinkContext {
-  params: ParamDef[];
-  paramDocs?: Map<string, string>;
+interface MarkdownBlockProps extends TypeLinkContext {
+  text?: string;
+  class: string;
 }
 
-export function ParamList(
-  { params, paramDocs, localTypes, typeToPackage, currentPackage }:
-    ParamListProps,
-) {
-  if (params.length === 0) return null;
-
+/**
+ * Render documentation Markdown with JSDoc link support
+ */
+function MarkdownBlock({ text, class: className, ...ctx }: MarkdownBlockProps) {
+  if (!text) return null;
   return (
-    <div class="api-params">
-      <h5>Parameters</h5>
-      <ul class="param-list">
-        {params.map((param) => {
-          const name = param.name ?? "_";
-          const doc = paramDocs?.get(name);
-          return (
-            <li key={name} class="param-item">
-              <div class="param-header">
-                <code class="param-name">
-                  {name}
-                  {param.optional && <span class="param-optional">?</span>}
-                </code>
-                <span class="param-type">
-                  <TypeDisplay
-                    type={param.tsType}
-                    localTypes={localTypes}
-                    typeToPackage={typeToPackage}
-                    currentPackage={currentPackage}
-                  />
-                </span>
-              </div>
-              {doc && (
-                <div
-                  class="param-desc api-markdown"
-                  dangerouslySetInnerHTML={{
-                    __html: parseApiMarkdown(doc, {
-                      localTypes,
-                      typeToPackage,
-                      currentPackage,
-                    }),
-                  }}
-                />
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <div
+      class={`${className} api-markdown`}
+      dangerouslySetInnerHTML={{ __html: parseApiMarkdown(text, ctx) }}
+    />
   );
 }
-
-// ============================================================================
-// JSDoc Display
-// ============================================================================
 
 interface DescriptionProps extends TypeLinkContext {
   text?: string;
 }
 
-export function Description(
-  { text, localTypes, typeToPackage, currentPackage }: DescriptionProps,
-) {
-  if (!text) return null;
-  // Parse as Markdown for rich formatting with JSDoc link support
-  const html = parseApiMarkdown(text, {
-    localTypes,
-    typeToPackage,
-    currentPackage,
-  });
-  return (
-    <div
-      class="api-description api-markdown"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+export function Description({ text, ...ctx }: DescriptionProps) {
+  return <MarkdownBlock text={text} class="api-description" {...ctx} />;
 }
 
 interface ExamplesProps extends TypeLinkContext {
   examples: string[];
 }
 
-export function Examples(
-  { examples, localTypes, typeToPackage, currentPackage }: ExamplesProps,
-) {
+export function Examples({ examples, ...ctx }: ExamplesProps) {
   if (examples.length === 0) return null;
-
-  const mdOptions: ApiMarkdownOptions = {
-    localTypes,
-    typeToPackage,
-    currentPackage,
-  };
 
   return (
     <div class="api-examples">
       <h5>Examples</h5>
-      {examples.map((example, i) => {
-        const trimmed = example.trim();
-        // Always parse as markdown - examples may contain description text
-        // followed by code blocks (e.g., "Basic usage\n```ts\n...")
-        const html = parseApiMarkdown(trimmed, mdOptions);
-        return (
-          <div
-            key={i}
-            class="example-markdown"
-            dangerouslySetInnerHTML={{ __html: html }}
+      {examples.map((example, i) => (
+        // Examples may hold a title or description followed by code blocks
+        <div
+          key={i}
+          class="example-markdown"
+          dangerouslySetInnerHTML={{
+            __html: parseApiMarkdown(example.trim(), ctx),
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// Signature Display
+// ============================================================================
+
+function SignatureBlock(
+  { code, class: className = "api-signature" }: {
+    code: string;
+    class?: string;
+  },
+) {
+  return (
+    <div class={className}>
+      <pre>
+        <code class="language-typescript">{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+interface ParamListProps extends TypeLinkContext {
+  params: ParameterReflection[];
+  paramDocs?: Map<string, string>;
+}
+
+export function ParamList({ params, paramDocs, ...ctx }: ParamListProps) {
+  if (params.length === 0) return null;
+
+  return (
+    <div class="api-params">
+      <h5>Parameters</h5>
+      <ul class="param-list">
+        {params.map((param) => (
+          <li key={param.name} class="param-item">
+            <div class="param-header">
+              <code class="param-name">
+                {param.flags.isRest && "..."}
+                {param.name}
+                {param.flags.isOptional && (
+                  <span class="param-optional">?</span>
+                )}
+              </code>
+              <span class="param-type">
+                <TypeDisplay type={param.type} {...ctx} />
+              </span>
+            </div>
+            <MarkdownBlock
+              text={paramDocs?.get(param.name)}
+              class="param-desc"
+              {...ctx}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+interface ReturnsProps extends TypeLinkContext {
+  signature: SignatureReflection;
+}
+
+function Returns({ signature, ...ctx }: ReturnsProps) {
+  const returnDoc = getReturnDoc(signature);
+  if (!returnDoc) return null;
+  return (
+    <div class="api-returns">
+      <h5>Returns</h5>
+      <p>
+        <TypeDisplay type={signature.type} {...ctx} />
+      </p>
+      <MarkdownBlock text={returnDoc} class="returns-desc" {...ctx} />
+    </div>
+  );
+}
+
+// ============================================================================
+// Item Layout
+// ============================================================================
+
+interface ItemHeaderProps {
+  kind: string;
+  name: string;
+  children?: Child;
+}
+
+function ItemHeader({ kind, name, children }: ItemHeaderProps) {
+  return (
+    <div class="api-item-header">
+      <span class="api-kind">{kind}</span>
+      <h4>
+        <a href={`#${name}`} class="anchor-link">#</a>
+        {name}
+        {children}
+      </h4>
+    </div>
+  );
+}
+
+// ============================================================================
+// Members (properties and methods)
+// ============================================================================
+
+function isMethod(member: DeclarationReflection): boolean {
+  return member.kind === ReflectionKind.Method;
+}
+
+function isProperty(member: DeclarationReflection): boolean {
+  return member.kind === ReflectionKind.Property ||
+    member.kind === ReflectionKind.Accessor;
+}
+
+interface MembersProps extends TypeLinkContext {
+  /** Parent type name (used for generating anchor IDs) */
+  parentName: string;
+  members: DeclarationReflection[];
+}
+
+/**
+ * The summary table, properties, and methods of a class, interface, or
+ * object type
+ */
+function Members({ parentName, members, ...ctx }: MembersProps) {
+  const properties = members.filter(isProperty);
+  const methods = members.filter(isMethod);
+  return (
+    <>
+      <MemberSummaryTable
+        parentName={parentName}
+        members={[...properties, ...methods]}
+      />
+      {properties.length > 0 && (
+        <div class="api-properties">
+          <h5>Properties</h5>
+          <ul class="property-list">
+            {properties.map((property) => (
+              <PropertyItem
+                key={property.name}
+                parentName={parentName}
+                property={property}
+                {...ctx}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
+      {methods.length > 0 && (
+        <div class="api-methods">
+          <h5>Methods</h5>
+          {methods.map((method) => (
+            <MethodItem
+              key={method.name}
+              parentName={parentName}
+              method={method}
+              {...ctx}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+interface PropertyItemProps extends TypeLinkContext {
+  parentName: string;
+  property: DeclarationReflection;
+}
+
+function PropertyItem({ parentName, property, ...ctx }: PropertyItemProps) {
+  // An accessor reads as a property; without a setter it is read-only
+  const isAccessor = property.kind === ReflectionKind.Accessor;
+  const type = isAccessor ? property.getSignature?.type : property.type;
+  const readonly = isAccessor
+    ? !property.setSignature
+    : property.flags.isReadonly;
+  return (
+    <li id={`${parentName}-${property.name}`} class="property-item">
+      <div class="property-header">
+        {property.flags.isStatic && (
+          <span class="member-badge member-static">static</span>
+        )}
+        {readonly && <span class="member-badge member-readonly">readonly</span>}
+        <code class="property-name">
+          {property.name}
+          {property.flags.isOptional && <span class="param-optional">?</span>}
+        </code>
+        <span class="property-type">
+          <TypeDisplay type={type} {...ctx} />
+        </span>
+      </div>
+      <MarkdownBlock
+        text={getDescription(property)}
+        class="property-desc"
+        {...ctx}
+      />
+    </li>
+  );
+}
+
+interface MethodItemProps extends TypeLinkContext {
+  parentName: string;
+  method: DeclarationReflection;
+}
+
+function MethodItem({ parentName, method, ...ctx }: MethodItemProps) {
+  return (
+    <div class="method-item" id={`${parentName}-${method.name}`}>
+      {(method.signatures ?? []).map((signature, i) => (
+        <div key={i}>
+          <SignatureBlock
+            class="method-signature api-signature"
+            code={formatMethodSignature(method, signature)}
           />
-        );
-      })}
+          <MarkdownBlock
+            text={getDescription(signature)}
+            class="method-desc"
+            {...ctx}
+          />
+          <ParamList
+            params={signature.parameters ?? []}
+            paramDocs={getParamDocs(signature)}
+            {...ctx}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -531,187 +525,64 @@ export function Examples(
 // Function Documentation
 // ============================================================================
 
-interface FunctionDocProps extends TypeLinkContext {
-  node: DocNode;
-  def: FunctionDef;
-  /** All overloads of this function (including the main one) */
-  overloads?: DocNode[];
+interface ReflectionDocProps extends TypeLinkContext {
+  reflection: DeclarationReflection;
 }
 
-export function FunctionDoc(
-  { node, def, overloads, localTypes, typeToPackage, currentPackage }:
-    FunctionDocProps,
-) {
-  const description = getDescription(node);
-  const examples = getExamples(node);
-  const paramDocs = getParamDocs(node);
-  const returnDoc = getReturnDoc(node);
-
-  const hasOverloads = overloads && overloads.length > 1;
-
-  // Collect type refs from all overloads (or just this function if no overloads)
-  const typeRefs = new Set<string>();
-  if (hasOverloads) {
-    for (const overloadNode of overloads) {
-      for (const ref of extractFunctionRefs(overloadNode.functionDef)) {
-        typeRefs.add(ref);
-      }
-    }
-  } else {
-    for (const ref of extractFunctionRefs(def)) {
-      typeRefs.add(ref);
-    }
-  }
+export function FunctionDoc({ reflection, ...ctx }: ReflectionDocProps) {
+  const signatures = reflection.signatures ?? [];
+  const [main] = signatures;
+  if (!main) return null;
+  const hasOverloads = signatures.length > 1;
+  // TypeDoc keeps a function's documentation on the signature it was written
+  // for; the first documented one describes the function as a whole
+  const documented = signatures.find((s) => s.comment) ?? main;
 
   return (
-    <div class="api-item api-function" id={node.name}>
-      <div class="api-item-header">
-        <span class="api-kind">function</span>
-        <h4>
-          <a href={`#${node.name}`} class="anchor-link">#</a>
-          {node.name}
-          {hasOverloads && (
-            <span class="overload-count">({overloads.length} overloads)</span>
-          )}
-        </h4>
-      </div>
+    <div class="api-item api-function" id={reflection.name}>
+      <ItemHeader kind="function" name={reflection.name}>
+        {hasOverloads && (
+          <span class="overload-count">({signatures.length} overloads)</span>
+        )}
+      </ItemHeader>
 
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatFunctionSignature(node.name, def)}
-          </code>
-        </pre>
-      </div>
-
-      <Description
-        text={description}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-
+      <SignatureBlock code={formatFunctionSignature(reflection.name, main)} />
+      <Description text={getDescription(reflection)} {...ctx} />
       <ParamList
-        params={def.params}
-        paramDocs={paramDocs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
+        params={main.parameters ?? []}
+        paramDocs={getParamDocs(documented)}
+        {...ctx}
       />
+      <Returns signature={documented} {...ctx} />
+      <Examples examples={getExamples(reflection)} {...ctx} />
+      <RelatedTypes typeRefs={extractDeclarationRefs(reflection)} {...ctx} />
 
-      {returnDoc && (
-        <div class="api-returns">
-          <h5>Returns</h5>
-          <p>
-            <TypeDisplay
-              type={def.returnType}
-              localTypes={localTypes}
-              typeToPackage={typeToPackage}
-              currentPackage={currentPackage}
-            />{" "}
-            — {returnDoc}
-          </p>
-        </div>
-      )}
-
-      <Examples
-        examples={examples}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-
-      <RelatedTypes
-        typeRefs={typeRefs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-
-      {/* Additional overloads */}
       {hasOverloads && (
         <details class="api-overloads">
           <summary>
             <i class="ti ti-chevron-right" />
-            Show all {overloads.length} overloads
+            Show all {signatures.length} overloads
           </summary>
           <div class="overloads-content">
-            {overloads.map((overloadNode, index) => {
-              const overloadDef = overloadNode.functionDef;
-              if (!overloadDef) return null;
-              return (
-                <FunctionOverloadItem
-                  key={index}
-                  index={index + 1}
-                  node={overloadNode}
-                  def={overloadDef}
-                  localTypes={localTypes}
-                  typeToPackage={typeToPackage}
-                  currentPackage={currentPackage}
+            {signatures.map((signature, index) => (
+              <div key={index} class="overload-item">
+                <div class="overload-header">
+                  <span class="overload-index">#{index + 1}</span>
+                </div>
+                <SignatureBlock
+                  code={formatFunctionSignature(reflection.name, signature)}
                 />
-              );
-            })}
+                <Description text={getDescription(signature)} {...ctx} />
+                <ParamList
+                  params={signature.parameters ?? []}
+                  paramDocs={getParamDocs(signature)}
+                  {...ctx}
+                />
+                <Returns signature={signature} {...ctx} />
+              </div>
+            ))}
           </div>
         </details>
-      )}
-    </div>
-  );
-}
-
-interface FunctionOverloadItemProps extends TypeLinkContext {
-  index: number;
-  node: DocNode;
-  def: FunctionDef;
-}
-
-function FunctionOverloadItem(
-  { index, node, def, localTypes, typeToPackage, currentPackage }:
-    FunctionOverloadItemProps,
-) {
-  const description = getDescription(node);
-  const paramDocs = getParamDocs(node);
-  const returnDoc = getReturnDoc(node);
-
-  return (
-    <div class="overload-item">
-      <div class="overload-header">
-        <span class="overload-index">#{index}</span>
-      </div>
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatFunctionSignature(node.name, def)}
-          </code>
-        </pre>
-      </div>
-      {description && (
-        <Description
-          text={description}
-          localTypes={localTypes}
-          typeToPackage={typeToPackage}
-          currentPackage={currentPackage}
-        />
-      )}
-      <ParamList
-        params={def.params}
-        paramDocs={paramDocs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-      {returnDoc && (
-        <div class="api-returns">
-          <h5>Returns</h5>
-          <p>
-            <TypeDisplay
-              type={def.returnType}
-              localTypes={localTypes}
-              typeToPackage={typeToPackage}
-              currentPackage={currentPackage}
-            />{" "}
-            — {returnDoc}
-          </p>
-        </div>
       )}
     </div>
   );
@@ -721,281 +592,74 @@ function FunctionOverloadItem(
 // Class Documentation
 // ============================================================================
 
-interface ClassDocProps extends TypeLinkContext {
-  node: DocNode;
-  def: ClassDef;
-}
-
-export function ClassDoc(
-  { node, def, localTypes, typeToPackage, currentPackage }: ClassDocProps,
-) {
-  const description = getDescription(node);
-  const examples = getExamples(node);
-
-  // Filter public members
-  const publicMethods = def.methods.filter((m) =>
-    m.accessibility !== "private" && !m.name.startsWith("_")
-  );
-  const publicProps = def.properties.filter((p) =>
-    p.accessibility !== "private" && !p.name.startsWith("_")
-  );
-
-  // Collect all type refs from the class definition
-  const typeRefs = extractClassRefs(def);
-
-  // Build summary items for the overview table
-  const summaryItems: MemberSummaryItem[] = [
-    ...publicProps.map((prop) => ({
-      name: prop.name,
-      description: getDescriptionSummary(prop),
-      isMethod: false,
-    })),
-    ...publicMethods.map((method) => ({
-      name: method.name,
-      description: getDescriptionSummary(method),
-      isMethod: true,
-    })),
-  ];
-
-  const hasMembers = publicProps.length > 0 || publicMethods.length > 0;
+export function ClassDoc({ reflection, ...ctx }: ReflectionDocProps) {
+  const members = ownMembers(reflection);
+  const constructors = members
+    .filter((m) => m.kind === ReflectionKind.Constructor)
+    .flatMap((m) => m.signatures ?? []);
+  const extendedTypes = reflection.extendedTypes ?? [];
+  const implementedTypes = reflection.implementedTypes ?? [];
 
   return (
-    <div class="api-item api-class" id={node.name}>
-      <div class="api-item-header">
-        <span class="api-kind">class</span>
-        <h4>
-          <a href={`#${node.name}`} class="anchor-link">#</a>
-          {node.name}
-        </h4>
-      </div>
-
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatClassSignature(node.name, def)}
-          </code>
-        </pre>
-      </div>
+    <div class="api-item api-class" id={reflection.name}>
+      <ItemHeader kind="class" name={reflection.name} />
+      <SignatureBlock code={formatClassSignature(reflection)} />
 
       {/* Hierarchy info (extends/implements) */}
-      {(def.extends || (def.implements && def.implements.length > 0)) && (
+      {(extendedTypes.length > 0 || implementedTypes.length > 0) && (
         <div class="api-hierarchy">
-          {def.extends && (
-            <div class="hierarchy-item">
-              <span class="hierarchy-label">Extends</span>
-              <span class="hierarchy-value">
-                <TypeDisplay
-                  type={{
-                    kind: "typeRef",
-                    repr: def.extends,
-                    typeRef: {
-                      typeName: def.extends,
-                      typeParams: def.superTypeParams,
-                    },
-                  }}
-                  localTypes={localTypes}
-                  typeToPackage={typeToPackage}
-                  currentPackage={currentPackage}
-                />
-              </span>
-            </div>
-          )}
-          {def.implements && def.implements.length > 0 && (
-            <div class="hierarchy-item">
-              <span class="hierarchy-label">Implements</span>
-              <span class="hierarchy-value">
-                {def.implements.map((impl, i) => (
-                  <>
-                    {i > 0 && ", "}
-                    <TypeDisplay
-                      key={i}
-                      type={impl}
-                      localTypes={localTypes}
-                      typeToPackage={typeToPackage}
-                      currentPackage={currentPackage}
-                    />
-                  </>
-                ))}
-              </span>
-            </div>
-          )}
+          <HierarchyItem label="Extends" types={extendedTypes} {...ctx} />
+          <HierarchyItem label="Implements" types={implementedTypes} {...ctx} />
         </div>
       )}
 
-      <Description
-        text={description}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-      <Examples
-        examples={examples}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
+      <Description text={getDescription(reflection)} {...ctx} />
+      <Examples examples={getExamples(reflection)} {...ctx} />
 
-      {/* Summary table */}
-      {hasMembers && (
-        <MemberSummaryTable parentName={node.name} items={summaryItems} />
-      )}
-
-      {/* Constructor */}
-      {def.constructors.length > 0 && (
+      {constructors.length > 0 && (
         <div class="api-constructor">
           <h5>Constructor</h5>
-          {def.constructors.map((ctor, i) => (
+          {constructors.map((signature, i) => (
             <div key={i} class="constructor-signature api-signature">
               <pre>
                 <code class="language-typescript">
-                  {formatConstructorSignature(node.name, ctor.params)}
+                  {formatConstructorSignature(reflection.name, signature)}
                 </code>
               </pre>
-              {ctor.jsDoc?.doc && (
-                <div
-                  class="constructor-desc api-markdown"
-                  dangerouslySetInnerHTML={{
-                    __html: parseApiMarkdown(ctor.jsDoc.doc, {
-                      localTypes,
-                      typeToPackage,
-                      currentPackage,
-                    }),
-                  }}
-                />
-              )}
+              <MarkdownBlock
+                text={getDescription(signature)}
+                class="constructor-desc"
+                {...ctx}
+              />
             </div>
           ))}
         </div>
       )}
 
-      {/* Properties */}
-      {publicProps.length > 0 && (
-        <div class="api-properties">
-          <h5>Properties</h5>
-          <ul class="property-list">
-            {publicProps.map((prop) => {
-              const desc = getDescription(prop);
-              return (
-                <li
-                  key={prop.name}
-                  id={`${node.name}-${prop.name}`}
-                  class="property-item"
-                >
-                  <div class="property-header">
-                    {prop.isStatic && (
-                      <span class="member-badge member-static">static</span>
-                    )}
-                    {prop.readonly && (
-                      <span class="member-badge member-readonly">readonly</span>
-                    )}
-                    <code class="property-name">
-                      {prop.name}
-                      {prop.optional && <span class="param-optional">?</span>}
-                    </code>
-                    <span class="property-type">
-                      <TypeDisplay
-                        type={prop.tsType}
-                        localTypes={localTypes}
-                        typeToPackage={typeToPackage}
-                        currentPackage={currentPackage}
-                      />
-                    </span>
-                  </div>
-                  {desc && (
-                    <div
-                      class="property-desc api-markdown"
-                      dangerouslySetInnerHTML={{
-                        __html: parseApiMarkdown(desc, {
-                          localTypes,
-                          typeToPackage,
-                          currentPackage,
-                        }),
-                      }}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {/* Methods */}
-      {publicMethods.length > 0 && (
-        <div class="api-methods">
-          <h5>Methods</h5>
-          {publicMethods.map((method) => (
-            <MethodDisplay
-              key={method.name}
-              parentName={node.name}
-              method={method}
-              localTypes={localTypes}
-              typeToPackage={typeToPackage}
-              currentPackage={currentPackage}
-            />
-          ))}
-        </div>
-      )}
-
-      <RelatedTypes
-        typeRefs={typeRefs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
+      <Members parentName={reflection.name} members={members} {...ctx} />
+      <RelatedTypes typeRefs={extractDeclarationRefs(reflection)} {...ctx} />
     </div>
   );
 }
 
-interface MethodDisplayProps extends TypeLinkContext {
-  /** Parent type name (used for generating anchor IDs) */
-  parentName?: string;
-  method: MethodDef;
+interface HierarchyItemProps extends TypeLinkContext {
+  label: string;
+  types: SomeType[];
 }
 
-function MethodDisplay(
-  { parentName, method, localTypes, typeToPackage, currentPackage }:
-    MethodDisplayProps,
-) {
-  const paramDocs = method.jsDoc?.tags
-    ?.filter((t) => t.kind === "param")
-    .reduce((acc, t) => {
-      if (t.name && t.doc) acc.set(t.name, t.doc);
-      return acc;
-    }, new Map<string, string>());
-
-  const methodId = parentName ? `${parentName}-${method.name}` : undefined;
-
+function HierarchyItem({ label, types, ...ctx }: HierarchyItemProps) {
+  if (types.length === 0) return null;
   return (
-    <div class="method-item" id={methodId}>
-      <div class="method-signature api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatMethodSignature(method)}
-          </code>
-        </pre>
-      </div>
-      {method.jsDoc?.doc && (
-        <div
-          class="method-desc api-markdown"
-          dangerouslySetInnerHTML={{
-            __html: parseApiMarkdown(method.jsDoc.doc, {
-              localTypes,
-              typeToPackage,
-              currentPackage,
-            }),
-          }}
-        />
-      )}
-      {method.params && method.params.length > 0 && (
-        <ParamList
-          params={method.params}
-          paramDocs={paramDocs}
-          localTypes={localTypes}
-          typeToPackage={typeToPackage}
-          currentPackage={currentPackage}
-        />
-      )}
+    <div class="hierarchy-item">
+      <span class="hierarchy-label">{label}</span>
+      <span class="hierarchy-value">
+        {types.map((type, i) => (
+          <>
+            {i > 0 && ", "}
+            <TypeDisplay key={i} type={type} {...ctx} />
+          </>
+        ))}
+      </span>
     </div>
   );
 }
@@ -1004,144 +668,19 @@ function MethodDisplay(
 // Interface Documentation
 // ============================================================================
 
-interface InterfaceDocProps extends TypeLinkContext {
-  node: DocNode;
-  def: InterfaceDef;
-}
-
-export function InterfaceDoc(
-  { node, def, localTypes, typeToPackage, currentPackage }: InterfaceDocProps,
-) {
-  const description = getDescription(node);
-  const examples = getExamples(node);
-
-  // Collect all type refs from the interface definition
-  const typeRefs = extractInterfaceRefs(def);
-
-  // Build summary items for the overview table
-  const summaryItems: MemberSummaryItem[] = [
-    ...def.properties.map((prop) => ({
-      name: prop.name,
-      description: getDescriptionSummary(prop),
-      isMethod: false,
-    })),
-    ...def.methods.map((method) => ({
-      name: method.name,
-      description: getDescriptionSummary(method),
-      isMethod: true,
-    })),
-  ];
-
-  const hasMembers = def.properties.length > 0 || def.methods.length > 0;
-
+export function InterfaceDoc({ reflection, ...ctx }: ReflectionDocProps) {
   return (
-    <div class="api-item api-interface" id={node.name}>
-      <div class="api-item-header">
-        <span class="api-kind">interface</span>
-        <h4>
-          <a href={`#${node.name}`} class="anchor-link">#</a>
-          {node.name}
-        </h4>
-      </div>
-
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatInterfaceSignature(node.name, def)}
-          </code>
-        </pre>
-      </div>
-
-      <Description
-        text={description}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
+    <div class="api-item api-interface" id={reflection.name}>
+      <ItemHeader kind="interface" name={reflection.name} />
+      <SignatureBlock code={formatInterfaceSignature(reflection)} />
+      <Description text={getDescription(reflection)} {...ctx} />
+      <Examples examples={getExamples(reflection)} {...ctx} />
+      <Members
+        parentName={reflection.name}
+        members={ownMembers(reflection)}
+        {...ctx}
       />
-      <Examples
-        examples={examples}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-
-      {/* Summary table */}
-      {hasMembers && (
-        <MemberSummaryTable parentName={node.name} items={summaryItems} />
-      )}
-
-      {/* Properties */}
-      {def.properties.length > 0 && (
-        <div class="api-properties">
-          <h5>Properties</h5>
-          <ul class="property-list">
-            {def.properties.map((prop) => {
-              const desc = getDescription(prop);
-              return (
-                <li
-                  key={prop.name}
-                  id={`${node.name}-${prop.name}`}
-                  class="property-item"
-                >
-                  <div class="property-header">
-                    {prop.readonly && (
-                      <span class="member-badge member-readonly">readonly</span>
-                    )}
-                    <code class="property-name">
-                      {prop.name}
-                      {prop.optional && <span class="param-optional">?</span>}
-                    </code>
-                    <span class="property-type">
-                      <TypeDisplay
-                        type={prop.tsType}
-                        localTypes={localTypes}
-                        typeToPackage={typeToPackage}
-                        currentPackage={currentPackage}
-                      />
-                    </span>
-                  </div>
-                  {desc && (
-                    <div
-                      class="property-desc api-markdown"
-                      dangerouslySetInnerHTML={{
-                        __html: parseApiMarkdown(desc, {
-                          localTypes,
-                          typeToPackage,
-                          currentPackage,
-                        }),
-                      }}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {/* Methods */}
-      {def.methods.length > 0 && (
-        <div class="api-methods">
-          <h5>Methods</h5>
-          {def.methods.map((method) => (
-            <MethodDisplay
-              key={method.name}
-              parentName={node.name}
-              method={method}
-              localTypes={localTypes}
-              typeToPackage={typeToPackage}
-              currentPackage={currentPackage}
-            />
-          ))}
-        </div>
-      )}
-
-      <RelatedTypes
-        typeRefs={typeRefs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
+      <RelatedTypes typeRefs={extractDeclarationRefs(reflection)} {...ctx} />
     </div>
   );
 }
@@ -1150,148 +689,22 @@ export function InterfaceDoc(
 // Type Alias Documentation
 // ============================================================================
 
-interface TypeAliasDocProps extends TypeLinkContext {
-  node: DocNode;
-  def: TypeAliasDef;
-}
-
-export function TypeAliasDoc(
-  { node, def, localTypes, typeToPackage, currentPackage }: TypeAliasDocProps,
-) {
-  const description = getDescription(node);
-
-  // Collect all type refs from the type alias
-  const typeRefs = new Set<string>();
-  for (const ref of extractTypeRefs(def.tsType)) {
-    typeRefs.add(ref);
-  }
-  for (const ref of extractTypeParamRefs(def.typeParams)) {
-    typeRefs.add(ref);
-  }
-
-  // Check if this is a type literal (struct-like type)
-  const typeLiteral = def.tsType?.typeLiteral;
-  const hasMembers = typeLiteral &&
-    (typeLiteral.properties.length > 0 || typeLiteral.methods.length > 0);
-
-  // Build summary items for struct-like types
-  const summaryItems: MemberSummaryItem[] = typeLiteral
-    ? [
-      ...typeLiteral.properties.map((prop) => ({
-        name: prop.name,
-        description: getDescriptionSummary(prop),
-        isMethod: false,
-      })),
-      ...typeLiteral.methods.map((method) => ({
-        name: method.name,
-        description: getDescriptionSummary(method),
-        isMethod: true,
-      })),
-    ]
-    : [];
+export function TypeAliasDoc({ reflection, ...ctx }: ReflectionDocProps) {
+  // An object type reads like an interface: list its members. TypeDoc puts
+  // the members of an object literal alias on the alias itself.
+  const declaration = reflection.type?.type === "reflection"
+    ? reflection.type.declaration
+    : reflection;
+  const members = (declaration.children ?? []).filter(isPublic);
 
   return (
-    <div class="api-item api-type-alias" id={node.name}>
-      <div class="api-item-header">
-        <span class="api-kind">type</span>
-        <h4>
-          <a href={`#${node.name}`} class="anchor-link">#</a>
-          {node.name}
-        </h4>
-      </div>
-
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {formatTypeAliasSignature(node.name, def)}
-          </code>
-        </pre>
-      </div>
-
-      <Description
-        text={description}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
-
-      {/* Summary table for struct-like types */}
-      {hasMembers && (
-        <MemberSummaryTable parentName={node.name} items={summaryItems} />
-      )}
-
-      {/* Properties for struct-like types */}
-      {typeLiteral && typeLiteral.properties.length > 0 && (
-        <div class="api-properties">
-          <h5>Properties</h5>
-          <ul class="property-list">
-            {typeLiteral.properties.map((prop) => {
-              const desc = getDescription(prop);
-              return (
-                <li
-                  key={prop.name}
-                  id={`${node.name}-${prop.name}`}
-                  class="property-item"
-                >
-                  <div class="property-header">
-                    {prop.readonly && (
-                      <span class="member-badge member-readonly">readonly</span>
-                    )}
-                    <code class="property-name">
-                      {prop.name}
-                      {prop.optional && <span class="param-optional">?</span>}
-                    </code>
-                    <span class="property-type">
-                      <TypeDisplay
-                        type={prop.tsType}
-                        localTypes={localTypes}
-                        typeToPackage={typeToPackage}
-                        currentPackage={currentPackage}
-                      />
-                    </span>
-                  </div>
-                  {desc && (
-                    <div
-                      class="property-desc api-markdown"
-                      dangerouslySetInnerHTML={{
-                        __html: parseApiMarkdown(desc, {
-                          localTypes,
-                          typeToPackage,
-                          currentPackage,
-                        }),
-                      }}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {/* Methods for struct-like types */}
-      {typeLiteral && typeLiteral.methods.length > 0 && (
-        <div class="api-methods">
-          <h5>Methods</h5>
-          {typeLiteral.methods.map((method) => (
-            <MethodDisplay
-              key={method.name}
-              parentName={node.name}
-              method={method}
-              localTypes={localTypes}
-              typeToPackage={typeToPackage}
-              currentPackage={currentPackage}
-            />
-          ))}
-        </div>
-      )}
-
-      <RelatedTypes
-        typeRefs={typeRefs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
-      />
+    <div class="api-item api-type-alias" id={reflection.name}>
+      <ItemHeader kind="type" name={reflection.name} />
+      <SignatureBlock code={formatTypeAliasSignature(reflection)} />
+      <Description text={getDescription(reflection)} {...ctx} />
+      <Examples examples={getExamples(reflection)} {...ctx} />
+      <Members parentName={reflection.name} members={members} {...ctx} />
+      <RelatedTypes typeRefs={extractDeclarationRefs(reflection)} {...ctx} />
     </div>
   );
 }
@@ -1300,177 +713,100 @@ export function TypeAliasDoc(
 // Variable Documentation
 // ============================================================================
 
-interface VariableDocProps extends TypeLinkContext {
-  node: DocNode;
-}
-
-export function VariableDoc(
-  { node, localTypes, typeToPackage, currentPackage }: VariableDocProps,
-) {
-  const description = getDescription(node);
-  const def = node.variableDef;
-  const kind = def?.kind ?? "const";
-
-  // Collect type refs from the variable type
-  const typeRefs = extractTypeRefs(def?.tsType);
-
+export function VariableDoc({ reflection, ...ctx }: ReflectionDocProps) {
   return (
-    <div class="api-item api-variable" id={node.name}>
-      <div class="api-item-header">
-        <span class="api-kind">{kind}</span>
-        <h4>
-          <a href={`#${node.name}`} class="anchor-link">#</a>
-          {node.name}
-        </h4>
-      </div>
-
-      <div class="api-signature">
-        <pre>
-          <code class="language-typescript">
-            {`${kind} ${node.name}: ${formatType(def?.tsType)}`}
-          </code>
-        </pre>
-      </div>
-
-      <Description
-        text={description}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
+    <div class="api-item api-variable" id={reflection.name}>
+      <ItemHeader
+        kind={reflection.flags.isConst ? "const" : "let"}
+        name={reflection.name}
       />
-
+      <SignatureBlock code={formatVariableSignature(reflection)} />
+      <Description text={getDescription(reflection)} {...ctx} />
+      <Examples examples={getExamples(reflection)} {...ctx} />
       <RelatedTypes
-        typeRefs={typeRefs}
-        localTypes={localTypes}
-        typeToPackage={typeToPackage}
-        currentPackage={currentPackage}
+        typeRefs={new TypeRefCollector().type(reflection.type).refs}
+        {...ctx}
       />
     </div>
   );
 }
 
 // ============================================================================
-// Generic Doc Node Renderer
+// Generic Export Renderer
 // ============================================================================
 
-interface DocNodeRendererProps extends TypeLinkContext {
-  node: DocNode;
-  /** All overloads for this node (used for functions) */
-  overloads?: DocNode[];
-}
-
-export function DocNodeRenderer(
-  { node, overloads, localTypes, typeToPackage, currentPackage }:
-    DocNodeRendererProps,
-) {
-  const ctx = { localTypes, typeToPackage, currentPackage };
-
-  switch (node.kind) {
+export function ExportDoc({ reflection, ...ctx }: ReflectionDocProps) {
+  switch (exportKind(reflection)) {
     case "function":
-      if (node.functionDef) {
-        return (
-          <FunctionDoc
-            node={node}
-            def={node.functionDef}
-            overloads={overloads}
-            {...ctx}
-          />
-        );
-      }
-      break;
+      return <FunctionDoc reflection={reflection} {...ctx} />;
     case "class":
-      if (node.classDef) {
-        return <ClassDoc node={node} def={node.classDef} {...ctx} />;
-      }
-      break;
+      return <ClassDoc reflection={reflection} {...ctx} />;
     case "interface":
-      if (node.interfaceDef) {
-        return <InterfaceDoc node={node} def={node.interfaceDef} {...ctx} />;
-      }
-      break;
+      return <InterfaceDoc reflection={reflection} {...ctx} />;
     case "typeAlias":
-      if (node.typeAliasDef) {
-        return <TypeAliasDoc node={node} def={node.typeAliasDef} {...ctx} />;
-      }
-      break;
+      return <TypeAliasDoc reflection={reflection} {...ctx} />;
     case "variable":
-      return <VariableDoc node={node} {...ctx} />;
+      return <VariableDoc reflection={reflection} {...ctx} />;
     default:
-      // Skip unsupported types
+      // Skip unsupported kinds
       return null;
   }
-  return null;
 }
 
 // ============================================================================
 // TOC for API items
 // ============================================================================
 
+/** Display title, icon, and anchor of each export kind */
+export const EXPORT_KIND_INFO: Record<
+  ExportKind,
+  { title: string; icon: string; id: string }
+> = {
+  class: { title: "Classes", icon: "ti-box", id: "category-classes" },
+  interface: {
+    title: "Interfaces",
+    icon: "ti-puzzle",
+    id: "category-interfaces",
+  },
+  function: { title: "Functions", icon: "ti-code", id: "category-functions" },
+  typeAlias: { title: "Types", icon: "ti-tag", id: "category-types" },
+  variable: {
+    title: "Variables",
+    icon: "ti-variable",
+    id: "category-variables",
+  },
+  enum: { title: "Enums", icon: "ti-list", id: "category-enums" },
+};
+
 interface ApiTocProps {
-  nodes: DocNode[];
+  /** Exports grouped by kind, in display order */
+  groups: ReadonlyArray<readonly [ExportKind, DeclarationReflection[]]>;
 }
 
-export function ApiToc({ nodes }: ApiTocProps) {
-  // Group by kind (same order as content display)
-  const classes = nodes.filter((n) => n.kind === "class");
-  const interfaces = nodes.filter((n) => n.kind === "interface");
-  const functions = nodes.filter((n) => n.kind === "function");
-  const types = nodes.filter((n) => n.kind === "typeAlias");
-  const variables = nodes.filter((n) => n.kind === "variable");
-  const enums = nodes.filter((n) => n.kind === "enum");
-
+export function ApiToc({ groups }: ApiTocProps) {
   return (
     <nav class="scrollable-nav api-toc">
       <h3>On this page</h3>
-      {classes.length > 0 && (
-        <TocGroup title="Classes" icon="ti-box" items={classes} />
-      )}
-      {interfaces.length > 0 && (
-        <TocGroup title="Interfaces" icon="ti-puzzle" items={interfaces} />
-      )}
-      {functions.length > 0 && (
-        <TocGroup title="Functions" icon="ti-code" items={functions} />
-      )}
-      {types.length > 0 && (
-        <TocGroup title="Types" icon="ti-tag" items={types} />
-      )}
-      {variables.length > 0 && (
-        <TocGroup title="Variables" icon="ti-variable" items={variables} />
-      )}
-      {enums.length > 0 && (
-        <TocGroup title="Enums" icon="ti-list" items={enums} />
-      )}
+      {groups.map(([kind, items]) => {
+        const info = EXPORT_KIND_INFO[kind];
+        return (
+          <div key={kind} class="toc-group">
+            <h4>
+              <a href={`#${info.id}`}>
+                <i class={`ti ${info.icon}`} /> {info.title}
+              </a>
+            </h4>
+            <ul>
+              {items.map((item) => (
+                <li key={item.name}>
+                  <a href={`#${item.name}`}>{item.name}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </nav>
-  );
-}
-
-interface TocGroupProps {
-  title: string;
-  icon: string;
-  items: DocNode[];
-}
-
-function TocGroup({ title, icon, items }: TocGroupProps) {
-  // Sort items alphabetically to match content order
-  const sortedItems = [...items].sort((a, b) => a.name.localeCompare(b.name));
-  // Create anchor ID from title (e.g., "Classes" -> "category-classes")
-  const anchorId = `category-${title.toLowerCase()}`;
-
-  return (
-    <div class="toc-group">
-      <h4>
-        <a href={`#${anchorId}`}>
-          <i class={`ti ${icon}`} /> {title}
-        </a>
-      </h4>
-      <ul>
-        {sortedItems.map((item) => (
-          <li key={item.name}>
-            <a href={`#${item.name}`}>{item.name}</a>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
 
@@ -1479,7 +815,10 @@ function TocGroup({ title, icon, items }: TocGroupProps) {
 // ============================================================================
 
 interface PackageSidebarProps {
-  groups: Array<{ name: string; packages: Array<{ name: string }> }>;
+  groups: Array<{
+    name: string;
+    packages: Array<{ name: string; specifier: string }>;
+  }>;
   currentPackage?: string;
 }
 
@@ -1507,7 +846,7 @@ export function PackageSidebar(
                   value={pkg.name}
                   selected={pkg.name === currentPackage}
                 >
-                  @probitas/{pkg.name}
+                  {pkg.specifier}
                 </option>
               ))}
             </optgroup>
