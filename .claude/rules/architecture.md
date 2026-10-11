@@ -7,7 +7,7 @@ paths: "app/**/*.{ts,tsx}, scripts/**/*.ts, vite.config.ts"
 ## Directory Structure
 
 ```
-documents/
+probitas-test.github.io/
 ├── app/                         # Application source
 │   ├── server.ts                # HonoX entry point
 │   ├── client.ts                # Client-side JavaScript (bundled by Vite)
@@ -53,6 +53,8 @@ documents/
 ├── scripts/                     # Build and generation scripts
 │   ├── post-build.js            # Pagefind indexing & llms.txt.html→llms.txt rename
 │   └── generate-api-docs.ts     # Generate API docs from the npm packages
+├── flake.nix                    # Nix development shell
+├── justfile                     # Task recipes (`just ci` is the quality gate)
 ├── package.json                 # npm dependencies
 ├── vite.config.ts               # Vite + HonoX SSG configuration
 └── tsconfig.json                # TypeScript configuration
