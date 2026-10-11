@@ -95,6 +95,13 @@ This script:
 4. Saves each package's TypeDoc JSON to `data/api/`, with an index of the
    packages in `data/api/index.json`
 
+Releases do this automatically: probitas and probitas-packages send a
+`packages-published` repository dispatch after publishing, and the
+`Update API Reference` workflow (`.github/workflows/update-api.yml`) waits for
+the versions to reach npm, regenerates the data, checks the build, and opens a
+pull request from the `api-docs/update` branch (or updates the open one). Run
+the workflow manually to regenerate from the current npm versions.
+
 ### Build Process
 
 The `npm run build` command performs the following steps:
