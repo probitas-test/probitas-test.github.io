@@ -1,13 +1,11 @@
-import { assert } from "jsr:@std/assert@^1.0.16";
-import { walkSync } from "jsr:@std/fs@^1.0.0/walk";
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.47/deno-dom-wasm.ts";
-import { dirname, fromFileUrl, resolve } from "jsr:@std/path@^1.0.1";
+import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { basePath, siteMetadata } from "../data/docs.ts";
 
-const SRC_ROOT = fromFileUrl(import.meta.resolve("../"));
+const SRC_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SITE_ROOT = resolve(SRC_ROOT, "dist");
 const FILES = new Map<string, File | Error>();
 
@@ -29,19 +27,20 @@ type File = {
   ids: Set<string>;
 };
 
+/**
+ * Whether a file holds Markdown or plain text: the SSG writes the Markdown
+ * pages as `*.md.html`, which GitHub Pages serves at their `*.md` URLs
+ */
+function isMarkdownFile(path: string): boolean {
+  return [".md", ".txt", ".md.html"].some((ext) => path.endsWith(ext));
+}
+
 function findFilesToCrawl(): string[] {
-  const filesToCrawl = new Set<string>();
-  for (
-    const entry of walkSync(SITE_ROOT, {
-      //exts: [".html", ".md", ".txt"],
-      exts: [".md", ".txt"],
-      includeFiles: true,
-      skip: SKIP_PATTERNS,
-    })
-  ) {
-    filesToCrawl.add(entry.path);
-  }
-  return [...filesToCrawl].toSorted();
+  return readdirSync(SITE_ROOT, { recursive: true, encoding: "utf-8" })
+    .map((entry) => join(SITE_ROOT, entry))
+    .filter(isMarkdownFile)
+    .filter((path) => !SKIP_PATTERNS.some((pattern) => pattern.test(path)))
+    .toSorted();
 }
 
 function isTargetLink(link: string): boolean {
@@ -92,7 +91,7 @@ function normalizeLink(link: string, htmlMode: boolean): Link {
 }
 
 function readFile(filePath: string): File {
-  if (filePath.endsWith(".md") || filePath.endsWith(".txt")) {
+  if (isMarkdownFile(filePath)) {
     return readMarkdownFile(filePath);
   } else if (filePath.endsWith(".html")) {
     return readHtmlFile(filePath);
@@ -102,40 +101,60 @@ function readFile(filePath: string): File {
 }
 
 function readMarkdownFile(path: string): File {
-  const content = Deno.readTextFileSync(path);
+  const content = readFileSync(path, "utf-8");
   const markdownLinkRegex = /\[[^\]]+\]\(([^\)]+)\)/g;
   // Find all internal links
   const links = new Set<Link>();
-  content.matchAll(markdownLinkRegex).forEach((match) => {
+  for (const match of content.matchAll(markdownLinkRegex)) {
     const link = match[1].trim();
     if (link && isTargetLink(link)) links.add(normalizeLink(link, false));
-  });
+  }
   return { type: "markdown", path, links, ids: null } as const;
 }
 
+/**
+ * Collect the values of an attribute across the elements of an HTML page
+ *
+ * The site generator writes every attribute quoted, which this relies on.
+ */
+function attributeValues(content: string, name: string): string[] {
+  const pattern = new RegExp(`\\s${name}=(?:"([^"]*)"|'([^']*)')`, "g");
+  return [...content.matchAll(pattern)].map((m) => (m[1] ?? m[2]).trim());
+}
+
 function readHtmlFile(path: string): File {
-  const content = Deno.readTextFileSync(path);
-  const doc = new DOMParser().parseFromString(content, "text/html");
-  if (!doc) {
-    throw new Error(`Failed to parse HTML file: ${path}`);
-  }
+  const content = readFileSync(path, "utf-8");
   // Find all internal links
   const links = new Set<Link>();
-  doc.querySelectorAll("[href]").forEach((el) => {
-    const link = (el as Element).getAttribute("href")?.trim();
+  for (const link of [
+    ...attributeValues(content, "href"),
+    ...attributeValues(content, "src"),
+  ]) {
     if (link && isTargetLink(link)) links.add(normalizeLink(link, true));
-  });
-  doc.querySelectorAll("[src]").forEach((el) => {
-    const link = (el as Element).getAttribute("src")?.trim();
-    if (link && isTargetLink(link)) links.add(normalizeLink(link, true));
-  });
+  }
   // Find all IDs
-  const ids = new Set<string>();
-  doc.querySelectorAll("[id]").forEach((el) => {
-    const id = (el as Element).getAttribute("id")?.trim();
-    if (id) ids.add(id);
-  });
+  const ids = new Set(attributeValues(content, "id").filter(Boolean));
   return { type: "html", path, links, ids } as const;
+}
+
+/**
+ * Load a linked file, falling back to `<path>.html` the way GitHub Pages
+ * serves the generated `*.md.html` pages at their `*.md` URLs
+ */
+function loadFile(resolvedPath: string): File | Error {
+  for (const candidate of [resolvedPath, `${resolvedPath}.html`]) {
+    let file = FILES.get(candidate);
+    if (!file) {
+      try {
+        file = readFile(candidate);
+      } catch (err: unknown) {
+        file = err instanceof Error ? err : new Error(String(err));
+      }
+      FILES.set(candidate, file);
+    }
+    if (!(file instanceof Error)) return file;
+  }
+  return FILES.get(resolvedPath)!;
 }
 
 function checkLink(
@@ -149,17 +168,7 @@ function checkLink(
     return resolve(base, path);
   };
   const resolvedPath = resolvePath(path);
-  let targetFile = FILES.get(resolvedPath);
-  if (!targetFile) {
-    try {
-      targetFile = readFile(resolvedPath);
-      FILES.set(resolvedPath, targetFile);
-    } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error(String(err));
-      FILES.set(resolvedPath, error);
-      return { exists: false, resolvedPath };
-    }
-  }
+  const targetFile = loadFile(resolvedPath);
   if (targetFile instanceof Error) {
     return { exists: false, resolvedPath };
   }
@@ -169,16 +178,16 @@ function checkLink(
   return { exists: true, resolvedPath };
 }
 
-Deno.test("Site Link Checker", async (t) => {
+test("Site Link Checker", async (t) => {
   // Gather all HTML and MD files in the SITE_ROOT
   const filesToCrawl = findFilesToCrawl();
-  assert(
+  assert.ok(
     filesToCrawl.length > 0,
     "No files found to check in `dist` directory.",
   );
 
   // Read all files and extract links
-  const filesToCheck: File[] = [...filesToCrawl].map(readFile);
+  const filesToCheck: File[] = filesToCrawl.map(readFile);
 
   const normalizePath = (path: string) => path.replace(SITE_ROOT, "");
   const formatLink = ([path, fragment]: Link) =>
@@ -188,17 +197,14 @@ Deno.test("Site Link Checker", async (t) => {
     for (const link of file.links) {
       const linkStr = formatLink(link);
       const filePath = normalizePath(file.path);
-      await t.step(
-        `Check ${linkStr} from ${filePath}`,
-        () => {
-          const { exists, resolvedPath } = checkLink(link, dirname(file.path));
-          const resolvedLinkStr = normalizePath(resolvedPath);
-          assert(
-            exists,
-            `Internal file link broken: ${linkStr} (from ${filePath} to ${resolvedLinkStr})`,
-          );
-        },
-      );
+      await t.test(`Check ${linkStr} from ${filePath}`, () => {
+        const { exists, resolvedPath } = checkLink(link, dirname(file.path));
+        const resolvedLinkStr = normalizePath(resolvedPath);
+        assert.ok(
+          exists,
+          `Internal file link broken: ${linkStr} (from ${filePath} to ${resolvedLinkStr})`,
+        );
+      });
     }
   }
 });
