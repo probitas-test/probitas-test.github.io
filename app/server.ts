@@ -10,6 +10,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { PackageDoc } from "../data/api-pages.js";
+import { type ProjectReflection, toPackageDoc } from "./lib/api-docs.js";
 import {
   getPackageGroups,
   loadPackageDoc as loadPkg,
@@ -45,7 +46,7 @@ async function loadPackageDoc(
     stat(jsonPath),
   ]);
   return {
-    doc: JSON.parse(content),
+    doc: toPackageDoc(packageName, JSON.parse(content) as ProjectReflection),
     mtime: fileStat.mtime,
   };
 }
@@ -124,7 +125,7 @@ app.get("/llms.txt", async (c) => {
       name: g.name,
       packages: g.packages.map((p) => ({
         name: p.name,
-        specifier: `@probitas/${p.name}`,
+        specifier: p.specifier,
       })),
     })),
     loadPackageDoc: loadPkg,

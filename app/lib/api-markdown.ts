@@ -6,25 +6,21 @@
  * collected and output as a Related Links section at the end.
  */
 import type {
-  ClassDef,
-  DocNode,
-  FunctionDef,
-  InterfaceDef,
+  DeclarationReflection,
+  ExportKind,
   PackageDoc,
-  TsTypeDef,
-  TsTypeParamDef,
-  TypeAliasDef,
 } from "./api-docs.ts";
 import {
   BUILTIN_TYPE_LINKS,
-  deduplicateByName,
-  formatType,
   getDescription,
   getExamples,
   getParamDocs,
   getReturnDoc,
-  groupByName,
-  isPublic,
+  groupByKind,
+  isDocumentedExport,
+  ownMembers,
+  partsToMarkdown,
+  ReflectionKind,
 } from "./api-docs.ts";
 import {
   formatClassSignature,
@@ -33,21 +29,21 @@ import {
   formatInterfaceSignature,
   formatMethodSignature,
   formatTypeAliasSignature,
+  formatVariableSignature,
 } from "./signature-formatters.ts";
+import { formatType } from "./type-format.ts";
+import { TypeRefCollector } from "./type-references.ts";
 
 /**
  * Get the base URL for the site from environment variable.
- * Falls back to the default GitHub Pages URL.
+ * Falls back to the GitHub Pages URL.
  */
 function getBaseUrl(): string {
-  return (
-    import.meta.env?.BASE_URL_FULL ??
-      "https://probitas-test.github.io/documents"
-  );
+  return import.meta.env?.BASE_URL_FULL ?? "https://probitas-test.github.io";
 }
 
 // ============================================================================
-// Type Reference Collector
+// Type Links
 // ============================================================================
 
 interface TypeLinkInfo {
@@ -59,459 +55,259 @@ interface TypeLinkInfo {
 }
 
 /**
- * Collects type references and resolves them to links
+ * Resolve collected type references to links, sorted local first, then
+ * cross-package, then built-in
  */
-class TypeReferenceCollector {
-  #refs = new Set<string>();
-  #localTypes: Set<string>;
-  #typeToPackage: Map<string, string>;
-  #currentPackage: string;
-  #baseUrl: string;
+function resolveLinks(
+  refs: Set<string>,
+  localTypes: Set<string>,
+  typeToPackage: Map<string, string>,
+  currentPackage: string,
+  baseUrl: string,
+): TypeLinkInfo[] {
+  const links: TypeLinkInfo[] = [];
 
-  constructor(
-    localTypes: Set<string>,
-    typeToPackage: Map<string, string>,
-    currentPackage: string,
-    baseUrl = getBaseUrl(),
-  ) {
-    this.#localTypes = localTypes;
-    this.#typeToPackage = typeToPackage;
-    this.#currentPackage = currentPackage;
-    this.#baseUrl = baseUrl;
-  }
+  for (const name of refs) {
+    if (name in BUILTIN_TYPE_LINKS) {
+      links.push({
+        name,
+        href: BUILTIN_TYPE_LINKS[name],
+        isBuiltin: true,
+        isLocal: false,
+        isCrossPackage: false,
+      });
+      continue;
+    }
 
-  /**
-   * Add a type reference
-   */
-  add(typeName: string): void {
-    this.#refs.add(typeName);
-  }
+    if (localTypes.has(name)) {
+      links.push({
+        name,
+        href: `${baseUrl}/api/${currentPackage}#${name}`,
+        isBuiltin: false,
+        isLocal: true,
+        isCrossPackage: false,
+      });
+      continue;
+    }
 
-  /**
-   * Extract and add all type references from a TsTypeDef
-   */
-  extractFrom(type: TsTypeDef | undefined): void {
-    if (!type) return;
-
-    switch (type.kind) {
-      case "typeRef":
-        if (type.typeRef?.typeName) {
-          this.add(type.typeRef.typeName);
-          type.typeRef.typeParams?.forEach((t) => this.extractFrom(t));
-        }
-        break;
-      case "array":
-        this.extractFrom(type.array);
-        break;
-      case "union":
-        type.union?.forEach((t) => this.extractFrom(t));
-        break;
-      case "intersection":
-        type.intersection?.forEach((t) => this.extractFrom(t));
-        break;
-      case "tuple":
-        type.tuple?.forEach((t) => this.extractFrom(t));
-        break;
-      case "fnOrConstructor":
-        if (type.fnOrConstructor) {
-          type.fnOrConstructor.params.forEach((p) =>
-            this.extractFrom(p.tsType)
-          );
-          this.extractFrom(type.fnOrConstructor.returnType);
-        }
-        break;
-      case "typeOperator":
-        this.extractFrom(type.typeOperator?.tsType);
-        break;
-      case "typeLiteral":
-        if (type.typeLiteral) {
-          type.typeLiteral.properties.forEach((p) =>
-            this.extractFrom(p.tsType)
-          );
-          type.typeLiteral.methods.forEach((m) => {
-            m.params.forEach((p) => this.extractFrom(p.tsType));
-            this.extractFrom(m.returnType);
-          });
-        }
-        break;
+    const pkg = typeToPackage.get(name);
+    if (pkg && pkg !== currentPackage) {
+      links.push({
+        name,
+        href: `${baseUrl}/api/${pkg}#${name}`,
+        isBuiltin: false,
+        isLocal: false,
+        isCrossPackage: true,
+      });
     }
   }
 
-  /**
-   * Extract type refs from type parameters
-   */
-  extractFromTypeParams(typeParams: TsTypeParamDef[] | undefined): void {
-    if (!typeParams) return;
-    for (const p of typeParams) {
-      this.extractFrom(p.constraint);
-      this.extractFrom(p.default);
+  return links.sort((a, b) => {
+    if (a.isLocal !== b.isLocal) return a.isLocal ? -1 : 1;
+    if (a.isCrossPackage !== b.isCrossPackage) {
+      return a.isCrossPackage ? -1 : 1;
     }
-  }
-
-  /**
-   * Get all collected links, sorted and categorized
-   */
-  getLinks(): TypeLinkInfo[] {
-    const links: TypeLinkInfo[] = [];
-
-    for (const name of this.#refs) {
-      // Check if built-in type
-      if (name in BUILTIN_TYPE_LINKS) {
-        links.push({
-          name,
-          href: BUILTIN_TYPE_LINKS[name],
-          isBuiltin: true,
-          isLocal: false,
-          isCrossPackage: false,
-        });
-        continue;
-      }
-
-      // Check if local type
-      if (this.#localTypes.has(name)) {
-        links.push({
-          name,
-          href: `${this.#baseUrl}/api/${this.#currentPackage}#${name}`,
-          isBuiltin: false,
-          isLocal: true,
-          isCrossPackage: false,
-        });
-        continue;
-      }
-
-      // Check if cross-package type
-      if (this.#typeToPackage.has(name)) {
-        const pkg = this.#typeToPackage.get(name)!;
-        if (pkg !== this.#currentPackage) {
-          links.push({
-            name,
-            href: `${this.#baseUrl}/api/${pkg}#${name}`,
-            isBuiltin: false,
-            isLocal: false,
-            isCrossPackage: true,
-          });
-        }
-      }
-    }
-
-    // Sort: local first, then cross-package, then builtin
-    return links.sort((a, b) => {
-      if (a.isLocal !== b.isLocal) return a.isLocal ? -1 : 1;
-      if (a.isCrossPackage !== b.isCrossPackage) {
-        return a.isCrossPackage ? -1 : 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
-  }
+    return a.name.localeCompare(b.name);
+  });
 }
 
 // ============================================================================
 // Section Generators
 // ============================================================================
 
-function generateFunctionMarkdown(
-  node: DocNode,
-  def: FunctionDef,
-  collector: TypeReferenceCollector,
-): string {
-  const lines: string[] = [];
-
-  lines.push(`### \`${node.name}\``);
-  lines.push("");
-  lines.push("```typescript");
-  lines.push(formatFunctionSignature(node.name, def));
-  lines.push("```");
-  lines.push("");
-
-  // Extract type refs
-  collector.extractFromTypeParams(def.typeParams);
-  def.params.forEach((p) => collector.extractFrom(p.tsType));
-  collector.extractFrom(def.returnType);
-
-  // Description
-  const description = getDescription(node);
-  if (description) {
-    lines.push(description);
-    lines.push("");
-  }
-
-  // Parameters
-  if (def.params.length > 0) {
-    const paramDocs = getParamDocs(node);
-    lines.push("**Parameters:**");
-    lines.push("");
-    for (const param of def.params) {
-      const name = param.name ?? "_";
-      const optional = param.optional ? " (optional)" : "";
-      const type = formatType(param.tsType);
-      const doc = paramDocs.get(name);
-      lines.push(
-        `- \`${name}\`: \`${type}\`${optional}${doc ? ` — ${doc}` : ""}`,
-      );
-    }
-    lines.push("");
-  }
-
-  // Returns
-  const returnDoc = getReturnDoc(node);
-  if (def.returnType || returnDoc) {
-    lines.push("**Returns:** `" + formatType(def.returnType) + "`");
-    if (returnDoc) {
-      lines.push("");
-      lines.push(returnDoc);
-    }
-    lines.push("");
-  }
-
-  // Examples - doc field is already Markdown, output as-is
-  const examples = getExamples(node);
-  if (examples.length > 0) {
-    lines.push("**Example:**");
-    lines.push("");
-    for (const example of examples) {
-      lines.push(example.trim());
-      lines.push("");
-    }
-  }
-
-  return lines.join("\n");
+function codeBlock(code: string): string[] {
+  return ["```typescript", code, "```", ""];
 }
 
-function generateClassMarkdown(
-  node: DocNode,
-  def: ClassDef,
-  collector: TypeReferenceCollector,
-): string {
-  const lines: string[] = [];
+function paragraph(text: string | undefined): string[] {
+  return text ? [text, ""] : [];
+}
 
-  lines.push(`### \`${node.name}\``);
-  lines.push("");
-  lines.push("```typescript");
-  lines.push(formatClassSignature(node.name, def));
-  lines.push("```");
-  lines.push("");
+function examples(reflection: DeclarationReflection): string[] {
+  const blocks = getExamples(reflection);
+  if (blocks.length === 0) return [];
+  // Examples are already Markdown, output as-is
+  return ["**Example:**", "", ...blocks.flatMap((e) => [e.trim(), ""])];
+}
 
-  // Extract type refs
-  collector.extractFromTypeParams(def.typeParams);
-  def.implements.forEach((t) => collector.extractFrom(t));
-
-  // Description
-  const description = getDescription(node);
-  if (description) {
-    lines.push(description);
-    lines.push("");
-  }
-
-  // Constructor
-  if (def.constructors.length > 0) {
-    lines.push("**Constructor:**");
-    lines.push("");
-    for (const ctor of def.constructors) {
-      lines.push("```typescript");
-      lines.push(formatConstructorSignature(node.name, ctor.params));
-      lines.push("```");
-      lines.push("");
-      ctor.params.forEach((p) => collector.extractFrom(p.tsType));
-    }
-  }
-
-  // Properties
-  const publicProps = def.properties.filter(
-    (p) => p.accessibility !== "private" && !p.name.startsWith("_"),
+/**
+ * A bullet list of properties: `- [readonly] \`name?\`: \`Type\` — description`
+ */
+function propertyList(members: DeclarationReflection[]): string[] {
+  const properties = members.filter((m) =>
+    m.kind === ReflectionKind.Property || m.kind === ReflectionKind.Accessor
   );
-  if (publicProps.length > 0) {
-    lines.push("**Properties:**");
-    lines.push("");
-    for (const prop of publicProps) {
-      collector.extractFrom(prop.tsType);
+  if (properties.length === 0) return [];
+  return [
+    "**Properties:**",
+    "",
+    ...properties.map((prop) => {
+      const isAccessor = prop.kind === ReflectionKind.Accessor;
       const modifiers: string[] = [];
-      if (prop.isStatic) modifiers.push("static");
-      if (prop.readonly) modifiers.push("readonly");
+      if (prop.flags.isStatic) modifiers.push("static");
+      if (isAccessor ? !prop.setSignature : prop.flags.isReadonly) {
+        modifiers.push("readonly");
+      }
       const prefix = modifiers.length > 0 ? `[${modifiers.join(", ")}] ` : "";
-      const optional = prop.optional ? "?" : "";
+      const optional = prop.flags.isOptional ? "?" : "";
+      const type = formatType(
+        isAccessor ? prop.getSignature?.type : prop.type,
+        { multiline: false },
+      );
       const desc = getDescription(prop);
+      return `- ${prefix}\`${prop.name}${optional}\`: \`${type}\`${
+        desc ? ` — ${desc}` : ""
+      }`;
+    }),
+    "",
+  ];
+}
+
+function methodList(members: DeclarationReflection[]): string[] {
+  const methods = members.filter((m) => m.kind === ReflectionKind.Method);
+  if (methods.length === 0) return [];
+  return [
+    "**Methods:**",
+    "",
+    ...methods.flatMap((method) =>
+      (method.signatures ?? []).flatMap((signature) => {
+        const desc = getDescription(signature);
+        return [
+          "```typescript",
+          formatMethodSignature(method, signature),
+          "```",
+          ...(desc ? ["", desc] : []),
+          "",
+        ];
+      })
+    ),
+  ];
+}
+
+function generateFunctionMarkdown(reflection: DeclarationReflection): string[] {
+  const signatures = reflection.signatures ?? [];
+  if (signatures.length > 1) {
+    return [
+      `### \`${reflection.name}\` (${signatures.length} overloads)`,
+      "",
+      ...signatures.flatMap((signature, i) => [
+        `**Overload ${i + 1}:**`,
+        "",
+        ...codeBlock(formatFunctionSignature(reflection.name, signature)),
+        ...paragraph(getDescription(signature)),
+      ]),
+      ...examples(reflection),
+    ];
+  }
+
+  const [signature] = signatures;
+  if (!signature) return [];
+  const lines = [
+    `### \`${reflection.name}\``,
+    "",
+    ...codeBlock(formatFunctionSignature(reflection.name, signature)),
+    ...paragraph(getDescription(reflection)),
+  ];
+
+  const params = signature.parameters ?? [];
+  if (params.length > 0) {
+    const paramDocs = getParamDocs(signature);
+    lines.push("**Parameters:**", "");
+    for (const param of params) {
+      const optional = param.flags.isOptional ? " (optional)" : "";
+      const type = formatType(param.type, { multiline: false });
+      const doc = paramDocs.get(param.name);
       lines.push(
-        `- ${prefix}\`${prop.name}${optional}\`: \`${
-          formatType(prop.tsType)
-        }\`${desc ? ` — ${desc}` : ""}`,
+        `- \`${param.name}\`: \`${type}\`${optional}${doc ? ` — ${doc}` : ""}`,
       );
     }
     lines.push("");
   }
 
-  // Methods
-  const publicMethods = def.methods.filter(
-    (m) => m.accessibility !== "private" && !m.name.startsWith("_"),
+  const returnDoc = getReturnDoc(signature);
+  lines.push(
+    `**Returns:** \`${formatType(signature.type, { multiline: false })}\``,
   );
-  if (publicMethods.length > 0) {
-    lines.push("**Methods:**");
-    lines.push("");
-    for (const method of publicMethods) {
-      lines.push("```typescript");
-      lines.push(formatMethodSignature(method));
-      lines.push("```");
+  if (returnDoc) lines.push("", returnDoc);
+  lines.push("");
 
-      collector.extractFromTypeParams(method.typeParams);
-      method.params?.forEach((p) => collector.extractFrom(p.tsType));
-      collector.extractFrom(method.returnType);
+  lines.push(...examples(reflection));
+  return lines;
+}
 
-      const desc = getDescription(method);
-      if (desc) {
-        lines.push("");
-        lines.push(desc);
-      }
-      lines.push("");
-    }
-  }
-
-  // Examples - doc field is already Markdown, output as-is
-  const examples = getExamples(node);
-  if (examples.length > 0) {
-    lines.push("**Example:**");
-    lines.push("");
-    for (const example of examples) {
-      lines.push(example.trim());
-      lines.push("");
-    }
-  }
-
-  return lines.join("\n");
+function generateClassMarkdown(reflection: DeclarationReflection): string[] {
+  const members = ownMembers(reflection);
+  const constructors = members
+    .filter((m) => m.kind === ReflectionKind.Constructor)
+    .flatMap((m) => m.signatures ?? []);
+  return [
+    `### \`${reflection.name}\``,
+    "",
+    ...codeBlock(formatClassSignature(reflection)),
+    ...paragraph(getDescription(reflection)),
+    ...(constructors.length > 0
+      ? [
+        "**Constructor:**",
+        "",
+        ...constructors.flatMap((signature) =>
+          codeBlock(formatConstructorSignature(reflection.name, signature))
+        ),
+      ]
+      : []),
+    ...propertyList(members),
+    ...methodList(members),
+    ...examples(reflection),
+  ];
 }
 
 function generateInterfaceMarkdown(
-  node: DocNode,
-  def: InterfaceDef,
-  collector: TypeReferenceCollector,
-): string {
-  const lines: string[] = [];
-
-  lines.push(`### \`${node.name}\``);
-  lines.push("");
-  lines.push("```typescript");
-  lines.push(formatInterfaceSignature(node.name, def));
-  lines.push("```");
-  lines.push("");
-
-  // Extract type refs
-  collector.extractFromTypeParams(def.typeParams);
-  def.extends.forEach((t) => collector.extractFrom(t));
-
-  // Description
-  const description = getDescription(node);
-  if (description) {
-    lines.push(description);
-    lines.push("");
-  }
-
-  // Properties
-  if (def.properties.length > 0) {
-    lines.push("**Properties:**");
-    lines.push("");
-    for (const prop of def.properties) {
-      collector.extractFrom(prop.tsType);
-      const readonly = prop.readonly ? "[readonly] " : "";
-      const optional = prop.optional ? "?" : "";
-      const desc = getDescription(prop);
-      lines.push(
-        `- ${readonly}\`${prop.name}${optional}\`: \`${
-          formatType(prop.tsType)
-        }\`${desc ? ` — ${desc}` : ""}`,
-      );
-    }
-    lines.push("");
-  }
-
-  // Methods
-  if (def.methods.length > 0) {
-    lines.push("**Methods:**");
-    lines.push("");
-    for (const method of def.methods) {
-      lines.push("```typescript");
-      lines.push(formatMethodSignature(method));
-      lines.push("```");
-
-      collector.extractFromTypeParams(method.typeParams);
-      method.params?.forEach((p) => collector.extractFrom(p.tsType));
-      collector.extractFrom(method.returnType);
-
-      const desc = getDescription(method);
-      if (desc) {
-        lines.push("");
-        lines.push(desc);
-      }
-      lines.push("");
-    }
-  }
-
-  // Examples - doc field is already Markdown, output as-is
-  const examples = getExamples(node);
-  if (examples.length > 0) {
-    lines.push("**Example:**");
-    lines.push("");
-    for (const example of examples) {
-      lines.push(example.trim());
-      lines.push("");
-    }
-  }
-
-  return lines.join("\n");
+  reflection: DeclarationReflection,
+): string[] {
+  const members = ownMembers(reflection);
+  return [
+    `### \`${reflection.name}\``,
+    "",
+    ...codeBlock(formatInterfaceSignature(reflection)),
+    ...paragraph(getDescription(reflection)),
+    ...propertyList(members),
+    ...methodList(members),
+    ...examples(reflection),
+  ];
 }
 
 function generateTypeAliasMarkdown(
-  node: DocNode,
-  def: TypeAliasDef,
-  collector: TypeReferenceCollector,
-): string {
-  const lines: string[] = [];
-
-  lines.push(`### \`${node.name}\``);
-  lines.push("");
-  lines.push("```typescript");
-  lines.push(formatTypeAliasSignature(node.name, def));
-  lines.push("```");
-  lines.push("");
-
-  // Extract type refs
-  collector.extractFromTypeParams(def.typeParams);
-  collector.extractFrom(def.tsType);
-
-  // Description
-  const description = getDescription(node);
-  if (description) {
-    lines.push(description);
-    lines.push("");
-  }
-
-  return lines.join("\n");
+  reflection: DeclarationReflection,
+): string[] {
+  return [
+    `### \`${reflection.name}\``,
+    "",
+    ...codeBlock(formatTypeAliasSignature(reflection)),
+    ...paragraph(getDescription(reflection)),
+    ...examples(reflection),
+  ];
 }
 
 function generateVariableMarkdown(
-  node: DocNode,
-  collector: TypeReferenceCollector,
-): string {
-  const lines: string[] = [];
-  const def = node.variableDef;
-  const kind = def?.kind ?? "const";
-
-  lines.push(`### \`${node.name}\``);
-  lines.push("");
-  lines.push("```typescript");
-  lines.push(`${kind} ${node.name}: ${formatType(def?.tsType)}`);
-  lines.push("```");
-  lines.push("");
-
-  // Extract type refs
-  collector.extractFrom(def?.tsType);
-
-  // Description
-  const description = getDescription(node);
-  if (description) {
-    lines.push(description);
-    lines.push("");
-  }
-
-  return lines.join("\n");
+  reflection: DeclarationReflection,
+): string[] {
+  return [
+    `### \`${reflection.name}\``,
+    "",
+    ...codeBlock(formatVariableSignature(reflection)),
+    ...paragraph(getDescription(reflection)),
+    ...examples(reflection),
+  ];
 }
+
+const SECTIONS: Array<
+  [ExportKind, string, (reflection: DeclarationReflection) => string[]]
+> = [
+  ["class", "Classes", generateClassMarkdown],
+  ["interface", "Interfaces", generateInterfaceMarkdown],
+  ["function", "Functions", generateFunctionMarkdown],
+  ["typeAlias", "Types", generateTypeAliasMarkdown],
+  ["variable", "Variables", generateVariableMarkdown],
+];
 
 // ============================================================================
 // Main Generator
@@ -533,180 +329,63 @@ export function generateApiMarkdown(
   pkg: PackageDoc,
   options: ApiMarkdownOptions = {},
 ): string {
-  const lines: string[] = [];
   const {
     allPackages = [],
     baseUrl = getBaseUrl(),
     updatedAt,
   } = options;
 
-  // Build local types set
-  const localTypes = new Set<string>();
-  for (const node of pkg.exports) {
-    if (isPublic(node)) {
-      localTypes.add(node.name);
-    }
-  }
+  const exports = pkg.exports.filter(isDocumentedExport);
+  const localTypes = new Set(exports.map((r) => r.name));
 
   // Build cross-package type map
   const typeToPackage = new Map<string, string>();
   for (const p of allPackages) {
-    if (p.name !== pkg.name) {
-      for (const node of p.exports) {
-        if (isPublic(node)) {
-          typeToPackage.set(node.name, p.name);
-        }
+    if (p.name === pkg.name) continue;
+    for (const reflection of p.exports) {
+      if (isDocumentedExport(reflection)) {
+        typeToPackage.set(reflection.name, p.name);
       }
     }
   }
 
-  // Create collector
-  const collector = new TypeReferenceCollector(
+  const lines: string[] = [
+    `# ${pkg.specifier}`,
+    "",
+    `> Version: ${pkg.version}`,
+    "",
+    ...paragraph(partsToMarkdown(pkg.moduleDoc?.summary)),
+  ];
+
+  const collector = new TypeRefCollector();
+  const grouped = groupByKind(exports);
+  for (const [kind, title, generate] of SECTIONS) {
+    const reflections = grouped[kind] ?? [];
+    if (reflections.length === 0) continue;
+    lines.push(`## ${title}`, "");
+    for (const reflection of reflections) {
+      collector.declaration(reflection);
+      lines.push(...generate(reflection), "---", "");
+    }
+  }
+
+  // Related Links section
+  const links = resolveLinks(
+    collector.refs,
     localTypes,
     typeToPackage,
     pkg.name,
     baseUrl,
   );
-
-  // Header
-  lines.push(`# @probitas/${pkg.name}`);
-  lines.push("");
-  lines.push(`> Version: ${pkg.version}`);
-  lines.push("");
-
-  // Module documentation
-  if (pkg.moduleDoc) {
-    lines.push(pkg.moduleDoc);
-    lines.push("");
-  }
-
-  // Filter and deduplicate exports
-  const publicExports = deduplicateByName(pkg.exports.filter(isPublic));
-  const overloadGroups = groupByName(pkg.exports.filter(isPublic));
-
-  // Group by kind
-  const classes = publicExports.filter((n) => n.kind === "class");
-  const interfaces = publicExports.filter((n) => n.kind === "interface");
-  const functions = publicExports.filter((n) => n.kind === "function");
-  const types = publicExports.filter((n) => n.kind === "typeAlias");
-  const variables = publicExports.filter((n) => n.kind === "variable");
-
-  // Classes
-  if (classes.length > 0) {
-    lines.push("## Classes");
-    lines.push("");
-    for (const node of classes) {
-      if (node.classDef) {
-        lines.push(generateClassMarkdown(node, node.classDef, collector));
-        lines.push("---");
-        lines.push("");
-      }
-    }
-  }
-
-  // Interfaces
-  if (interfaces.length > 0) {
-    lines.push("## Interfaces");
-    lines.push("");
-    for (const node of interfaces) {
-      if (node.interfaceDef) {
-        lines.push(
-          generateInterfaceMarkdown(node, node.interfaceDef, collector),
-        );
-        lines.push("---");
-        lines.push("");
-      }
-    }
-  }
-
-  // Functions
-  if (functions.length > 0) {
-    lines.push("## Functions");
-    lines.push("");
-    for (const node of functions) {
-      if (node.functionDef) {
-        // Check for overloads
-        const overloads = overloadGroups.get(`function:${node.name}`);
-        if (overloads && overloads.length > 1) {
-          lines.push(`### \`${node.name}\` (${overloads.length} overloads)`);
-          lines.push("");
-          for (let i = 0; i < overloads.length; i++) {
-            const overload = overloads[i];
-            if (overload.functionDef) {
-              lines.push(`**Overload ${i + 1}:**`);
-              lines.push("");
-              lines.push("```typescript");
-              lines.push(
-                formatFunctionSignature(node.name, overload.functionDef),
-              );
-              lines.push("```");
-              lines.push("");
-
-              collector.extractFromTypeParams(overload.functionDef.typeParams);
-              overload.functionDef.params.forEach((p) =>
-                collector.extractFrom(p.tsType)
-              );
-              collector.extractFrom(overload.functionDef.returnType);
-
-              const desc = getDescription(overload);
-              if (desc) {
-                lines.push(desc);
-                lines.push("");
-              }
-            }
-          }
-          lines.push("---");
-          lines.push("");
-        } else {
-          lines.push(
-            generateFunctionMarkdown(node, node.functionDef, collector),
-          );
-          lines.push("---");
-          lines.push("");
-        }
-      }
-    }
-  }
-
-  // Types
-  if (types.length > 0) {
-    lines.push("## Types");
-    lines.push("");
-    for (const node of types) {
-      if (node.typeAliasDef) {
-        lines.push(
-          generateTypeAliasMarkdown(node, node.typeAliasDef, collector),
-        );
-        lines.push("---");
-        lines.push("");
-      }
-    }
-  }
-
-  // Variables
-  if (variables.length > 0) {
-    lines.push("## Variables");
-    lines.push("");
-    for (const node of variables) {
-      lines.push(generateVariableMarkdown(node, collector));
-      lines.push("---");
-      lines.push("");
-    }
-  }
-
-  // Related Links section
-  const links = collector.getLinks();
   if (links.length > 0) {
-    lines.push("## Related Links");
-    lines.push("");
+    lines.push("## Related Links", "");
 
     const localLinks = links.filter((l) => l.isLocal);
     const crossPkgLinks = links.filter((l) => l.isCrossPackage);
     const builtinLinks = links.filter((l) => l.isBuiltin);
 
     if (localLinks.length > 0) {
-      lines.push("### This Package");
-      lines.push("");
+      lines.push("### This Package", "");
       for (const link of localLinks) {
         lines.push(`- [\`${link.name}\`](${link.href})`);
       }
@@ -714,18 +393,18 @@ export function generateApiMarkdown(
     }
 
     if (crossPkgLinks.length > 0) {
-      lines.push("### Other Packages");
-      lines.push("");
+      lines.push("### Other Packages", "");
       for (const link of crossPkgLinks) {
         const pkgName = typeToPackage.get(link.name);
-        lines.push(`- [\`${link.name}\`](${link.href}) (@probitas/${pkgName})`);
+        lines.push(
+          `- [\`${link.name}\`](${link.href}) (@probitas-test/${pkgName})`,
+        );
       }
       lines.push("");
     }
 
     if (builtinLinks.length > 0) {
-      lines.push("### Built-in Types");
-      lines.push("");
+      lines.push("### Built-in Types", "");
       for (const link of builtinLinks) {
         lines.push(`- [\`${link.name}\`](${link.href})`);
       }
@@ -735,8 +414,7 @@ export function generateApiMarkdown(
 
   // Footer with last updated timestamp
   if (updatedAt) {
-    lines.push("---");
-    lines.push("");
+    lines.push("---", "");
     lines.push(`*Last updated: ${updatedAt.toISOString().split("T")[0]}*`);
   }
 

@@ -17,14 +17,10 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            deno
+            nodejs
             pagefind
             probitas
           ];
-
-          shellHook = ''
-            export DENO_NO_UPDATE_CHECK=1
-          '';
         };
       });
 }

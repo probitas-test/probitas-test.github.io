@@ -1,338 +1,499 @@
 {
-  "name": "discover",
-  "specifier": "@probitas/discover",
-  "version": "0.4.1",
-  "moduleDoc": "Scenario file discovery utilities for Probitas.\n\nThis package provides utilities for discovering scenario files (`.probitas.ts`)\nfrom file paths and directories. It supports glob patterns for flexible file\nmatching and is used internally by the CLI to find scenarios to execute.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/core](https://jsr.io/@probitas/core) | Load discovered files with `loadScenarios` |\n| [@probitas/cli](https://jsr.io/@probitas/cli) | CLI that uses this discovery |\n\n## Core Function\n\n- {@linkcode discoverScenarioFiles} - Discover scenario files from paths\n\n## Configuration Types\n\n- {@linkcode DiscoverOptions} - Options for customizing discovery behavior\n- {@linkcode DiscoverProgress} - Progress information during discovery\n\n## Default Behavior\n\nBy default, the discovery function:\n- Searches for files matching `**\\/*.probitas.ts` in directories\n- Returns direct file paths as-is (no pattern matching)\n- Returns absolute paths sorted alphabetically\n\n## Permissions\n\nRequires `--allow-read` permission to read the file system.\n",
-  "exports": [
-    {
-      "name": "DiscoverProgress",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-        "line": 86,
-        "col": 0,
-        "byteIndex": 2263
+  "schemaVersion": "2.0",
+  "id": 5197,
+  "name": "@probitas-test/discover",
+  "variant": "project",
+  "kind": 1,
+  "flags": {},
+  "comment": {
+    "summary": [
+      {
+        "kind": "text",
+        "text": "Scenario file discovery utilities for Probitas.\n\nThis package provides utilities for discovering scenario files ("
       },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Progress information during file discovery.\n\nProvides real-time feedback about the discovery process, useful for\ndisplaying progress in CLI applications."
+      {
+        "kind": "code",
+        "text": "`.probitas.ts`"
       },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "currentPath",
-            "jsDoc": {
-              "doc": "The directory or file path currently being processed."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-              "line": 90,
-              "col": 2,
-              "byteIndex": 2372
-            },
-            "params": [],
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "filesFound",
-            "jsDoc": {
-              "doc": "Total number of matching files found so far."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-              "line": 95,
-              "col": 2,
-              "byteIndex": 2458
-            },
-            "params": [],
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
+      {
+        "kind": "text",
+        "text": ")\nfrom file paths and directories. It supports glob patterns for flexible file\nmatching and is used internally by the CLI to find scenarios to execute.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas-test/probitas](https://www.npmjs.com/package/@probitas-test/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas-test/core](https://www.npmjs.com/package/@probitas-test/core) | Load discovered files with "
+      },
+      {
+        "kind": "code",
+        "text": "`loadScenarios`"
+      },
+      {
+        "kind": "text",
+        "text": " |\n| [probitas](https://github.com/probitas-test/probitas) | CLI that uses these reporters |\n\n## Core Function\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "discoverScenarioFiles",
+        "target": 5198
+      },
+      {
+        "kind": "text",
+        "text": " - Discover scenario files from paths\n\n## Configuration Types\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "DiscoverOptions",
+        "target": 5205
+      },
+      {
+        "kind": "text",
+        "text": " - Options for customizing discovery behavior\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "DiscoverProgress",
+        "target": 5202
+      },
+      {
+        "kind": "text",
+        "text": " - Progress information during discovery\n\n## Default Behavior\n\nBy default, the discovery function:\n- Searches for files matching "
+      },
+      {
+        "kind": "code",
+        "text": "`**/*.probitas.ts`"
+      },
+      {
+        "kind": "text",
+        "text": " in directories\n- Returns direct file paths as-is (no pattern matching)\n- Returns absolute paths sorted alphabetically\n\n## Permissions\n\nRequires "
+      },
+      {
+        "kind": "code",
+        "text": "`--allow-read`"
+      },
+      {
+        "kind": "text",
+        "text": " permission to read the file system."
       }
-    },
-    {
-      "name": "DiscoverOptions",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-        "line": 103,
-        "col": 0,
-        "byteIndex": 2611
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Options for discovering scenario files.\n\nControls which files are included or excluded when scanning directories."
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
+    ],
+    "blockTags": [
+      {
+        "tag": "@example",
+        "name": "Basic usage",
+        "content": [
           {
-            "name": "includes",
-            "jsDoc": {
-              "doc": "Glob patterns for files to include when scanning directories.\n\nUses standard glob syntax with `**` for recursive matching.\n",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default [\"**\\/*.probitas.ts\"]"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-              "line": 111,
-              "col": 2,
-              "byteIndex": 2838
-            },
-            "params": [],
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "excludes",
-            "jsDoc": {
-              "doc": "Glob patterns for files to exclude.\n",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default Excludes common large directories (node_modules, target, .git, etc.)"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-              "line": 118,
-              "col": 2,
-              "byteIndex": 3012
-            },
-            "params": [],
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "onProgress",
-            "jsDoc": {
-              "doc": "Callback invoked during discovery to report progress.\n\nCalled when processing each path (file or directory) and after\ncompleting pattern matching within a directory. This allows CLI\napplications to display real-time progress feedback.\n",
-              "tags": [
-                {
-                  "kind": "example",
-                  "doc": "```ts\nawait discoverScenarioFiles([\"./scenarios\"], {\n  onProgress: ({ currentPath, filesFound }) => {\n    console.log(`Discovering: ${currentPath} (${filesFound} files found)`);\n  },\n});\n```"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-              "line": 136,
-              "col": 2,
-              "byteIndex": 3561
-            },
-            "params": [],
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "fnOrConstructor",
-              "fnOrConstructor": {
-                "constructor": false,
-                "tsType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "keyword": "void"
-                },
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "progress",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "DiscoverProgress",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "DiscoverProgress"
-                      }
-                    }
-                  }
-                ],
-                "typeParams": []
-              }
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "discoverScenarioFiles",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/discover/0.4.1/discover.ts",
-        "line": 180,
-        "col": 0,
-        "byteIndex": 4927
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Discover scenario files from paths (files or directories).\n\nHandles two input types:\n- **File path**: Returns the file directly (no pattern matching)\n- **Directory path**: Scans using include/exclude patterns\n",
-        "tags": [
-          {
-            "kind": "param",
-            "name": "paths",
-            "doc": "- Array of file paths or directory paths to scan"
-          },
-          {
-            "kind": "param",
-            "name": "options",
-            "doc": "- Include/exclude patterns for directory scanning"
-          },
-          {
-            "kind": "return",
-            "doc": "Array of absolute file paths, sorted alphabetically\n"
-          },
-          {
-            "kind": "unsupported",
-            "value": "@remarks\n- Requires `--allow-read` permission\n- Non-existent paths are silently skipped\n- Duplicate files are automatically deduplicated\n- Output is always sorted for deterministic ordering\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Discover from directories\n```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Use default patterns (*.probitas.ts)\nconst files = await discoverScenarioFiles([\"./tests\", \"./integration\"]);\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Discover with custom patterns\n```ts\nconst files = await discoverScenarioFiles([\"./src\"], {\n  includes: [\"**\\/*.test.ts\", \"**\\/*.spec.ts\"],\n  excludes: [\"**\\/__fixtures__/**\"]\n});\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Mixed files and directories\n```ts\nconst files = await discoverScenarioFiles([\n  \"./tests/\",           // Scan directory\n  \"./smoke.probitas.ts\" // Include specific file\n]);\n```"
+            "kind": "code",
+            "text": "```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Discover from current directory\nconst files = await discoverScenarioFiles([\".\"]);\nconsole.log(files);\n// [\"/path/to/auth.probitas.ts\", \"/path/to/api.probitas.ts\"]\n```"
           }
         ]
       },
-      "kind": "function",
-      "functionDef": {
-        "params": [
+      {
+        "tag": "@example",
+        "name": "Mixed files and directories",
+        "content": [
           {
-            "kind": "identifier",
-            "name": "paths",
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
+            "kind": "code",
+            "text": "```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Combine specific files with directory scanning\nconst files = await discoverScenarioFiles([\n  \"./critical.probitas.ts\",  // Direct file\n  \"./tests/api/\",            // Directory to scan\n  \"./tests/integration/\",    // Another directory\n]);\n```"
+          }
+        ]
+      },
+      {
+        "tag": "@example",
+        "name": "Custom patterns",
+        "content": [
+          {
+            "kind": "code",
+            "text": "```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Use custom include/exclude patterns\nconst files = await discoverScenarioFiles([\"./tests\"], {\n  includes: [\"**/*.test.ts\", \"**/*.spec.ts\"],  // Custom patterns\n  excludes: [\"**/_*.ts\", \"**/helpers/**\"],    // Skip files starting with _\n});\n```"
+          }
+        ]
+      },
+      {
+        "tag": "@example",
+        "name": "Integration with loader",
+        "content": [
+          {
+            "kind": "code",
+            "text": "```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\nimport { loadScenarios } from \"@probitas-test/core/loader\";\nimport type { Reporter } from \"@probitas-test/runner\";\nimport { Runner } from \"@probitas-test/runner\";\n\n// Complete workflow: discover -> load -> run\nconst files = await discoverScenarioFiles([\"./scenarios\"]);\nconst scenarios = await loadScenarios(files);\nconst reporter: Reporter = {}; // Minimal reporter (all methods optional)\nconst runner = new Runner(reporter);\nconst summary = await runner.run(scenarios);\n```"
+          }
+        ]
+      }
+    ]
+  },
+  "children": [
+    {
+      "id": 5205,
+      "name": "DiscoverOptions",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Options for discovering scenario files.\n\nControls which files are included or excluded when scanning directories."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5207,
+          "name": "excludes",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Glob patterns for files to exclude."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nExcludes common large directories (node_modules, target, .git, etc.)\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": 5206,
+          "name": "includes",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Glob patterns for files to include when scanning directories.\n\nUses standard glob syntax with "
+              },
+              {
+                "kind": "code",
+                "text": "`**`"
+              },
+              {
+                "kind": "text",
+                "text": " for recursive matching."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n[\"**/*.probitas.ts\"]\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": 5208,
+          "name": "onProgress",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Callback invoked during discovery to report progress.\n\nCalled when processing each path (file or directory) and after\ncompleting pattern matching within a directory. This allows CLI\napplications to display real-time progress feedback."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@example",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nawait discoverScenarioFiles([\"./scenarios\"], {\n  onProgress: ({ currentPath, filesFound }) => {\n    console.log(`Discovering: ${currentPath} (${filesFound} files found)`);\n  },\n});\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "reflection",
+            "declaration": {
+              "id": 5209,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "signatures": [
+                {
+                  "id": 5210,
+                  "name": "__type",
+                  "variant": "signature",
+                  "kind": 4096,
+                  "flags": {},
+                  "parameters": [
+                    {
+                      "id": 5211,
+                      "name": "progress",
+                      "variant": "param",
+                      "kind": 32768,
+                      "flags": {},
+                      "type": {
+                        "type": "reference",
+                        "target": 5202,
+                        "name": "DiscoverProgress",
+                        "package": "@probitas-test/discover"
+                      }
+                    }
+                  ],
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 5202,
+      "name": "DiscoverProgress",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Progress information during file discovery.\n\nProvides real-time feedback about the discovery process, useful for\ndisplaying progress in CLI applications."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5203,
+          "name": "currentPath",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "The directory or file path currently being processed."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 5204,
+          "name": "filesFound",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Total number of matching files found so far."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5198,
+      "name": "discoverScenarioFiles",
+      "variant": "declaration",
+      "kind": 64,
+      "flags": {},
+      "signatures": [
+        {
+          "id": 5199,
+          "name": "discoverScenarioFiles",
+          "variant": "signature",
+          "kind": 4096,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Discover scenario files from paths (files or directories).\n\nHandles two input types:\n- **File path**: Returns the file directly (no pattern matching)\n- **Directory path**: Scans using include/exclude patterns"
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@returns",
+                "content": [
+                  {
+                    "kind": "text",
+                    "text": "Array of absolute file paths, sorted alphabetically"
+                  }
+                ]
+              },
+              {
+                "tag": "@remarks",
+                "content": [
+                  {
+                    "kind": "text",
+                    "text": "- Requires "
+                  },
+                  {
+                    "kind": "code",
+                    "text": "`--allow-read`"
+                  },
+                  {
+                    "kind": "text",
+                    "text": " permission\n- Non-existent paths are silently skipped\n- Duplicate files are automatically deduplicated\n- Output is always sorted for deterministic ordering"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Discover from directories",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nimport { discoverScenarioFiles } from \"@probitas-test/discover\";\n\n// Use default patterns (*.probitas.ts)\nconst files = await discoverScenarioFiles([\"./tests\", \"./integration\"]);\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Discover with custom patterns",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nconst files = await discoverScenarioFiles([\"./src\"], {\n  includes: [\"**/*.test.ts\", \"**/*.spec.ts\"],\n  excludes: [\"**/__fixtures__/**\"]\n});\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "name": "Mixed files and directories",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nconst files = await discoverScenarioFiles([\n  \"./tests/\",           // Scan directory\n  \"./smoke.probitas.ts\" // Include specific file\n]);\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": 5200,
+              "name": "paths",
+              "variant": "param",
+              "kind": 32768,
+              "flags": {},
+              "comment": {
+                "summary": [
+                  {
+                    "kind": "text",
+                    "text": "Array of file paths or directory paths to scan"
+                  }
+                ]
+              },
+              "type": {
+                "type": "typeOperator",
                 "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
+                "target": {
+                  "type": "array",
+                  "elementType": {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 }
               }
-            }
-          },
-          {
-            "kind": "assign",
-            "left": {
-              "kind": "identifier",
-              "name": "options",
-              "optional": false,
-              "tsType": {
-                "repr": "DiscoverOptions",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "DiscoverOptions"
-                }
-              }
             },
-            "right": "[UNSUPPORTED]",
-            "tsType": null
-          }
-        ],
-        "returnType": {
-          "repr": "Promise",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
+            {
+              "id": 5201,
+              "name": "options",
+              "variant": "param",
+              "kind": 32768,
+              "flags": {},
+              "comment": {
+                "summary": [
+                  {
+                    "kind": "text",
+                    "text": "Include/exclude patterns for directory scanning"
+                  }
+                ]
+              },
+              "type": {
+                "type": "reference",
+                "target": 5205,
+                "name": "DiscoverOptions",
+                "package": "@probitas-test/discover"
+              },
+              "defaultValue": "{}"
+            }
+          ],
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Promise"
+            },
+            "typeArguments": [
               {
-                "repr": "",
-                "kind": "array",
-                "array": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
                 }
               }
             ],
-            "typeName": "Promise"
+            "name": "Promise",
+            "package": "typescript"
           }
-        },
-        "hasBody": true,
-        "isAsync": true,
-        "isGenerator": false,
-        "typeParams": []
-      }
+        }
+      ]
     }
-  ]
+  ],
+  "packageName": "@probitas-test/discover",
+  "packageVersion": "0.4.2"
 }

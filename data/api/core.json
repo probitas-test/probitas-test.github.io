@@ -1,1341 +1,1823 @@
 {
-  "name": "core",
-  "specifier": "@probitas/core",
-  "version": "0.3.3",
-  "moduleDoc": "Core scenario definition types and utilities.\n\nThis package provides the fundamental type definitions that represent scenario\nstructures, along with utilities for loading scenario files and filtering\nscenarios using selectors. It serves as the foundation layer that other\nProbitas packages build upon.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas/probitas](https://jsr.io/@probitas/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/builder](https://jsr.io/@probitas/builder) | Uses these types to build scenarios |\n| [@probitas/runner](https://jsr.io/@probitas/runner) | Executes scenario definitions |\n| [@probitas/discover](https://jsr.io/@probitas/discover) | Discovers scenario files to load |\n\n## Type Definitions\n\nThe type system is designed around immutable data structures:\n\n- {@linkcode ScenarioDefinition} - Complete scenario with name, options, and entries\n- {@linkcode StepDefinition} - Individual step with function, options, and source\n- {@linkcode SetupDefinition} - Setup hook with cleanup function support\n- {@linkcode ResourceDefinition} - Named resource with fn function\n- {@linkcode StepContext} - Context object passed to all functions\n- {@linkcode Entry} - Discriminated union of step, setup, or resource\n\n## Options Types\n\n- {@linkcode ScenarioOptions} - Scenario-level configuration (tags, default step options)\n- {@linkcode StepOptions} - Step execution settings (timeout, retry strategy)\n- Import `Origin` from `@probitas/core/origin` for file and line information\n\n## Function Types\n\n- {@linkcode StepFunction} - Signature for step execution functions\n- {@linkcode SetupFunction} - Signature for setup hooks (returns cleanup)\n- {@linkcode ResourceFunction} - Signature for resource creation functions\n- {@linkcode SetupCleanup} - Return type of setup functions\n\n## Loader Utilities\n\n- {@linkcode loadScenarios} - Load scenario definitions from file paths\n- {@linkcode LoadScenariosOptions} - Options for the loader\n\n## Selector Utilities\n\nSelectors provide powerful filtering capabilities:\n\n- {@linkcode applySelectors} - Filter scenarios using selector strings\n- {@linkcode parseSelector} - Parse selector string into Selector objects\n- {@linkcode matchesSelector} - Check if a scenario matches a single selector\n- {@linkcode Selector} - Parsed selector object\n- {@linkcode SelectorType} - Type of selector (\"tag\" or \"name\")\n",
-  "exports": [
-    {
-      "name": "ScenarioOptions",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-        "line": 23,
-        "col": 0,
-        "byteIndex": 551
+  "schemaVersion": "2.0",
+  "id": 5147,
+  "name": "@probitas-test/core",
+  "variant": "project",
+  "kind": 1,
+  "flags": {},
+  "comment": {
+    "summary": [
+      {
+        "kind": "text",
+        "text": "Core scenario definition types and utilities.\n\nThis package provides the fundamental type definitions that represent scenario\nstructures, along with utilities for loading scenario files and filtering\nscenarios using selectors. It serves as the foundation layer that other\nProbitas packages build upon.\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [@probitas-test/probitas](https://www.npmjs.com/package/@probitas-test/probitas) - Main package (recommended for most users)\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas-test/builder](https://www.npmjs.com/package/@probitas-test/builder) | Uses these types to build scenarios |\n| [@probitas-test/runner](https://www.npmjs.com/package/@probitas-test/runner) | Executes scenario definitions |\n| [@probitas-test/discover](https://www.npmjs.com/package/@probitas-test/discover) | Discovers scenario files to load |\n\n## Type Definitions\n\nThe type system is designed around immutable data structures:\n\n- "
       },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Configuration options for scenario execution.\n\nDefines metadata and default behavior for an entire scenario.\n",
-        "tags": [
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "ScenarioDefinition",
+        "target": 5152
+      },
+      {
+        "kind": "text",
+        "text": " - Complete scenario with name, options, and entries\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepDefinition",
+        "target": 5185
+      },
+      {
+        "kind": "text",
+        "text": " - Individual step with function, options, and source\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "SetupDefinition"
+      },
+      {
+        "kind": "text",
+        "text": " - Setup hook with cleanup function support\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "ResourceDefinition"
+      },
+      {
+        "kind": "text",
+        "text": " - Named resource with fn function\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepContext",
+        "target": 5173
+      },
+      {
+        "kind": "text",
+        "text": " - Context object passed to all functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "Entry"
+      },
+      {
+        "kind": "text",
+        "text": " - Discriminated union of step, setup, or resource\n\n## Options Types\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "ScenarioOptions",
+        "target": 5148
+      },
+      {
+        "kind": "text",
+        "text": " - Scenario-level configuration (tags, default step options)\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepOptions",
+        "target": 5164
+      },
+      {
+        "kind": "text",
+        "text": " - Step execution settings (timeout, retry strategy)\n- Import "
+      },
+      {
+        "kind": "code",
+        "text": "`Origin`"
+      },
+      {
+        "kind": "text",
+        "text": " from "
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/core/origin`"
+      },
+      {
+        "kind": "text",
+        "text": " for file and line information\n\n## Function Types\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "StepFunction",
+        "target": 5180
+      },
+      {
+        "kind": "text",
+        "text": " - Signature for step execution functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "SetupFunction"
+      },
+      {
+        "kind": "text",
+        "text": " - Signature for setup hooks (returns cleanup)\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "ResourceFunction"
+      },
+      {
+        "kind": "text",
+        "text": " - Signature for resource creation functions\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "SetupCleanup",
+        "target": 5170
+      },
+      {
+        "kind": "text",
+        "text": " - Return type of setup functions\n\n## Loader Utilities\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "loadScenarios"
+      },
+      {
+        "kind": "text",
+        "text": " - Load scenario definitions from file paths\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "LoadScenariosOptions"
+      },
+      {
+        "kind": "text",
+        "text": " - Options for the loader\n\n## Selector Utilities\n\nSelectors provide powerful filtering capabilities:\n\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "applySelectors"
+      },
+      {
+        "kind": "text",
+        "text": " - Filter scenarios using selector strings\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "parseSelector"
+      },
+      {
+        "kind": "text",
+        "text": " - Parse selector string into Selector objects\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "matchesSelector"
+      },
+      {
+        "kind": "text",
+        "text": " - Check if a scenario matches a single selector\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "Selector"
+      },
+      {
+        "kind": "text",
+        "text": " - Parsed selector object\n- "
+      },
+      {
+        "kind": "inline-tag",
+        "tag": "@linkcode",
+        "text": "SelectorType"
+      },
+      {
+        "kind": "text",
+        "text": " - Type of selector (\"tag\" or \"name\")"
+      }
+    ],
+    "blockTags": [
+      {
+        "tag": "@example",
+        "name": "Loading scenarios from files",
+        "content": [
           {
-            "kind": "example",
-            "doc": "```ts\nconst options: ScenarioOptions = {\n  tags: [\"api\", \"integration\", \"slow\"],\n  timeout: 30000,\n  stepOptions: {\n    timeout: 60000,\n    retry: { maxAttempts: 2, backoff: \"linear\" }\n  }\n};\n```\n"
-          },
-          {
-            "kind": "see",
-            "doc": "{@linkcode StepOptions} for step-level configuration"
+            "kind": "code",
+            "text": "```ts\nimport { loadScenarios } from \"@probitas-test/core/loader\";\n\nconst scenarios = await loadScenarios([\n  \"/path/to/auth.probitas.ts\",\n  \"/path/to/api.probitas.ts\",\n]);\nconsole.log(`Loaded ${scenarios.length} scenarios`);\n```"
           }
         ]
       },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
+      {
+        "tag": "@example",
+        "name": "Filtering scenarios with selectors",
+        "content": [
           {
-            "name": "tags",
-            "jsDoc": {
-              "doc": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 34,
-              "col": 2,
-              "byteIndex": 945
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen specified, this timeout applies to the total execution time of all\nsteps in the scenario. If the scenario exceeds this limit, a\n{@linkcode ScenarioTimeoutError} is thrown.\n\nPriority: scenario timeout > RunOptions timeout\n",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default undefined (uses RunOptions timeout if set, otherwise no timeout)\n"
-                },
-                {
-                  "kind": "example",
-                  "doc": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Quick API Test\", { timeout: 5000 })\n  .step(\"Call API\", async () => {\n    // This step and all others must complete within 5 seconds total\n  })\n  .build();\n```"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 58,
-              "col": 2,
-              "byteIndex": 1696
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "stepOptions",
-            "jsDoc": {
-              "doc": "Default options applied to all steps in this scenario.\n\nIndividual steps can override these defaults by specifying\ntheir own options in the `.step()` call."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 66,
-              "col": 2,
-              "byteIndex": 1913
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "StepOptions",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "StepOptions"
-              }
-            },
-            "typeParams": []
+            "kind": "code",
+            "text": "```ts\nimport { applySelectors } from \"@probitas-test/core/selector\";\nimport type { ScenarioDefinition } from \"@probitas-test/core\";\n\nconst scenarios: ScenarioDefinition[] = [];\n\n// Filter by tag (OR logic between strings)\nconst apiOrDb = applySelectors(scenarios, [\"tag:api\", \"tag:db\"]);\n\n// Filter by multiple conditions (AND logic within string)\nconst criticalApi = applySelectors(scenarios, [\"tag:api,tag:critical\"]);\n\n// Exclude scenarios with specific tag\nconst notSlow = applySelectors(scenarios, [\"!tag:slow\"]);\n\n// Filter by name pattern (regex supported)\nconst loginTests = applySelectors(scenarios, [\"name:login\"]);\n```"
           }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
+        ]
+      },
+      {
+        "tag": "@example",
+        "name": "Working with scenario definitions",
+        "content": [
+          {
+            "kind": "code",
+            "text": "```ts\nimport type { ScenarioDefinition } from \"@probitas-test/core\";\n\nfunction inspectScenario(scenario: ScenarioDefinition) {\n  console.log(`Scenario: ${scenario.name}`);\n  console.log(`Tags: ${scenario.tags.join(\", \")}`);\n  console.log(`Steps: ${scenario.steps.length}`);\n\n  for (const step of scenario.steps) {\n    if (step.kind === \"step\") {\n      console.log(`  Step: ${step.name}`);\n    } else if (step.kind === \"resource\") {\n      console.log(`  Resource: ${step.name}`);\n    } else {\n      console.log(`  Setup hook`);\n    }\n  }\n}\n```"
+          }
+        ]
       }
-    },
+    ]
+  },
+  "children": [
     {
+      "id": 5152,
       "name": "ScenarioDefinition",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-        "line": 118,
-        "col": 0,
-        "byteIndex": 3373
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Complete, immutable definition of a scenario.\n\nThis is the core type produced by the builder and consumed by the runner.\nIt contains everything needed to execute a scenario: its name, options,\nand ordered sequence of entries (steps, resources, setups).\n",
-        "tags": [
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "kind": "unsupported",
-            "value": "@remarks\nScenario definitions are:\n- **Immutable**: The entries array is frozen after creation\n- **Self-contained**: All options have defaults applied\n- **Portable**: Can be serialized (minus functions) for tooling\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Typical scenario structure\n```ts\nimport type { ScenarioDefinition } from \"@probitas-test/core\";\n\n// Created by: scenario(\"Login Flow\").step(...).build()\nconst definition: ScenarioDefinition = {\n  name: \"Login Flow\",\n  tags: [\"auth\", \"smoke\"],\n  steps: [\n    {\n      kind: \"resource\",\n      name: \"api\",\n      fn: () => fetch,\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n    {\n      kind: \"step\",\n      name: \"Login\",\n      fn: () => {},\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n    {\n      kind: \"step\",\n      name: \"Verify\",\n      fn: () => {},\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n  ],\n  origin: { path: \"/tests/auth.probitas.ts\", line: 5 },\n};\nconsole.log(definition);\n```"
-          }
-        ]
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "name",
-            "jsDoc": {
-              "doc": "Human-readable scenario name (displayed in reports and CLI)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 120,
-              "col": 2,
-              "byteIndex": 3482
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "tags",
-            "jsDoc": {
-              "doc": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 132,
-              "col": 2,
-              "byteIndex": 3865
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen set, overrides the RunOptions timeout for this specific scenario.\nWhen timeout occurs, a {@linkcode ScenarioTimeoutError} is thrown."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 140,
-              "col": 2,
-              "byteIndex": 4138
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "steps",
-            "jsDoc": {
-              "doc": "Ordered sequence of entries (resources → setups → steps)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 143,
-              "col": 2,
-              "byteIndex": 4238
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "StepDefinition",
-                    "kind": "typeRef",
-                    "typeRef": {
-                      "typeParams": null,
-                      "typeName": "StepDefinition"
-                    }
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "origin",
-            "jsDoc": {
-              "doc": "Origin where the scenario was defined"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 146,
-              "col": 2,
-              "byteIndex": 4331
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "Origin",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "Origin"
-              }
-            },
-            "typeParams": []
+            "kind": "text",
+            "text": "Complete, immutable definition of a scenario.\n\nThis is the core type produced by the builder and consumed by the runner.\nIt contains everything needed to execute a scenario: its name, options,\nand ordered sequence of entries (steps, resources, setups)."
           }
         ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "ScenarioMetadata",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-        "line": 167,
-        "col": 0,
-        "byteIndex": 4887
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Serializable scenario metadata (without executable functions).\n\nUsed by the JSON reporter and tooling to output scenario information\nwithout including non-serializable function references.\n",
-        "tags": [
+        "blockTags": [
           {
-            "kind": "example",
-            "doc": "JSON reporter output\n```json\n{\n  \"name\": \"Login Flow\",\n  \"options\": { \"tags\": [\"auth\"], \"stepOptions\": { ... } },\n  \"entries\": [\n    { \"kind\": \"step\", \"value\": { \"name\": \"Login\", \"options\": { ... } } }\n  ],\n  \"origin\": { \"path\": \"/tests/auth.probitas.ts\", \"line\": 5 }\n}\n```"
+            "tag": "@remarks",
+            "content": [
+              {
+                "kind": "text",
+                "text": "Scenario definitions are:\n- **Immutable**: The entries array is frozen after creation\n- **Self-contained**: All options have defaults applied\n- **Portable**: Can be serialized (minus functions) for tooling"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Typical scenario structure",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { ScenarioDefinition } from \"@probitas-test/core\";\n\n// Created by: scenario(\"Login Flow\").step(...).build()\nconst definition: ScenarioDefinition = {\n  name: \"Login Flow\",\n  tags: [\"auth\", \"smoke\"],\n  steps: [\n    {\n      kind: \"resource\",\n      name: \"api\",\n      fn: () => fetch,\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n    {\n      kind: \"step\",\n      name: \"Login\",\n      fn: () => {},\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n    {\n      kind: \"step\",\n      name: \"Verify\",\n      fn: () => {},\n      timeout: 30000,\n      retry: { maxAttempts: 1, backoff: \"linear\" },\n    },\n  ],\n  origin: { path: \"/tests/auth.probitas.ts\", line: 5 },\n};\nconsole.log(definition);\n```"
+              }
+            ]
           }
         ]
       },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "name",
-            "jsDoc": {
-              "doc": "Scenario name"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 169,
-              "col": 2,
-              "byteIndex": 4948
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
+      "children": [
+        {
+          "id": 5153,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
           },
-          {
-            "name": "tags",
-            "jsDoc": {
-              "doc": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 181,
-              "col": 2,
-              "byteIndex": 5331
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Human-readable scenario name (displayed in reports and CLI)"
               }
-            },
-            "typeParams": []
+            ]
           },
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen set, overrides the RunOptions timeout for this specific scenario."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 188,
-              "col": 2,
-              "byteIndex": 5532
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "steps",
-            "jsDoc": {
-              "doc": "Entry metadata (functions omitted for serialization)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 191,
-              "col": 2,
-              "byteIndex": 5624
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "StepMetadata",
-                    "kind": "typeRef",
-                    "typeRef": {
-                      "typeParams": null,
-                      "typeName": "StepMetadata"
-                    }
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "origin",
-            "jsDoc": {
-              "doc": "Origin where the scenario was defined"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/scenario.ts",
-              "line": 194,
-              "col": 2,
-              "byteIndex": 5715
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "Origin",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "Origin"
-              }
-            },
-            "typeParams": []
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
           }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "StepOptions",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 22,
-        "col": 0,
-        "byteIndex": 547
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Configuration options for individual step execution.\n\nControls timeout and retry behavior for a step. These options can be set at:\n1. Step level (highest priority)\n2. Scenario level (applies to all steps in scenario)\n3. Default values (30s timeout, no retry)\n",
-        "tags": [
-          {
-            "kind": "example",
-            "doc": "```ts\nconst options: StepOptions = {\n  timeout: 60000,  // 60 seconds\n  retry: {\n    maxAttempts: 3,\n    backoff: \"exponential\"  // Waits 1s, 2s, 4s between retries\n  }\n};\n```"
-          }
-        ]
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Maximum execution time in milliseconds.\n\nIf the step takes longer, a {@linkcode TimeoutError} is thrown.\nDefault: 30000 (30 seconds)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 29,
-              "col": 2,
-              "byteIndex": 744
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
+        },
+        {
+          "id": 5157,
+          "name": "origin",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
           },
-          {
-            "name": "retry",
-            "jsDoc": {
-              "doc": "Retry configuration for handling transient failures"
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Origin where the scenario was defined"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/core",
+              "packagePath": "origin.ts",
+              "qualifiedName": "Origin"
             },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 32,
-              "col": 2,
-              "byteIndex": 835
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "typeLiteral",
-              "typeLiteral": {
-                "constructors": [],
-                "methods": [],
-                "properties": [
+            "name": "Origin",
+            "package": "@probitas-test/core"
+          }
+        },
+        {
+          "id": 5156,
+          "name": "steps",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Ordered sequence of entries (resources → setups → steps)"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "reference",
+                "target": 5185,
+                "typeArguments": [
                   {
-                    "name": "maxAttempts",
-                    "jsDoc": {
-                      "doc": "Maximum number of execution attempts.\n\n- `1` = No retry (fail immediately on error)\n- `2` = One retry (2 total attempts)\n- `n` = n-1 retries (n total attempts)\n\nDefault: 1 (no retry)"
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-                      "line": 42,
-                      "col": 4,
-                      "byteIndex": 1104
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": true,
-                    "tsType": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    },
-                    "typeParams": []
-                  },
-                  {
-                    "name": "backoff",
-                    "jsDoc": {
-                      "doc": "Backoff strategy for delay between retry attempts.\n\n- `\"linear\"`: Fixed 1 second delay between attempts\n- `\"exponential\"`: Doubles delay each attempt (1s, 2s, 4s, 8s...)\n\nDefault: \"linear\""
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-                      "line": 52,
-                      "col": 4,
-                      "byteIndex": 1385
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": true,
-                    "tsType": {
-                      "repr": "",
-                      "kind": "union",
-                      "union": [
-                        {
-                          "repr": "linear",
-                          "kind": "literal",
-                          "literal": {
-                            "kind": "string",
-                            "string": "linear"
-                          }
-                        },
-                        {
-                          "repr": "exponential",
-                          "kind": "literal",
-                          "literal": {
-                            "kind": "string",
-                            "string": "exponential"
-                          }
-                        }
-                      ]
-                    },
-                    "typeParams": []
+                    "type": "intrinsic",
+                    "name": "unknown"
                   }
                 ],
-                "callSignatures": [],
-                "indexSignatures": []
+                "name": "StepDefinition",
+                "package": "@probitas-test/core"
               }
-            },
-            "typeParams": []
+            }
           }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
+        },
+        {
+          "id": 5154,
+          "name": "tags",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n"
+              },
+              {
+                "kind": "code",
+                "text": "```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": 5155,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen set, overrides the RunOptions timeout for this specific scenario.\nWhen timeout occurs, a "
+              },
+              {
+                "kind": "inline-tag",
+                "tag": "@linkcode",
+                "text": "ScenarioTimeoutError"
+              },
+              {
+                "kind": "text",
+                "text": " is thrown."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
     },
     {
-      "name": "SetupCleanup",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 97,
-        "col": 0,
-        "byteIndex": 2729
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Cleanup handler returned by setup functions.\n\nSetup functions can return various cleanup mechanisms that are automatically\ninvoked after the scenario completes (regardless of success or failure).\n\nSupported cleanup patterns:\n- `void` / `undefined`: No cleanup needed\n- `() => void`: Synchronous cleanup function\n- `() => Promise<void>`: Async cleanup function\n- `Disposable`: Object with `[Symbol.dispose]()` method\n- `AsyncDisposable`: Object with `[Symbol.asyncDispose]()` method\n",
-        "tags": [
+      "id": 5158,
+      "name": "ScenarioMetadata",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "kind": "example",
-            "doc": "Cleanup function\n```ts\nimport type { SetupCleanup } from \"@probitas-test/core\";\n\n// Setup functions can return a cleanup function\nconst setupWithCleanup = (): SetupCleanup => {\n  const file = Deno.makeTempFileSync();\n  return () => Deno.removeSync(file); // Cleanup function\n};\nconsole.log(setupWithCleanup);\n```\n"
-          },
+            "kind": "text",
+            "text": "Serializable scenario metadata (without executable functions).\n\nUsed by the JSON reporter and tooling to output scenario information\nwithout including non-serializable function references."
+          }
+        ],
+        "blockTags": [
           {
-            "kind": "example",
-            "doc": "Disposable object\n```ts\nimport type { SetupCleanup } from \"@probitas-test/core\";\n\n// Setup functions can return an AsyncDisposable\nconst setupWithDisposable = async (): Promise<SetupCleanup> => {\n  const conn: AsyncDisposable = {\n    async [Symbol.asyncDispose]() {\n      // cleanup logic\n    },\n  };\n  return conn;\n};\nconsole.log(setupWithDisposable);\n```"
+            "tag": "@example",
+            "name": "JSON reporter output",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```json\n{\n  \"name\": \"Login Flow\",\n  \"options\": { \"tags\": [\"auth\"], \"stepOptions\": { ... } },\n  \"entries\": [\n    { \"kind\": \"step\", \"value\": { \"name\": \"Login\", \"options\": { ... } } }\n  ],\n  \"origin\": { \"path\": \"/tests/auth.probitas.ts\", \"line\": 5 }\n}\n```"
+              }
+            ]
           }
         ]
       },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "union",
-          "union": [
-            {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
+      "children": [
+        {
+          "id": 5159,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Scenario name"
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 5163,
+          "name": "origin",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Origin where the scenario was defined"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/core",
+              "packagePath": "origin.ts",
+              "qualifiedName": "Origin"
             },
-            {
-              "repr": "",
-              "kind": "parenthesized",
-              "parenthesized": {
-                "repr": "",
-                "kind": "fnOrConstructor",
-                "fnOrConstructor": {
-                  "constructor": false,
-                  "tsType": {
-                    "repr": "",
-                    "kind": "union",
-                    "union": [
+            "name": "Origin",
+            "package": "@probitas-test/core"
+          }
+        },
+        {
+          "id": 5162,
+          "name": "steps",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Entry metadata (functions omitted for serialization)"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "reference",
+                "target": 5196,
+                "name": "StepMetadata",
+                "package": "@probitas-test/core"
+              }
+            }
+          }
+        },
+        {
+          "id": 5160,
+          "name": "tags",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n"
+              },
+              {
+                "kind": "code",
+                "text": "```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": 5161,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen set, overrides the RunOptions timeout for this specific scenario."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5148,
+      "name": "ScenarioOptions",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Configuration options for scenario execution.\n\nDefines metadata and default behavior for an entire scenario."
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nconst options: ScenarioOptions = {\n  tags: [\"api\", \"integration\", \"slow\"],\n  timeout: 30000,\n  stepOptions: {\n    timeout: 60000,\n    retry: { maxAttempts: 2, backoff: \"linear\" }\n  }\n};\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@see",
+            "content": [
+              {
+                "kind": "inline-tag",
+                "tag": "@linkcode",
+                "text": "StepOptions",
+                "target": 5164
+              },
+              {
+                "kind": "text",
+                "text": " for step-level configuration"
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5151,
+          "name": "stepOptions",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Default options applied to all steps in this scenario.\n\nIndividual steps can override these defaults by specifying\ntheir own options in the "
+              },
+              {
+                "kind": "code",
+                "text": "`.step()`"
+              },
+              {
+                "kind": "text",
+                "text": " call."
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": 5164,
+            "name": "StepOptions",
+            "package": "@probitas-test/core"
+          }
+        },
+        {
+          "id": 5149,
+          "name": "tags",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Tags for filtering and organizing scenarios.\n\nTags can be used with the CLI to run specific subsets:\n"
+              },
+              {
+                "kind": "code",
+                "text": "```bash\nprobitas run -s \"tag:api\"           # Run scenarios tagged \"api\"\nprobitas run -s \"tag:api,tag:fast\"  # Run scenarios with both tags\nprobitas run -s \"!tag:slow\"         # Exclude slow scenarios\n```"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": 5150,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum time in milliseconds for the entire scenario to complete.\n\nWhen specified, this timeout applies to the total execution time of all\nsteps in the scenario. If the scenario exceeds this limit, a\n"
+              },
+              {
+                "kind": "inline-tag",
+                "tag": "@linkcode",
+                "text": "ScenarioTimeoutError"
+              },
+              {
+                "kind": "text",
+                "text": " is thrown.\n\nPriority: scenario timeout > RunOptions timeout"
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nundefined (uses RunOptions timeout if set, otherwise no timeout)\n```"
+                  }
+                ]
+              },
+              {
+                "tag": "@example",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\nimport { scenario } from \"@probitas-test/builder\";\n\nscenario(\"Quick API Test\", { timeout: 5000 })\n  .step(\"Call API\", async () => {\n    // This step and all others must complete within 5 seconds total\n  })\n  .build();\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5173,
+      "name": "StepContext",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Execution context provided to steps, resources, and setup hooks.\n\nThe context provides access to:\n- Previous step results with full type inference\n- All accumulated results as a typed tuple\n- Named resources registered with "
+          },
+          {
+            "kind": "code",
+            "text": "`.resource()`"
+          },
+          {
+            "kind": "text",
+            "text": "\n- Shared storage for cross-step communication\n- Abort signal for timeout and cancellation handling"
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Accessing previous result",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\n// Steps receive context with the previous step's result\nconst stepFn = (ctx: StepContext) => {\n  // ctx.previous contains the result from the previous step\n  const prev = ctx.previous as { id: number };\n  console.log(prev.id); // Access typed result\n};\nconsole.log(stepFn);\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Using shared store",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\n// The store is shared across all steps in a scenario\nconst setupFn = (ctx: StepContext) => {\n  ctx.store.set(\"startTime\", Date.now());\n};\n\nconst stepFn = (ctx: StepContext) => {\n  const start = ctx.store.get(\"startTime\") as number;\n  console.log(`Elapsed: ${Date.now() - start}ms`);\n};\nconsole.log(setupFn, stepFn);\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5174,
+          "name": "index",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Current step index (0-based).\n\nUseful for conditional logic based on position in the scenario."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 5175,
+          "name": "previous",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Result from the previous step.\n\nFully typed based on what the previous step returned.\nFor the first step, this is "
+              },
+              {
+                "kind": "code",
+                "text": "`unknown`"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        },
+        {
+          "id": 5178,
+          "name": "resources",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Named resources registered with "
+              },
+              {
+                "kind": "code",
+                "text": "`.resource()`"
+              },
+              {
+                "kind": "text",
+                "text": ".\n\nResources are typed based on their registration:\n"
+              },
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\ninterface DbResource {\n  query(sql: string): unknown;\n}\n\n// Access resources registered with .resource()\nconst stepFn = (ctx: StepContext) => {\n  const db = ctx.resources[\"db\"] as DbResource;\n  return db.query(\"SELECT 1\");\n};\nconsole.log(stepFn);\n```"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es5.d.ts",
+              "qualifiedName": "Record"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Record",
+            "package": "typescript"
+          }
+        },
+        {
+          "id": 5176,
+          "name": "results",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "All accumulated results as a typed tuple.\n\nAllows accessing any previous result by index:\n"
+              },
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\nconst stepFn = (ctx: StepContext) => {\n  ctx.results[0]; // First step's result\n  ctx.results[1]; // Second step's result\n};\nconsole.log(stepFn);\n```"
+              }
+            ]
+          },
+          "type": {
+            "type": "typeOperator",
+            "operator": "readonly",
+            "target": {
+              "type": "array",
+              "elementType": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          }
+        },
+        {
+          "id": 5179,
+          "name": "signal",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Abort signal that fires on timeout or manual cancellation.\n\nPass this to fetch() or other APIs that support AbortSignal\nfor proper timeout handling."
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.dom.d.ts",
+              "qualifiedName": "AbortSignal"
+            },
+            "name": "AbortSignal",
+            "package": "typescript"
+          }
+        },
+        {
+          "id": 5177,
+          "name": "store",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Shared key-value storage for cross-step communication.\n\nUse this for data that doesn't fit the step result pattern,\nsuch as metadata or configuration set during setup."
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.es2015.collection.d.ts",
+              "qualifiedName": "Map"
+            },
+            "typeArguments": [
+              {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            ],
+            "name": "Map",
+            "package": "typescript"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5185,
+      "name": "StepDefinition",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Immutable definition of a scenario step.\n\nContains all information needed to execute a single step:\nthe step function, its options, and debugging metadata."
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@remarks",
+            "content": [
+              {
+                "kind": "text",
+                "text": "Step definitions are created by the builder and consumed by the runner.\nThey are immutable and should not be modified after creation."
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5189,
+          "name": "fn",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Step function to execute"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": 5180,
+            "typeArguments": [
+              {
+                "type": "reference",
+                "target": 5186,
+                "name": "T",
+                "package": "@probitas-test/core",
+                "qualifiedName": "StepDefinition.T",
+                "refersToTypeParameter": true
+              }
+            ],
+            "name": "StepFunction",
+            "package": "@probitas-test/core"
+          }
+        },
+        {
+          "id": 5187,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "union",
+            "types": [
+              {
+                "type": "literal",
+                "value": "step"
+              },
+              {
+                "type": "literal",
+                "value": "resource"
+              },
+              {
+                "type": "literal",
+                "value": "setup"
+              }
+            ]
+          }
+        },
+        {
+          "id": 5188,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Human-readable step name (displayed in reports)"
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 5195,
+          "name": "origin",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Origin where the step was defined (for error messages)"
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "@probitas-test/core",
+              "packagePath": "origin.ts",
+              "qualifiedName": "Origin"
+            },
+            "name": "Origin",
+            "package": "@probitas-test/core"
+          }
+        },
+        {
+          "id": 5191,
+          "name": "retry",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Retry configuration for handling transient failures"
+              }
+            ]
+          },
+          "type": {
+            "type": "reflection",
+            "declaration": {
+              "id": 5192,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "children": [
+                {
+                  "id": 5194,
+                  "name": "backoff",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isOptional": true,
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
                       {
-                        "repr": "void",
-                        "kind": "keyword",
-                        "keyword": "void"
+                        "kind": "text",
+                        "text": "Backoff strategy for delay between retry attempts.\n\n- "
                       },
                       {
-                        "repr": "Promise",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": [
-                            {
-                              "repr": "void",
-                              "kind": "keyword",
-                              "keyword": "void"
-                            }
-                          ],
-                          "typeName": "Promise"
-                        }
+                        "kind": "code",
+                        "text": "`\"linear\"`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": ": Fixed 1 second delay between attempts\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`\"exponential\"`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": ": Doubles delay each attempt (1s, 2s, 4s, 8s...)\n\nDefault: \"linear\""
                       }
                     ]
                   },
-                  "params": [],
-                  "typeParams": []
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "linear"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "exponential"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": 5193,
+                  "name": "maxAttempts",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isOptional": true,
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "Maximum number of execution attempts.\n\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`1`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = No retry (fail immediately on error)\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`2`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = One retry (2 total attempts)\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`n`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = n-1 retries (n total attempts)\n\nDefault: 1 (no retry)"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
                 }
+              ]
+            }
+          }
+        },
+        {
+          "id": 5190,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum execution time in milliseconds.\n\nIf the step takes longer, a "
+              },
+              {
+                "kind": "inline-tag",
+                "tag": "@linkcode",
+                "text": "TimeoutError"
+              },
+              {
+                "kind": "text",
+                "text": " is thrown.\nDefault: 30000 (30 seconds)"
               }
-            },
-            {
-              "repr": "Disposable",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "Disposable"
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ],
+      "typeParameters": [
+        {
+          "id": 5186,
+          "name": "T",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of this step's return value"
               }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5164,
+      "name": "StepOptions",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Configuration options for individual step execution.\n\nControls timeout and retry behavior for a step. These options can be set at:\n1. Step level (highest priority)\n2. Scenario level (applies to all steps in scenario)\n3. Default values (30s timeout, no retry)"
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nconst options: StepOptions = {\n  timeout: 60000,  // 60 seconds\n  retry: {\n    maxAttempts: 3,\n    backoff: \"exponential\"  // Waits 1s, 2s, 4s between retries\n  }\n};\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 5166,
+          "name": "retry",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Retry configuration for handling transient failures"
+              }
+            ]
+          },
+          "type": {
+            "type": "reflection",
+            "declaration": {
+              "id": 5167,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "children": [
+                {
+                  "id": 5169,
+                  "name": "backoff",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isOptional": true,
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "Backoff strategy for delay between retry attempts.\n\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`\"linear\"`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": ": Fixed 1 second delay between attempts\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`\"exponential\"`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": ": Doubles delay each attempt (1s, 2s, 4s, 8s...)\n\nDefault: \"linear\""
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "linear"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "exponential"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": 5168,
+                  "name": "maxAttempts",
+                  "variant": "declaration",
+                  "kind": 1024,
+                  "flags": {
+                    "isOptional": true,
+                    "isReadonly": true
+                  },
+                  "comment": {
+                    "summary": [
+                      {
+                        "kind": "text",
+                        "text": "Maximum number of execution attempts.\n\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`1`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = No retry (fail immediately on error)\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`2`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = One retry (2 total attempts)\n- "
+                      },
+                      {
+                        "kind": "code",
+                        "text": "`n`"
+                      },
+                      {
+                        "kind": "text",
+                        "text": " = n-1 retries (n total attempts)\n\nDefault: 1 (no retry)"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 5165,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum execution time in milliseconds.\n\nIf the step takes longer, a "
+              },
+              {
+                "kind": "inline-tag",
+                "tag": "@linkcode",
+                "text": "TimeoutError"
+              },
+              {
+                "kind": "text",
+                "text": " is thrown.\nDefault: 30000 (30 seconds)"
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5170,
+      "name": "SetupCleanup",
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Cleanup handler returned by setup functions.\n\nSetup functions can return various cleanup mechanisms that are automatically\ninvoked after the scenario completes (regardless of success or failure).\n\nSupported cleanup patterns:\n- "
+          },
+          {
+            "kind": "code",
+            "text": "`void`"
+          },
+          {
+            "kind": "text",
+            "text": " / "
+          },
+          {
+            "kind": "code",
+            "text": "`undefined`"
+          },
+          {
+            "kind": "text",
+            "text": ": No cleanup needed\n- "
+          },
+          {
+            "kind": "code",
+            "text": "`() => void`"
+          },
+          {
+            "kind": "text",
+            "text": ": Synchronous cleanup function\n- "
+          },
+          {
+            "kind": "code",
+            "text": "`() => Promise<void>`"
+          },
+          {
+            "kind": "text",
+            "text": ": Async cleanup function\n- "
+          },
+          {
+            "kind": "code",
+            "text": "`Disposable`"
+          },
+          {
+            "kind": "text",
+            "text": ": Object with "
+          },
+          {
+            "kind": "code",
+            "text": "`[Symbol.dispose]()`"
+          },
+          {
+            "kind": "text",
+            "text": " method\n- "
+          },
+          {
+            "kind": "code",
+            "text": "`AsyncDisposable`"
+          },
+          {
+            "kind": "text",
+            "text": ": Object with "
+          },
+          {
+            "kind": "code",
+            "text": "`[Symbol.asyncDispose]()`"
+          },
+          {
+            "kind": "text",
+            "text": " method"
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Cleanup function",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { SetupCleanup } from \"@probitas-test/core\";\n\n// Setup functions can return a cleanup function\nconst setupWithCleanup = (): SetupCleanup => {\n  const file = Deno.makeTempFileSync();\n  return () => Deno.removeSync(file); // Cleanup function\n};\nconsole.log(setupWithCleanup);\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Disposable object",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { SetupCleanup } from \"@probitas-test/core\";\n\n// Setup functions can return an AsyncDisposable\nconst setupWithDisposable = async (): Promise<SetupCleanup> => {\n  const conn: AsyncDisposable = {\n    async [Symbol.asyncDispose]() {\n      // cleanup logic\n    },\n  };\n  return conn;\n};\nconsole.log(setupWithDisposable);\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "type": {
+        "type": "union",
+        "types": [
+          {
+            "type": "intrinsic",
+            "name": "void"
+          },
+          {
+            "type": "reflection",
+            "declaration": {
+              "id": 5171,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "signatures": [
+                {
+                  "id": 5172,
+                  "name": "__type",
+                  "variant": "signature",
+                  "kind": 4096,
+                  "flags": {},
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      },
+                      {
+                        "type": "reference",
+                        "target": {
+                          "packageName": "typescript",
+                          "packagePath": "lib/lib.es5.d.ts",
+                          "qualifiedName": "Promise"
+                        },
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        ],
+                        "name": "Promise",
+                        "package": "typescript"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.esnext.disposable.d.ts",
+              "qualifiedName": "Disposable"
             },
+            "name": "Disposable",
+            "package": "typescript"
+          },
+          {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.esnext.disposable.d.ts",
+              "qualifiedName": "AsyncDisposable"
+            },
+            "name": "AsyncDisposable",
+            "package": "typescript"
+          }
+        ]
+      }
+    },
+    {
+      "id": 5180,
+      "name": "StepFunction",
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Function signature for step execution.\n\nA step function receives the execution context and returns a value\n(sync or async) that becomes available to subsequent steps."
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Sync step returning data",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepFunction } from \"@probitas-test/core\";\n\nconst step: StepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Async step with API call",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { StepFunction } from \"@probitas-test/core\";\n\ninterface User {\n  id: number;\n  name: string;\n}\n\nconst step: StepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "typeParameters": [
+        {
+          "id": 5184,
+          "name": "T",
+          "variant": "typeParam",
+          "kind": 131072,
+          "flags": {},
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Type of this step's return value"
+              }
+            ]
+          },
+          "default": {
+            "type": "intrinsic",
+            "name": "unknown"
+          }
+        }
+      ],
+      "type": {
+        "type": "reflection",
+        "declaration": {
+          "id": 5181,
+          "name": "__type",
+          "variant": "declaration",
+          "kind": 65536,
+          "flags": {},
+          "signatures": [
             {
-              "repr": "AsyncDisposable",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "AsyncDisposable"
+              "id": 5182,
+              "name": "__type",
+              "variant": "signature",
+              "kind": 4096,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 5183,
+                  "name": "ctx",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "reference",
+                    "target": 5173,
+                    "name": "StepContext",
+                    "package": "@probitas-test/core"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "target": 5184,
+                    "name": "T",
+                    "package": "@probitas-test/core",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es5.d.ts",
+                      "qualifiedName": "Promise"
+                    },
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "target": 5184,
+                        "name": "T",
+                        "package": "@probitas-test/core",
+                        "refersToTypeParameter": true
+                      }
+                    ],
+                    "name": "Promise",
+                    "package": "typescript"
+                  }
+                ]
               }
             }
           ]
-        },
-        "typeParams": []
+        }
       }
     },
     {
-      "name": "StepContext",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 142,
-        "col": 0,
-        "byteIndex": 4076
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Execution context provided to steps, resources, and setup hooks.\n\nThe context provides access to:\n- Previous step results with full type inference\n- All accumulated results as a typed tuple\n- Named resources registered with `.resource()`\n- Shared storage for cross-step communication\n- Abort signal for timeout and cancellation handling\n",
-        "tags": [
-          {
-            "kind": "example",
-            "doc": "Accessing previous result\n```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\n// Steps receive context with the previous step's result\nconst stepFn = (ctx: StepContext) => {\n  // ctx.previous contains the result from the previous step\n  const prev = ctx.previous as { id: number };\n  console.log(prev.id); // Access typed result\n};\nconsole.log(stepFn);\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Using shared store\n```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\n// The store is shared across all steps in a scenario\nconst setupFn = (ctx: StepContext) => {\n  ctx.store.set(\"startTime\", Date.now());\n};\n\nconst stepFn = (ctx: StepContext) => {\n  const start = ctx.store.get(\"startTime\") as number;\n  console.log(`Elapsed: ${Date.now() - start}ms`);\n};\nconsole.log(setupFn, stepFn);\n```"
-          }
-        ]
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "index",
-            "jsDoc": {
-              "doc": "Current step index (0-based).\n\nUseful for conditional logic based on position in the scenario."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 148,
-              "col": 2,
-              "byteIndex": 4230
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "previous",
-            "jsDoc": {
-              "doc": "Result from the previous step.\n\nFully typed based on what the previous step returned.\nFor the first step, this is `unknown`."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 156,
-              "col": 2,
-              "byteIndex": 4413
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "results",
-            "jsDoc": {
-              "doc": "All accumulated results as a typed tuple.\n\nAllows accessing any previous result by index:\n```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\nconst stepFn = (ctx: StepContext) => {\n  ctx.results[0]; // First step's result\n  ctx.results[1]; // Second step's result\n};\nconsole.log(stepFn);\n```"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 172,
-              "col": 2,
-              "byteIndex": 4817
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "readonly",
-                "tsType": {
-                  "repr": "",
-                  "kind": "array",
-                  "array": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                }
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "store",
-            "jsDoc": {
-              "doc": "Shared key-value storage for cross-step communication.\n\nUse this for data that doesn't fit the step result pattern,\nsuch as metadata or configuration set during setup."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 180,
-              "col": 2,
-              "byteIndex": 5057
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "Map",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Map"
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "resources",
-            "jsDoc": {
-              "doc": "Named resources registered with `.resource()`.\n\nResources are typed based on their registration:\n```ts\nimport type { StepContext } from \"@probitas-test/core\";\n\ninterface DbResource {\n  query(sql: string): unknown;\n}\n\n// Access resources registered with .resource()\nconst stepFn = (ctx: StepContext) => {\n  const db = ctx.resources[\"db\"] as DbResource;\n  return db.query(\"SELECT 1\");\n};\nconsole.log(stepFn);\n```"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 201,
-              "col": 2,
-              "byteIndex": 5603
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "Record",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "keyword": "unknown"
-                  }
-                ],
-                "typeName": "Record"
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "signal",
-            "jsDoc": {
-              "doc": "Abort signal that fires on timeout or manual cancellation.\n\nPass this to fetch() or other APIs that support AbortSignal\nfor proper timeout handling."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 209,
-              "col": 2,
-              "byteIndex": 5831
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "AbortSignal",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "AbortSignal"
-              }
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "StepFunction",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 244,
-        "col": 0,
-        "byteIndex": 6664
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Function signature for step execution.\n\nA step function receives the execution context and returns a value\n(sync or async) that becomes available to subsequent steps.\n",
-        "tags": [
-          {
-            "kind": "template",
-            "name": "T",
-            "doc": "- Type of this step's return value\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Sync step returning data\n```ts\nimport type { StepFunction } from \"@probitas-test/core\";\n\nconst step: StepFunction<{ name: string }> = (_ctx) => {\n  return { name: \"Alice\" };\n};\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Async step with API call\n```ts\nimport type { StepFunction } from \"@probitas-test/core\";\n\ninterface User {\n  id: number;\n  name: string;\n}\n\nconst step: StepFunction<User> = async (ctx) => {\n  const response = await fetch(\"/api/user\", { signal: ctx.signal });\n  return response.json();\n};\n```"
-          }
-        ]
-      },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "fnOrConstructor",
-          "fnOrConstructor": {
-            "constructor": false,
-            "tsType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "T",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "T"
-                  }
-                },
-                {
-                  "repr": "Promise",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": [
-                      {
-                        "repr": "T",
-                        "kind": "typeRef",
-                        "typeRef": {
-                          "typeParams": null,
-                          "typeName": "T"
-                        }
-                      }
-                    ],
-                    "typeName": "Promise"
-                  }
-                }
-              ]
-            },
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "ctx",
-                "optional": false,
-                "tsType": {
-                  "repr": "StepContext",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "StepContext"
-                  }
-                }
-              }
-            ],
-            "typeParams": []
-          }
-        },
-        "typeParams": [
-          {
-            "name": "T",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "StepDefinition",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 258,
-        "col": 0,
-        "byteIndex": 7127
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Immutable definition of a scenario step.\n\nContains all information needed to execute a single step:\nthe step function, its options, and debugging metadata.\n",
-        "tags": [
-          {
-            "kind": "template",
-            "name": "T",
-            "doc": "- Type of this step's return value\n"
-          },
-          {
-            "kind": "unsupported",
-            "value": "@remarks\nStep definitions are created by the builder and consumed by the runner.\nThey are immutable and should not be modified after creation."
-          }
-        ]
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "kind",
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 259,
-              "col": 2,
-              "byteIndex": 7176
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "step",
-                  "kind": "literal",
-                  "literal": {
-                    "kind": "string",
-                    "string": "step"
-                  }
-                },
-                {
-                  "repr": "resource",
-                  "kind": "literal",
-                  "literal": {
-                    "kind": "string",
-                    "string": "resource"
-                  }
-                },
-                {
-                  "repr": "setup",
-                  "kind": "literal",
-                  "literal": {
-                    "kind": "string",
-                    "string": "setup"
-                  }
-                }
-              ]
-            },
-            "typeParams": []
-          },
-          {
-            "name": "name",
-            "jsDoc": {
-              "doc": "Human-readable step name (displayed in reports)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 262,
-              "col": 2,
-              "byteIndex": 7282
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "fn",
-            "jsDoc": {
-              "doc": "Step function to execute"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 265,
-              "col": 2,
-              "byteIndex": 7342
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "StepFunction",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "T",
-                    "kind": "typeRef",
-                    "typeRef": {
-                      "typeParams": null,
-                      "typeName": "T"
-                    }
-                  }
-                ],
-                "typeName": "StepFunction"
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Maximum execution time in milliseconds.\n\nIf the step takes longer, a {@linkcode TimeoutError} is thrown.\nDefault: 30000 (30 seconds)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 273,
-              "col": 2,
-              "byteIndex": 7539
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "retry",
-            "jsDoc": {
-              "doc": "Retry configuration for handling transient failures"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 276,
-              "col": 2,
-              "byteIndex": 7630
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "typeLiteral",
-              "typeLiteral": {
-                "constructors": [],
-                "methods": [],
-                "properties": [
-                  {
-                    "name": "maxAttempts",
-                    "jsDoc": {
-                      "doc": "Maximum number of execution attempts.\n\n- `1` = No retry (fail immediately on error)\n- `2` = One retry (2 total attempts)\n- `n` = n-1 retries (n total attempts)\n\nDefault: 1 (no retry)"
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-                      "line": 286,
-                      "col": 4,
-                      "byteIndex": 7899
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": true,
-                    "tsType": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    },
-                    "typeParams": []
-                  },
-                  {
-                    "name": "backoff",
-                    "jsDoc": {
-                      "doc": "Backoff strategy for delay between retry attempts.\n\n- `\"linear\"`: Fixed 1 second delay between attempts\n- `\"exponential\"`: Doubles delay each attempt (1s, 2s, 4s, 8s...)\n\nDefault: \"linear\""
-                    },
-                    "location": {
-                      "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-                      "line": 296,
-                      "col": 4,
-                      "byteIndex": 8180
-                    },
-                    "params": [],
-                    "readonly": true,
-                    "computed": false,
-                    "optional": true,
-                    "tsType": {
-                      "repr": "",
-                      "kind": "union",
-                      "union": [
-                        {
-                          "repr": "linear",
-                          "kind": "literal",
-                          "literal": {
-                            "kind": "string",
-                            "string": "linear"
-                          }
-                        },
-                        {
-                          "repr": "exponential",
-                          "kind": "literal",
-                          "literal": {
-                            "kind": "string",
-                            "string": "exponential"
-                          }
-                        }
-                      ]
-                    },
-                    "typeParams": []
-                  }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "origin",
-            "jsDoc": {
-              "doc": "Origin where the step was defined (for error messages)"
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-              "line": 300,
-              "col": 2,
-              "byteIndex": 8297
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "Origin",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "Origin"
-              }
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": [
-          {
-            "name": "T",
-            "default": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          }
-        ]
-      }
-    },
-    {
+      "id": 5196,
       "name": "StepMetadata",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/core/0.3.3/types/step.ts",
-        "line": 308,
-        "col": 0,
-        "byteIndex": 8464
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Serializable step metadata (without the function).\n\nUsed for JSON output, tooling, and inspection without executing code."
-      },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "Omit",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
-              {
-                "repr": "StepDefinition",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "StepDefinition"
-                }
-              },
-              {
-                "repr": "fn",
-                "kind": "literal",
-                "literal": {
-                  "kind": "string",
-                  "string": "fn"
-                }
-              }
-            ],
-            "typeName": "Omit"
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Serializable step metadata (without the function).\n\nUsed for JSON output, tooling, and inspection without executing code."
           }
+        ]
+      },
+      "type": {
+        "type": "reference",
+        "target": {
+          "packageName": "typescript",
+          "packagePath": "lib/lib.es5.d.ts",
+          "qualifiedName": "Omit"
         },
-        "typeParams": []
+        "typeArguments": [
+          {
+            "type": "reference",
+            "target": 5185,
+            "name": "StepDefinition",
+            "package": "@probitas-test/core"
+          },
+          {
+            "type": "literal",
+            "value": "fn"
+          }
+        ],
+        "name": "Omit",
+        "package": "typescript"
       }
     }
-  ]
+  ],
+  "packageName": "@probitas-test/core",
+  "packageVersion": "0.3.4"
 }

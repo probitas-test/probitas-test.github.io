@@ -1,1141 +1,1615 @@
 {
-  "name": "client",
-  "specifier": "@probitas/client",
-  "version": "0.6.0",
-  "moduleDoc": "Core utilities and types for Probitas client libraries.\n\nThis package provides shared types, error classes, and utilities used across\nall [`@probitas/*`](https://jsr.io/@probitas) client packages.\n\n## Features\n\n- **Common Options**: Shared configuration types like `CommonOptions` and `RetryOptions`\n- **Error Hierarchy**: Base error classes (`ClientError`, `ConnectionError`, `TimeoutError`, `AbortError`)\n\n## Installation\n\n```bash\ndeno add jsr:@probitas/client\n```\n\n## Usage\n\nThis package is typically used as a dependency by other client packages.\nEnd users rarely need to import from it directly.\n\n```ts\nimport type { CommonOptions, RetryOptions } from \"@probitas-test/client\";\nimport { ClientError, ConnectionError, TimeoutError } from \"@probitas-test/client\";\n\n// Use CommonOptions for timeout and abort signal support\nasync function fetchData(options?: CommonOptions) {\n  // Implementation with timeout and signal handling\n}\n\n// Catch and handle errors\ntry {\n  await fetchData({ timeout: 5000 });\n} catch (error) {\n  if (error instanceof TimeoutError) {\n    console.log(`Timed out after ${error.timeoutMs}ms`);\n  } else if (error instanceof ConnectionError) {\n    console.log(\"Failed to connect\");\n  }\n}\n```\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [`@probitas/client-http`](https://jsr.io/@probitas/client-http) | HTTP client |\n| [`@probitas/client-graphql`](https://jsr.io/@probitas/client-graphql) | GraphQL client |\n| [`@probitas/client-grpc`](https://jsr.io/@probitas/client-grpc) | gRPC client |\n| [`@probitas/client-connectrpc`](https://jsr.io/@probitas/client-connectrpc) | ConnectRPC client |\n| [`@probitas/client-sql-postgres`](https://jsr.io/@probitas/client-sql-postgres) | PostgreSQL client |\n| [`@probitas/client-sql-mysql`](https://jsr.io/@probitas/client-sql-mysql) | MySQL client |\n| [`@probitas/client-sql-sqlite`](https://jsr.io/@probitas/client-sql-sqlite) | SQLite client |\n| [`@probitas/client-sql-duckdb`](https://jsr.io/@probitas/client-sql-duckdb) | DuckDB client |\n| [`@probitas/client-redis`](https://jsr.io/@probitas/client-redis) | Redis client |\n| [`@probitas/client-mongodb`](https://jsr.io/@probitas/client-mongodb) | MongoDB client |\n| [`@probitas/client-rabbitmq`](https://jsr.io/@probitas/client-rabbitmq) | RabbitMQ client |\n| [`@probitas/client-sqs`](https://jsr.io/@probitas/client-sqs) | AWS SQS client |\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas-client)\n- [Probitas Framework](https://github.com/probitas-test/probitas)\n",
-  "exports": [
-    {
-      "name": "CommonConnectionConfig",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-        "line": 29,
-        "col": 0,
-        "byteIndex": 839
+  "schemaVersion": "2.0",
+  "id": 28,
+  "name": "@probitas-test/client",
+  "variant": "project",
+  "kind": 1,
+  "flags": {},
+  "comment": {
+    "summary": [
+      {
+        "kind": "text",
+        "text": "Core utilities and types for Probitas client libraries.\n\nThis package provides shared types, error classes, and utilities used across\nall "
       },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Common connection configuration shared across all network clients.\n\nThis interface provides a unified way to configure connection parameters\nfor all network-based clients. Each client extends this with service-specific\noptions while maintaining a consistent base.\n",
-        "tags": [
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-*`"
+      },
+      {
+        "kind": "text",
+        "text": " packages.\n\n## Features\n\n- **Common Options**: Shared configuration types like "
+      },
+      {
+        "kind": "code",
+        "text": "`CommonOptions`"
+      },
+      {
+        "kind": "text",
+        "text": " and "
+      },
+      {
+        "kind": "code",
+        "text": "`RetryOptions`"
+      },
+      {
+        "kind": "text",
+        "text": "\n- **Error Hierarchy**: Base error classes ("
+      },
+      {
+        "kind": "code",
+        "text": "`ClientError`"
+      },
+      {
+        "kind": "text",
+        "text": ", "
+      },
+      {
+        "kind": "code",
+        "text": "`ConnectionError`"
+      },
+      {
+        "kind": "text",
+        "text": ", "
+      },
+      {
+        "kind": "code",
+        "text": "`TimeoutError`"
+      },
+      {
+        "kind": "text",
+        "text": ", "
+      },
+      {
+        "kind": "code",
+        "text": "`AbortError`"
+      },
+      {
+        "kind": "text",
+        "text": ")\n\n## Installation\n\n"
+      },
+      {
+        "kind": "code",
+        "text": "```bash\nnpm install @probitas-test/client\n```"
+      },
+      {
+        "kind": "text",
+        "text": "\n\n## Usage\n\nThis package is typically used as a dependency by other client packages.\nEnd users rarely need to import from it directly.\n\n"
+      },
+      {
+        "kind": "code",
+        "text": "```ts\nimport type { CommonOptions, RetryOptions } from \"@probitas-test/client\";\nimport { ClientError, ConnectionError, TimeoutError } from \"@probitas-test/client\";\n\n// Use CommonOptions for timeout and abort signal support\nasync function fetchData(options?: CommonOptions) {\n  // Implementation with timeout and signal handling\n}\n\n// Catch and handle errors\ntry {\n  await fetchData({ timeout: 5000 });\n} catch (error) {\n  if (error instanceof TimeoutError) {\n    console.log(`Timed out after ${error.timeoutMs}ms`);\n  } else if (error instanceof ConnectionError) {\n    console.log(\"Failed to connect\");\n  }\n}\n```"
+      },
+      {
+        "kind": "text",
+        "text": "\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-http`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-http) | HTTP client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-graphql`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-graphql) | GraphQL client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-grpc`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-grpc) | gRPC client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-connectrpc`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-connectrpc) | ConnectRPC client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-sql-postgres`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-sql-postgres) | PostgreSQL client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-sql-mysql`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-sql-mysql) | MySQL client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-sql-sqlite`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-sql-sqlite) | SQLite client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-sql-duckdb`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-sql-duckdb) | DuckDB client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-redis`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-redis) | Redis client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-mongodb`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-mongodb) | MongoDB client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-rabbitmq`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-rabbitmq) | RabbitMQ client |\n| ["
+      },
+      {
+        "kind": "code",
+        "text": "`@probitas-test/client-sqs`"
+      },
+      {
+        "kind": "text",
+        "text": "](https://www.npmjs.com/package/@probitas-test/client-sqs) | AWS SQS client |\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas-packages)\n- [Probitas Framework](https://github.com/probitas-test/probitas)"
+      }
+    ]
+  },
+  "children": [
+    {
+      "id": 82,
+      "name": "AbortError",
+      "variant": "declaration",
+      "kind": 128,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "kind": "example",
-            "doc": "Use with string URL\n```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({ url: \"http://localhost:3000\" });\nawait client[Symbol.asyncDispose]();\n```\n"
-          },
-          {
-            "kind": "example",
-            "doc": "Use with config object\n```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({\n  url: {\n    host: \"api.example.com\",\n    port: 443,\n    username: \"user\",\n    password: \"secret\",\n  },\n});\nawait client[Symbol.asyncDispose]();\n```"
+            "kind": "text",
+            "text": "Error thrown when an operation is aborted via AbortSignal."
           }
         ]
       },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "host",
-            "jsDoc": {
-              "doc": "Hostname or IP address.",
-              "tags": [
+      "children": [
+        {
+          "id": 83,
+          "name": "constructor",
+          "variant": "declaration",
+          "kind": 512,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 84,
+              "name": "AbortError",
+              "variant": "signature",
+              "kind": 16384,
+              "flags": {},
+              "parameters": [
                 {
-                  "kind": "unsupported",
-                  "value": "@default \"localhost\""
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 34,
-              "col": 2,
-              "byteIndex": 950
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "port",
-            "jsDoc": {
-              "doc": "Port number. Each service has its own default."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 39,
-              "col": 2,
-              "byteIndex": 1041
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "username",
-            "jsDoc": {
-              "doc": "Username for authentication."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 44,
-              "col": 2,
-              "byteIndex": 1114
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "password",
-            "jsDoc": {
-              "doc": "Password for authentication."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 49,
-              "col": 2,
-              "byteIndex": 1191
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "RetryOptions",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-        "line": 55,
-        "col": 0,
-        "byteIndex": 1262
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Retry configuration options."
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "maxAttempts",
-            "jsDoc": {
-              "doc": "Maximum number of attempts (1 = no retry).",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default 1"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 60,
-              "col": 2,
-              "byteIndex": 1372
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "backoff",
-            "jsDoc": {
-              "doc": "Backoff strategy.",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default \"exponential\""
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 66,
-              "col": 2,
-              "byteIndex": 1469
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "linear",
-                  "kind": "literal",
-                  "literal": {
-                    "kind": "string",
-                    "string": "linear"
+                  "id": 85,
+                  "name": "message",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 },
                 {
-                  "repr": "exponential",
-                  "kind": "literal",
-                  "literal": {
-                    "kind": "string",
-                    "string": "exponential"
-                  }
-                }
-              ]
-            },
-            "typeParams": []
-          },
-          {
-            "name": "initialDelay",
-            "jsDoc": {
-              "doc": "Initial delay in milliseconds.",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default 1000"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 72,
-              "col": 2,
-              "byteIndex": 1584
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "maxDelay",
-            "jsDoc": {
-              "doc": "Maximum delay in milliseconds.",
-              "tags": [
-                {
-                  "kind": "unsupported",
-                  "value": "@default 30000"
-                }
-              ]
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 78,
-              "col": 2,
-              "byteIndex": 1687
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "retryOn",
-            "jsDoc": {
-              "doc": "Function to determine if the error should trigger a retry."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 83,
-              "col": 2,
-              "byteIndex": 1794
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "",
-              "kind": "fnOrConstructor",
-              "fnOrConstructor": {
-                "constructor": false,
-                "tsType": {
-                  "repr": "boolean",
-                  "kind": "keyword",
-                  "keyword": "boolean"
-                },
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "error",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "Error",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "Error"
-                      }
-                    }
-                  }
-                ],
-                "typeParams": []
-              }
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "CommonOptions",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-        "line": 89,
-        "col": 0,
-        "byteIndex": 1896
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Common options shared across all clients."
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "timeout",
-            "jsDoc": {
-              "doc": "Timeout in milliseconds."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 93,
-              "col": 2,
-              "byteIndex": 1973
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "signal",
-            "jsDoc": {
-              "doc": "AbortSignal for cancellation."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 98,
-              "col": 2,
-              "byteIndex": 2050
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "AbortSignal",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "AbortSignal"
-              }
-            },
-            "typeParams": []
-          },
-          {
-            "name": "retry",
-            "jsDoc": {
-              "doc": "Retry configuration."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 103,
-              "col": 2,
-              "byteIndex": 2122
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": true,
-            "tsType": {
-              "repr": "RetryOptions",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "RetryOptions"
-              }
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "ClientResult",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-        "line": 157,
-        "col": 0,
-        "byteIndex": 3592
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Base interface for all client result types.\n\nAll client operation results (responses, query results, etc.) extend this interface,\nproviding a consistent structure across all Probitas clients. The `kind` property\nserves as a discriminator for type-safe switch statements.\n\nThis mirrors the design of {@link ClientError} where `kind` is used instead of `type`\nfor consistency across the framework.\n",
-        "tags": [
-          {
-            "kind": "example",
-            "doc": "```ts\nimport type { ClientResult } from \"@probitas-test/client\";\n\ninterface HttpResponse extends ClientResult {\n  readonly kind: \"http\";\n  readonly status: number;\n}\n\ninterface SqlQueryResult extends ClientResult {\n  readonly kind: \"sql\";\n  readonly rowCount: number;\n}\n\ntype MyResult = HttpResponse | SqlQueryResult;\n\nfunction handleResult(result: MyResult) {\n  // Check if request reached the server\n  if (!result.processed) {\n    console.error(\"Network failure:\", result.error);\n    return;\n  }\n\n  // Check if operation succeeded\n  if (!result.ok) {\n    console.error(\"Operation failed:\", result.error);\n    return;\n  }\n\n  // Type narrowing by kind\n  switch (result.kind) {\n    case \"http\":\n      console.log(`HTTP ${result.status} in ${result.duration}ms`);\n      break;\n    case \"sql\":\n      console.log(`${result.rowCount} rows in ${result.duration}ms`);\n      break;\n  }\n}\n```"
-          }
-        ]
-      },
-      "kind": "interface",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [
-          {
-            "name": "kind",
-            "jsDoc": {
-              "doc": "Result kind discriminator.\n\nThe `kind` property is typed as `string` to allow client-specific packages\nto define their own result kinds without modifying this core package.\nSubinterfaces can narrow the type using literal types with `as const`."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 165,
-              "col": 2,
-              "byteIndex": 3906
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "processed",
-            "jsDoc": {
-              "doc": "Whether the operation was processed by the server.\n\n- `true`: Server received and processed the request (success or error response)\n- `false`: Request failed before reaching the server (network error, timeout, etc.)\n\nUse this to distinguish between \"server returned an error\" and \"couldn't reach server\"."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 175,
-              "col": 2,
-              "byteIndex": 4277
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "boolean",
-              "kind": "keyword",
-              "keyword": "boolean"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "ok",
-            "jsDoc": {
-              "doc": "Whether the operation succeeded.\n\nFor HTTP responses, this corresponds to status 200-299.\nFor database operations, this indicates successful execution.\nAlways `false` when `processed` is `false`."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 184,
-              "col": 2,
-              "byteIndex": 4541
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "boolean",
-              "kind": "keyword",
-              "keyword": "boolean"
-            },
-            "typeParams": []
-          },
-          {
-            "name": "error",
-            "jsDoc": {
-              "doc": "Error that occurred during the operation (null if successful).\n\nContains the error when `ok` is `false`. The specific error type depends\non the client kind (e.g., HttpError, GraphqlError, SqlError)."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 192,
-              "col": 2,
-              "byteIndex": 4796
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "Error",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Error"
-                  }
-                },
-                {
-                  "repr": "null",
-                  "kind": "keyword",
-                  "keyword": "null"
-                }
-              ]
-            },
-            "typeParams": []
-          },
-          {
-            "name": "duration",
-            "jsDoc": {
-              "doc": "Operation duration in milliseconds.\n\nMeasured from operation start to completion, useful for performance analysis\nand timeout monitoring."
-            },
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-              "line": 200,
-              "col": 2,
-              "byteIndex": 4998
-            },
-            "params": [],
-            "readonly": true,
-            "computed": false,
-            "optional": false,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "typeParams": []
-          }
-        ],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "name": "Fetch",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/types.ts",
-        "line": 210,
-        "col": 0,
-        "byteIndex": 5268
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "A `fetch`-compatible function.\n\nDeclared structurally instead of as `typeof fetch` because runtime typings\nadd members (Bun's `fetch.preconnect`) that a custom implementation or test\ndouble should not have to provide."
-      },
-      "kind": "typeAlias",
-      "typeAliasDef": {
-        "tsType": {
-          "repr": "",
-          "kind": "fnOrConstructor",
-          "fnOrConstructor": {
-            "constructor": false,
-            "tsType": {
-              "repr": "Promise",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "Response",
-                    "kind": "typeRef",
-                    "typeRef": {
-                      "typeParams": null,
-                      "typeName": "Response"
-                    }
-                  }
-                ],
-                "typeName": "Promise"
-              }
-            },
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "input",
-                "optional": false,
-                "tsType": {
-                  "repr": "",
-                  "kind": "union",
-                  "union": [
-                    {
-                      "repr": "RequestInfo",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "RequestInfo"
-                      }
+                  "id": 86,
+                  "name": "options",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {
+                    "isOptional": true
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es2022.error.d.ts",
+                      "qualifiedName": "ErrorOptions"
                     },
-                    {
-                      "repr": "URL",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "URL"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "kind": "identifier",
-                "name": "init",
-                "optional": true,
-                "tsType": {
-                  "repr": "RequestInit",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "RequestInit"
+                    "name": "ErrorOptions",
+                    "package": "typescript"
                   }
                 }
+              ],
+              "type": {
+                "type": "reference",
+                "target": 82,
+                "name": "AbortError",
+                "package": "@probitas-test/client"
+              },
+              "overwrites": {
+                "type": "reference",
+                "target": 60,
+                "name": "ClientError.constructor"
               }
-            ],
-            "typeParams": []
+            }
+          ],
+          "overwrites": {
+            "type": "reference",
+            "target": 59,
+            "name": "ClientError.constructor"
           }
         },
-        "typeParams": []
-      }
+        {
+          "id": 88,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "literal",
+            "value": "abort"
+          },
+          "defaultValue": "...",
+          "overwrites": {
+            "type": "reference",
+            "target": 65,
+            "name": "ClientError.kind"
+          }
+        },
+        {
+          "id": 87,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "literal",
+            "value": "AbortError"
+          },
+          "defaultValue": "\"AbortError\"",
+          "overwrites": {
+            "type": "reference",
+            "target": 64,
+            "name": "ClientError.name"
+          }
+        }
+      ],
+      "extendedTypes": [
+        {
+          "type": "reference",
+          "target": 58,
+          "name": "ClientError",
+          "package": "@probitas-test/client"
+        }
+      ]
     },
     {
+      "id": 58,
       "name": "ClientError",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-        "line": 8,
-        "col": 0,
-        "byteIndex": 275
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Base error class for all client errors.\n\nThe `kind` property is typed as `string` to allow client-specific packages\nto define their own error kinds without modifying this core package.\nSubclasses can narrow the type using literal types with `as const`."
-      },
-      "kind": "class",
-      "classDef": {
-        "isAbstract": false,
-        "constructors": [
+      "variant": "declaration",
+      "kind": 128,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "accessibility": null,
-            "hasBody": true,
-            "name": "constructor",
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "message",
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              },
-              {
-                "kind": "assign",
-                "left": {
-                  "kind": "identifier",
-                  "name": "kind",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
+            "kind": "text",
+            "text": "Base error class for all client errors.\n\nThe "
+          },
+          {
+            "kind": "code",
+            "text": "`kind`"
+          },
+          {
+            "kind": "text",
+            "text": " property is typed as "
+          },
+          {
+            "kind": "code",
+            "text": "`string`"
+          },
+          {
+            "kind": "text",
+            "text": " to allow client-specific packages\nto define their own error kinds without modifying this core package.\nSubclasses can narrow the type using literal types with "
+          },
+          {
+            "kind": "code",
+            "text": "`as const`"
+          },
+          {
+            "kind": "text",
+            "text": "."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 59,
+          "name": "constructor",
+          "variant": "declaration",
+          "kind": 512,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 60,
+              "name": "ClientError",
+              "variant": "signature",
+              "kind": 16384,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 61,
+                  "name": "message",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 },
-                "right": "unknown",
-                "tsType": null
-              },
-              {
-                "kind": "identifier",
-                "name": "options",
-                "optional": true,
-                "tsType": {
-                  "repr": "ErrorOptions",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "ErrorOptions"
+                {
+                  "id": 62,
+                  "name": "kind",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "defaultValue": "\"unknown\""
+                },
+                {
+                  "id": 63,
+                  "name": "options",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {
+                    "isOptional": true
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es2022.error.d.ts",
+                      "qualifiedName": "ErrorOptions"
+                    },
+                    "name": "ErrorOptions",
+                    "package": "typescript"
                   }
                 }
+              ],
+              "type": {
+                "type": "reference",
+                "target": 58,
+                "name": "ClientError",
+                "package": "@probitas-test/client"
+              },
+              "overwrites": {
+                "type": "reference",
+                "target": -1,
+                "name": "Error.constructor",
+                "package": "typescript"
               }
-            ],
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 12,
-              "col": 2,
-              "byteIndex": 394
             }
+          ],
+          "overwrites": {
+            "type": "reference",
+            "target": -1,
+            "name": "Error.constructor",
+            "package": "typescript"
           }
-        ],
-        "properties": [
-          {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "name",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 9,
-              "col": 2,
-              "byteIndex": 318
-            }
+        },
+        {
+          "id": 65,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
           },
-          {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "name": "kind",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 10,
-              "col": 2,
-              "byteIndex": 368
-            }
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
           }
-        ],
-        "indexSignatures": [],
-        "methods": [],
-        "extends": "Error",
-        "implements": [],
-        "typeParams": [],
-        "superTypeParams": []
-      }
+        },
+        {
+          "id": 64,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          },
+          "defaultValue": "\"ClientError\"",
+          "overwrites": {
+            "type": "reference",
+            "target": -1,
+            "name": "Error.name"
+          }
+        }
+      ],
+      "extendedTypes": [
+        {
+          "type": "reference",
+          "target": {
+            "packageName": "typescript",
+            "packagePath": "lib/lib.es5.d.ts",
+            "qualifiedName": "Error"
+          },
+          "name": "Error",
+          "package": "typescript"
+        }
+      ],
+      "extendedBy": [
+        {
+          "type": "reference",
+          "target": 66,
+          "name": "ConnectionError"
+        },
+        {
+          "type": "reference",
+          "target": 73,
+          "name": "TimeoutError"
+        },
+        {
+          "type": "reference",
+          "target": 82,
+          "name": "AbortError"
+        }
+      ]
     },
     {
+      "id": 66,
       "name": "ConnectionError",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-        "line": 25,
-        "col": 0,
-        "byteIndex": 615
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Error thrown when a connection cannot be established."
-      },
-      "kind": "class",
-      "classDef": {
-        "isAbstract": false,
-        "constructors": [
+      "variant": "declaration",
+      "kind": 128,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "accessibility": null,
-            "hasBody": true,
-            "name": "constructor",
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "message",
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              },
-              {
-                "kind": "identifier",
-                "name": "options",
-                "optional": true,
-                "tsType": {
-                  "repr": "ErrorOptions",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "ErrorOptions"
+            "kind": "text",
+            "text": "Error thrown when a connection cannot be established."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 67,
+          "name": "constructor",
+          "variant": "declaration",
+          "kind": 512,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 68,
+              "name": "ConnectionError",
+              "variant": "signature",
+              "kind": 16384,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 69,
+                  "name": "message",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "id": 70,
+                  "name": "options",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {
+                    "isOptional": true
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es2022.error.d.ts",
+                      "qualifiedName": "ErrorOptions"
+                    },
+                    "name": "ErrorOptions",
+                    "package": "typescript"
                   }
                 }
+              ],
+              "type": {
+                "type": "reference",
+                "target": 66,
+                "name": "ConnectionError",
+                "package": "@probitas-test/client"
+              },
+              "overwrites": {
+                "type": "reference",
+                "target": 60,
+                "name": "ClientError.constructor"
               }
-            ],
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 29,
-              "col": 2,
-              "byteIndex": 765
             }
+          ],
+          "overwrites": {
+            "type": "reference",
+            "target": 59,
+            "name": "ClientError.constructor"
           }
-        ],
-        "properties": [
-          {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "name",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 26,
-              "col": 2,
-              "byteIndex": 668
-            }
+        },
+        {
+          "id": 72,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
           },
-          {
-            "tsType": {
-              "repr": "connection",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "connection"
-              }
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "kind",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 27,
-              "col": 2,
-              "byteIndex": 714
-            }
+          "type": {
+            "type": "literal",
+            "value": "connection"
+          },
+          "defaultValue": "...",
+          "overwrites": {
+            "type": "reference",
+            "target": 65,
+            "name": "ClientError.kind"
           }
-        ],
-        "indexSignatures": [],
-        "methods": [],
-        "extends": "ClientError",
-        "implements": [],
-        "typeParams": [],
-        "superTypeParams": []
-      }
+        },
+        {
+          "id": 71,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "literal",
+            "value": "ConnectionError"
+          },
+          "defaultValue": "\"ConnectionError\"",
+          "overwrites": {
+            "type": "reference",
+            "target": 64,
+            "name": "ClientError.name"
+          }
+        }
+      ],
+      "extendedTypes": [
+        {
+          "type": "reference",
+          "target": 58,
+          "name": "ClientError",
+          "package": "@probitas-test/client"
+        }
+      ]
     },
     {
+      "id": 73,
       "name": "TimeoutError",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-        "line": 37,
-        "col": 0,
-        "byteIndex": 923
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Error thrown when an operation times out."
-      },
-      "kind": "class",
-      "classDef": {
-        "isAbstract": false,
-        "constructors": [
+      "variant": "declaration",
+      "kind": 128,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "accessibility": null,
-            "hasBody": true,
-            "name": "constructor",
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "message",
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              },
-              {
-                "kind": "identifier",
-                "name": "timeoutMs",
-                "optional": false,
-                "tsType": {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                }
-              },
-              {
-                "kind": "identifier",
-                "name": "options",
-                "optional": true,
-                "tsType": {
-                  "repr": "ErrorOptions",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "ErrorOptions"
+            "kind": "text",
+            "text": "Error thrown when an operation times out."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 74,
+          "name": "constructor",
+          "variant": "declaration",
+          "kind": 512,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 75,
+              "name": "TimeoutError",
+              "variant": "signature",
+              "kind": 16384,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 76,
+                  "name": "message",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "id": 77,
+                  "name": "timeoutMs",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                },
+                {
+                  "id": 78,
+                  "name": "options",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {
+                    "isOptional": true
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.es2022.error.d.ts",
+                      "qualifiedName": "ErrorOptions"
+                    },
+                    "name": "ErrorOptions",
+                    "package": "typescript"
                   }
                 }
+              ],
+              "type": {
+                "type": "reference",
+                "target": 73,
+                "name": "TimeoutError",
+                "package": "@probitas-test/client"
+              },
+              "overwrites": {
+                "type": "reference",
+                "target": 60,
+                "name": "ClientError.constructor"
               }
-            ],
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 42,
-              "col": 2,
-              "byteIndex": 1094
             }
+          ],
+          "overwrites": {
+            "type": "reference",
+            "target": 59,
+            "name": "ClientError.constructor"
           }
-        ],
-        "properties": [
-          {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "name",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 38,
-              "col": 2,
-              "byteIndex": 973
-            }
+        },
+        {
+          "id": 80,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
           },
-          {
-            "tsType": {
-              "repr": "timeout",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "timeout"
-              }
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "kind",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 39,
-              "col": 2,
-              "byteIndex": 1016
-            }
+          "type": {
+            "type": "literal",
+            "value": "timeout"
           },
-          {
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "name": "timeoutMs",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 40,
-              "col": 2,
-              "byteIndex": 1063
-            }
+          "defaultValue": "...",
+          "overwrites": {
+            "type": "reference",
+            "target": 65,
+            "name": "ClientError.kind"
           }
-        ],
-        "indexSignatures": [],
-        "methods": [],
-        "extends": "ClientError",
-        "implements": [],
-        "typeParams": [],
-        "superTypeParams": []
-      }
+        },
+        {
+          "id": 79,
+          "name": "name",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "literal",
+            "value": "TimeoutError"
+          },
+          "defaultValue": "\"TimeoutError\"",
+          "overwrites": {
+            "type": "reference",
+            "target": 64,
+            "name": "ClientError.name"
+          }
+        },
+        {
+          "id": 81,
+          "name": "timeoutMs",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ],
+      "extendedTypes": [
+        {
+          "type": "reference",
+          "target": 58,
+          "name": "ClientError",
+          "package": "@probitas-test/client"
+        }
+      ]
     },
     {
-      "name": "AbortError",
-      "isDefault": false,
-      "location": {
-        "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-        "line": 51,
-        "col": 0,
-        "byteIndex": 1317
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Error thrown when an operation is aborted via AbortSignal."
-      },
-      "kind": "class",
-      "classDef": {
-        "isAbstract": false,
-        "constructors": [
+      "id": 47,
+      "name": "ClientResult",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
           {
-            "accessibility": null,
-            "hasBody": true,
-            "name": "constructor",
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "message",
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              },
-              {
-                "kind": "identifier",
-                "name": "options",
-                "optional": true,
-                "tsType": {
-                  "repr": "ErrorOptions",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "ErrorOptions"
-                  }
-                }
-              }
-            ],
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 55,
-              "col": 2,
-              "byteIndex": 1452
-            }
-          }
-        ],
-        "properties": [
-          {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "name",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 52,
-              "col": 2,
-              "byteIndex": 1365
-            }
+            "kind": "text",
+            "text": "Base interface for all client result types.\n\nAll client operation results (responses, query results, etc.) extend this interface,\nproviding a consistent structure across all Probitas clients. The "
           },
           {
-            "tsType": {
-              "repr": "abort",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "abort"
-              }
-            },
-            "readonly": true,
-            "accessibility": null,
-            "optional": false,
-            "isAbstract": false,
-            "isStatic": false,
-            "isOverride": true,
-            "name": "kind",
-            "location": {
-              "filename": "https://jsr.io/@probitas/client/0.6.0/errors.ts",
-              "line": 53,
-              "col": 2,
-              "byteIndex": 1406
-            }
+            "kind": "code",
+            "text": "`kind`"
+          },
+          {
+            "kind": "text",
+            "text": " property\nserves as a discriminator for type-safe switch statements.\n\nThis mirrors the design of "
+          },
+          {
+            "kind": "inline-tag",
+            "tag": "@link",
+            "text": "ClientError",
+            "target": 58
+          },
+          {
+            "kind": "text",
+            "text": " where "
+          },
+          {
+            "kind": "code",
+            "text": "`kind`"
+          },
+          {
+            "kind": "text",
+            "text": " is used instead of "
+          },
+          {
+            "kind": "code",
+            "text": "`type`"
+          },
+          {
+            "kind": "text",
+            "text": "\nfor consistency across the framework."
           }
         ],
-        "indexSignatures": [],
-        "methods": [],
-        "extends": "ClientError",
-        "implements": [],
-        "typeParams": [],
-        "superTypeParams": []
+        "blockTags": [
+          {
+            "tag": "@example",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport type { ClientResult } from \"@probitas-test/client\";\n\ninterface HttpResponse extends ClientResult {\n  readonly kind: \"http\";\n  readonly status: number;\n}\n\ninterface SqlQueryResult extends ClientResult {\n  readonly kind: \"sql\";\n  readonly rowCount: number;\n}\n\ntype MyResult = HttpResponse | SqlQueryResult;\n\nfunction handleResult(result: MyResult) {\n  // Check if request reached the server\n  if (!result.processed) {\n    console.error(\"Network failure:\", result.error);\n    return;\n  }\n\n  // Check if operation succeeded\n  if (!result.ok) {\n    console.error(\"Operation failed:\", result.error);\n    return;\n  }\n\n  // Type narrowing by kind\n  switch (result.kind) {\n    case \"http\":\n      console.log(`HTTP ${result.status} in ${result.duration}ms`);\n      break;\n    case \"sql\":\n      console.log(`${result.rowCount} rows in ${result.duration}ms`);\n      break;\n  }\n}\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 52,
+          "name": "duration",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Operation duration in milliseconds.\n\nMeasured from operation start to completion, useful for performance analysis\nand timeout monitoring."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 51,
+          "name": "error",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Error that occurred during the operation (null if successful).\n\nContains the error when "
+              },
+              {
+                "kind": "code",
+                "text": "`ok`"
+              },
+              {
+                "kind": "text",
+                "text": " is "
+              },
+              {
+                "kind": "code",
+                "text": "`false`"
+              },
+              {
+                "kind": "text",
+                "text": ". The specific error type depends\non the client kind (e.g., HttpError, GraphqlError, SqlError)."
+              }
+            ]
+          },
+          "type": {
+            "type": "union",
+            "types": [
+              {
+                "type": "reference",
+                "target": {
+                  "packageName": "typescript",
+                  "packagePath": "lib/lib.es5.d.ts",
+                  "qualifiedName": "Error"
+                },
+                "name": "Error",
+                "package": "typescript"
+              },
+              {
+                "type": "literal",
+                "value": null
+              }
+            ]
+          }
+        },
+        {
+          "id": 48,
+          "name": "kind",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Result kind discriminator.\n\nThe "
+              },
+              {
+                "kind": "code",
+                "text": "`kind`"
+              },
+              {
+                "kind": "text",
+                "text": " property is typed as "
+              },
+              {
+                "kind": "code",
+                "text": "`string`"
+              },
+              {
+                "kind": "text",
+                "text": " to allow client-specific packages\nto define their own result kinds without modifying this core package.\nSubinterfaces can narrow the type using literal types with "
+              },
+              {
+                "kind": "code",
+                "text": "`as const`"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 50,
+          "name": "ok",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Whether the operation succeeded.\n\nFor HTTP responses, this corresponds to status 200-299.\nFor database operations, this indicates successful execution.\nAlways "
+              },
+              {
+                "kind": "code",
+                "text": "`false`"
+              },
+              {
+                "kind": "text",
+                "text": " when "
+              },
+              {
+                "kind": "code",
+                "text": "`processed`"
+              },
+              {
+                "kind": "text",
+                "text": " is "
+              },
+              {
+                "kind": "code",
+                "text": "`false`"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "boolean"
+          }
+        },
+        {
+          "id": 49,
+          "name": "processed",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Whether the operation was processed by the server.\n\n- "
+              },
+              {
+                "kind": "code",
+                "text": "`true`"
+              },
+              {
+                "kind": "text",
+                "text": ": Server received and processed the request (success or error response)\n- "
+              },
+              {
+                "kind": "code",
+                "text": "`false`"
+              },
+              {
+                "kind": "text",
+                "text": ": Request failed before reaching the server (network error, timeout, etc.)\n\nUse this to distinguish between \"server returned an error\" and \"couldn't reach server\"."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "boolean"
+          }
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "CommonConnectionConfig",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Common connection configuration shared across all network clients.\n\nThis interface provides a unified way to configure connection parameters\nfor all network-based clients. Each client extends this with service-specific\noptions while maintaining a consistent base."
+          }
+        ],
+        "blockTags": [
+          {
+            "tag": "@example",
+            "name": "Use with string URL",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({ url: \"http://localhost:3000\" });\nawait client[Symbol.asyncDispose]();\n```"
+              }
+            ]
+          },
+          {
+            "tag": "@example",
+            "name": "Use with config object",
+            "content": [
+              {
+                "kind": "code",
+                "text": "```ts\nimport { createHttpClient } from \"@probitas-test/client-http\";\nconst client = createHttpClient({\n  url: {\n    host: \"api.example.com\",\n    port: 443,\n    username: \"user\",\n    password: \"secret\",\n  },\n});\nawait client[Symbol.asyncDispose]();\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 30,
+          "name": "host",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Hostname or IP address."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n\"localhost\"\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 33,
+          "name": "password",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Password for authentication."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        },
+        {
+          "id": 31,
+          "name": "port",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Port number. Each service has its own default."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 32,
+          "name": "username",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Username for authentication."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "CommonOptions",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Common options shared across all clients."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 46,
+          "name": "retry",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Retry configuration."
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": 34,
+            "name": "RetryOptions",
+            "package": "@probitas-test/client"
+          }
+        },
+        {
+          "id": 45,
+          "name": "signal",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "AbortSignal for cancellation."
+              }
+            ]
+          },
+          "type": {
+            "type": "reference",
+            "target": {
+              "packageName": "typescript",
+              "packagePath": "lib/lib.dom.d.ts",
+              "qualifiedName": "AbortSignal"
+            },
+            "name": "AbortSignal",
+            "package": "typescript"
+          }
+        },
+        {
+          "id": 44,
+          "name": "timeout",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Timeout in milliseconds."
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "RetryOptions",
+      "variant": "declaration",
+      "kind": 256,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "Retry configuration options."
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": 36,
+          "name": "backoff",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Backoff strategy."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n\"exponential\"\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "union",
+            "types": [
+              {
+                "type": "literal",
+                "value": "linear"
+              },
+              {
+                "type": "literal",
+                "value": "exponential"
+              }
+            ]
+          }
+        },
+        {
+          "id": 37,
+          "name": "initialDelay",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Initial delay in milliseconds."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n1000\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 35,
+          "name": "maxAttempts",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum number of attempts (1 = no retry)."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n1\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 38,
+          "name": "maxDelay",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Maximum delay in milliseconds."
+              }
+            ],
+            "blockTags": [
+              {
+                "tag": "@default",
+                "content": [
+                  {
+                    "kind": "code",
+                    "text": "```ts\n30000\n```"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": {
+            "type": "intrinsic",
+            "name": "number"
+          }
+        },
+        {
+          "id": 39,
+          "name": "retryOn",
+          "variant": "declaration",
+          "kind": 1024,
+          "flags": {
+            "isOptional": true,
+            "isReadonly": true
+          },
+          "comment": {
+            "summary": [
+              {
+                "kind": "text",
+                "text": "Function to determine if the error should trigger a retry."
+              }
+            ]
+          },
+          "type": {
+            "type": "reflection",
+            "declaration": {
+              "id": 40,
+              "name": "__type",
+              "variant": "declaration",
+              "kind": 65536,
+              "flags": {},
+              "signatures": [
+                {
+                  "id": 41,
+                  "name": "__type",
+                  "variant": "signature",
+                  "kind": 4096,
+                  "flags": {},
+                  "parameters": [
+                    {
+                      "id": 42,
+                      "name": "error",
+                      "variant": "param",
+                      "kind": 32768,
+                      "flags": {},
+                      "type": {
+                        "type": "reference",
+                        "target": {
+                          "packageName": "typescript",
+                          "packagePath": "lib/lib.es5.d.ts",
+                          "qualifiedName": "Error"
+                        },
+                        "name": "Error",
+                        "package": "typescript"
+                      }
+                    }
+                  ],
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "name": "Fetch",
+      "variant": "declaration",
+      "kind": 2097152,
+      "flags": {},
+      "comment": {
+        "summary": [
+          {
+            "kind": "text",
+            "text": "A "
+          },
+          {
+            "kind": "code",
+            "text": "`fetch`"
+          },
+          {
+            "kind": "text",
+            "text": "-compatible function.\n\nDeclared structurally instead of as "
+          },
+          {
+            "kind": "code",
+            "text": "`typeof fetch`"
+          },
+          {
+            "kind": "text",
+            "text": " because runtime typings\nadd members (Bun's "
+          },
+          {
+            "kind": "code",
+            "text": "`fetch.preconnect`"
+          },
+          {
+            "kind": "text",
+            "text": ") that a custom implementation or test\ndouble should not have to provide."
+          }
+        ]
+      },
+      "type": {
+        "type": "reflection",
+        "declaration": {
+          "id": 54,
+          "name": "__type",
+          "variant": "declaration",
+          "kind": 65536,
+          "flags": {},
+          "signatures": [
+            {
+              "id": 55,
+              "name": "__type",
+              "variant": "signature",
+              "kind": 4096,
+              "flags": {},
+              "parameters": [
+                {
+                  "id": 56,
+                  "name": "input",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {},
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "target": {
+                          "packageName": "typescript",
+                          "packagePath": "lib/lib.dom.d.ts",
+                          "qualifiedName": "RequestInfo"
+                        },
+                        "name": "RequestInfo",
+                        "package": "typescript"
+                      },
+                      {
+                        "type": "reference",
+                        "target": {
+                          "packageName": "typescript",
+                          "packagePath": "lib/lib.dom.d.ts",
+                          "qualifiedName": "URL"
+                        },
+                        "name": "URL",
+                        "package": "typescript"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": 57,
+                  "name": "init",
+                  "variant": "param",
+                  "kind": 32768,
+                  "flags": {
+                    "isOptional": true
+                  },
+                  "type": {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.dom.d.ts",
+                      "qualifiedName": "RequestInit"
+                    },
+                    "name": "RequestInit",
+                    "package": "typescript"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "target": {
+                  "packageName": "typescript",
+                  "packagePath": "lib/lib.es5.d.ts",
+                  "qualifiedName": "Promise"
+                },
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "target": {
+                      "packageName": "typescript",
+                      "packagePath": "lib/lib.dom.d.ts",
+                      "qualifiedName": "Response"
+                    },
+                    "name": "Response",
+                    "package": "typescript"
+                  }
+                ],
+                "name": "Promise",
+                "package": "typescript"
+              }
+            }
+          ]
+        }
       }
     }
-  ]
+  ],
+  "packageName": "@probitas-test/client",
+  "packageVersion": "0.6.1"
 }

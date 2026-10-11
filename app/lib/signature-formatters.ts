@@ -1,46 +1,60 @@
 /**
  * Signature formatting utilities for API documentation
  *
- * These formatters convert TypeScript definition objects to string
- * representations for syntax highlighting and Markdown output.
+ * These formatters convert TypeDoc reflections to string representations for
+ * syntax highlighting and Markdown output.
  */
 import type {
-  ClassDef,
-  FunctionDef,
-  InterfaceDef,
-  MethodDef,
-  ParamDef,
-  TypeAliasDef,
+  DeclarationReflection,
+  ParameterReflection,
+  SignatureReflection,
 } from "./api-docs.ts";
-import { formatParams, formatType, formatTypeParams } from "./api-docs.ts";
+import {
+  formatObjectType,
+  formatParams,
+  formatType,
+  formatTypeParams,
+  parameterTokens,
+  tokensToString,
+} from "./type-format.ts";
 
 /** Line length threshold for breaking into multiple lines */
 const LINE_LENGTH_THRESHOLD = 80;
 
 /**
- * Format parameters with line breaks if the list is long
+ * Format parameters inline, and one per line for long signatures
  */
 function formatParamsMultiline(
-  params: ParamDef[] | undefined,
-  baseIndent: string,
+  params: ParameterReflection[] | undefined,
 ): { inline: string; multiline: string } {
   const inline = formatParams(params);
   if (!params || params.length === 0) {
     return { inline, multiline: inline };
   }
 
-  const paramStrings = params.map((p) => {
-    const optional = p.optional ? "?" : "";
-    const name = p.name ?? "_";
-    const type = formatType(p.tsType);
-    return `${name}${optional}: ${type}`;
-  });
-
-  const multiline = paramStrings
-    .map((s) => `\n${baseIndent}  ${s},`)
-    .join("") + `\n${baseIndent}`;
+  const multiline = params
+    .map((p) =>
+      `\n  ${tokensToString(parameterTokens(p, { multiline: true }))},`
+    )
+    .join("") + "\n";
 
   return { inline, multiline };
+}
+
+/**
+ * Put `head(params)tail` on one line if it fits, else one parameter per line
+ */
+function withParams(
+  head: string,
+  params: ParameterReflection[] | undefined,
+  tail: string,
+): string {
+  const { inline, multiline } = formatParamsMultiline(params);
+  const singleLine = `${head}(${inline})${tail}`;
+  if (singleLine.length <= LINE_LENGTH_THRESHOLD) {
+    return singleLine;
+  }
+  return `${head}(${multiline})${tail}`;
 }
 
 /**
@@ -48,68 +62,53 @@ function formatParamsMultiline(
  */
 export function formatFunctionSignature(
   name: string,
-  def: FunctionDef,
+  signature: SignatureReflection,
 ): string {
-  const asyncPrefix = def.isAsync ? "async " : "";
-  const generatorPrefix = def.isGenerator ? "*" : "";
-  const typeParams = formatTypeParams(def.typeParams);
-  const returnType = formatType(def.returnType);
-  const { inline, multiline } = formatParamsMultiline(def.params, "");
-
-  const singleLine =
-    `${asyncPrefix}function ${generatorPrefix}${name}${typeParams}(${inline}): ${returnType}`;
-
-  if (singleLine.length <= LINE_LENGTH_THRESHOLD) {
-    return singleLine;
-  }
-
-  return `${asyncPrefix}function ${generatorPrefix}${name}${typeParams}(${multiline}): ${returnType}`;
+  const typeParams = formatTypeParams(signature.typeParameters);
+  return withParams(
+    `function ${name}${typeParams}`,
+    signature.parameters,
+    `: ${formatType(signature.type)}`,
+  );
 }
 
 /**
  * Format a method signature as a string for syntax highlighting
  */
-export function formatMethodSignature(method: MethodDef): string {
-  const staticPrefix = method.isStatic ? "static " : "";
-  const abstractPrefix = method.isAbstract ? "abstract " : "";
-  const typeParams = formatTypeParams(method.typeParams);
-  const returnType = formatType(method.returnType);
-  const { inline, multiline } = formatParamsMultiline(method.params, "");
-
-  const singleLine =
-    `${staticPrefix}${abstractPrefix}${method.name}${typeParams}(${inline}): ${returnType}`;
-
-  if (singleLine.length <= LINE_LENGTH_THRESHOLD) {
-    return singleLine;
-  }
-
-  return `${staticPrefix}${abstractPrefix}${method.name}${typeParams}(${multiline}): ${returnType}`;
+export function formatMethodSignature(
+  method: DeclarationReflection,
+  signature: SignatureReflection,
+): string {
+  const staticPrefix = method.flags.isStatic ? "static " : "";
+  const abstractPrefix = method.flags.isAbstract ? "abstract " : "";
+  const optional = method.flags.isOptional ? "?" : "";
+  const typeParams = formatTypeParams(signature.typeParameters);
+  return withParams(
+    `${staticPrefix}${abstractPrefix}${method.name}${optional}${typeParams}`,
+    signature.parameters,
+    `: ${formatType(signature.type)}`,
+  );
 }
 
 /**
  * Format a class signature as a string for syntax highlighting
  */
-export function formatClassSignature(name: string, def: ClassDef): string {
-  const abstractPrefix = def.isAbstract ? "abstract " : "";
-  const typeParams = formatTypeParams(def.typeParams);
+export function formatClassSignature(reflection: DeclarationReflection): string {
+  const abstractPrefix = reflection.flags.isAbstract ? "abstract " : "";
+  const typeParams = formatTypeParams(reflection.typeParameters);
+  const extendsClause = reflection.extendedTypes?.length
+    ? ` extends ${reflection.extendedTypes.map((t) => formatType(t)).join(", ")}`
+    : "";
 
-  // Extends clause with super type params
-  let extendsClause = "";
-  if (def.extends) {
-    extendsClause = ` extends ${def.extends}`;
-    if (def.superTypeParams && def.superTypeParams.length > 0) {
-      extendsClause += `<${def.superTypeParams.map(formatType).join(", ")}>`;
-    }
-  }
-
-  // Implements clause
-  const implementsTypes = def.implements?.map(formatType) ?? [];
+  const implementsTypes = (reflection.implementedTypes ?? []).map((t) =>
+    formatType(t)
+  );
   const implementsInline = implementsTypes.length > 0
     ? ` implements ${implementsTypes.join(", ")}`
     : "";
 
-  const singleLine =
-    `${abstractPrefix}class ${name}${typeParams}${extendsClause}${implementsInline}`;
+  const head = `${abstractPrefix}class ${reflection.name}${typeParams}`;
+  const singleLine = `${head}${extendsClause}${implementsInline}`;
 
   if (
     singleLine.length <= LINE_LENGTH_THRESHOLD || implementsTypes.length <= 1
@@ -122,23 +121,25 @@ export function formatClassSignature(name: string, def: ClassDef): string {
     .map((t, i) => i === 0 ? ` implements ${t}` : `  ${t}`)
     .join(",\n");
 
-  return `${abstractPrefix}class ${name}${typeParams}${extendsClause}\n${implementsMultiline}`;
+  return `${head}${extendsClause}\n${implementsMultiline}`;
 }
 
 /**
  * Format an interface signature as a string for syntax highlighting
  */
 export function formatInterfaceSignature(
-  name: string,
-  def: InterfaceDef,
+  reflection: DeclarationReflection,
 ): string {
-  const typeParams = formatTypeParams(def.typeParams);
-  const extendsTypes = def.extends?.map(formatType) ?? [];
+  const typeParams = formatTypeParams(reflection.typeParameters);
+  const extendsTypes = (reflection.extendedTypes ?? []).map((t) =>
+    formatType(t)
+  );
   const extendsInline = extendsTypes.length > 0
     ? ` extends ${extendsTypes.join(", ")}`
     : "";
 
-  const singleLine = `interface ${name}${typeParams}${extendsInline}`;
+  const head = `interface ${reflection.name}${typeParams}`;
+  const singleLine = `${head}${extendsInline}`;
 
   if (singleLine.length <= LINE_LENGTH_THRESHOLD || extendsTypes.length <= 1) {
     return singleLine;
@@ -149,29 +150,31 @@ export function formatInterfaceSignature(
     .map((t, i) => i === 0 ? ` extends ${t}` : `  ${t}`)
     .join(",\n");
 
-  return `interface ${name}${typeParams}\n${extendsMultiline}`;
+  return `${head}\n${extendsMultiline}`;
 }
 
 /**
  * Format a type alias signature as a string for syntax highlighting
  */
 export function formatTypeAliasSignature(
-  name: string,
-  def: TypeAliasDef,
+  reflection: DeclarationReflection,
 ): string {
-  const typeParams = formatTypeParams(def.typeParams);
-  const tsType = formatType(def.tsType);
-  const singleLine = `type ${name}${typeParams} = ${tsType}`;
+  const typeParams = formatTypeParams(reflection.typeParameters);
+  const type = reflection.type
+    ? formatType(reflection.type)
+    : formatObjectType(reflection);
+  const head = `type ${reflection.name}${typeParams} = `;
 
-  // If the type contains newlines (e.g., from conditional or union formatting), indent properly
-  if (tsType.includes("\n")) {
-    const indented = tsType.split("\n").map((line, i) =>
+  // If the type spans several lines (e.g., a conditional or long union),
+  // indent its continuation lines under the declaration
+  if (type.includes("\n")) {
+    const indented = type.split("\n").map((line, i) =>
       i === 0 ? line : `  ${line}`
     ).join("\n");
-    return `type ${name}${typeParams} = ${indented}`;
+    return `${head}${indented}`;
   }
 
-  return singleLine;
+  return `${head}${type}`;
 }
 
 /**
@@ -179,14 +182,17 @@ export function formatTypeAliasSignature(
  */
 export function formatConstructorSignature(
   className: string,
-  params: ParamDef[],
+  signature: SignatureReflection,
 ): string {
-  const { inline, multiline } = formatParamsMultiline(params, "");
-  const singleLine = `new ${className}(${inline})`;
+  return withParams(`new ${className}`, signature.parameters, "");
+}
 
-  if (singleLine.length <= LINE_LENGTH_THRESHOLD) {
-    return singleLine;
-  }
-
-  return `new ${className}(${multiline})`;
+/**
+ * Format a variable declaration as a string for syntax highlighting
+ */
+export function formatVariableSignature(
+  reflection: DeclarationReflection,
+): string {
+  const kind = reflection.flags.isConst ? "const" : "let";
+  return `${kind} ${reflection.name}: ${formatType(reflection.type)}`;
 }

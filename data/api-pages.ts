@@ -9,9 +9,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   type ApiDocsIndex,
-  isPublic,
+  isDocumentedExport,
   type PackageDoc,
   type PackageInfo,
+  type ProjectReflection,
+  toPackageDoc,
 } from "../app/lib/api-docs.js";
 
 // Re-export for convenience
@@ -47,7 +49,7 @@ export async function loadPackageDoc(name: string): Promise<PackageDoc | null> {
   try {
     const filePath = path.join(API_DATA_DIR, `${name}.json`);
     const content = await readFile(filePath, "utf-8");
-    const doc = JSON.parse(content) as PackageDoc;
+    const doc = toPackageDoc(name, JSON.parse(content) as ProjectReflection);
     packageCache.set(name, doc);
     return doc;
   } catch {
@@ -125,7 +127,7 @@ export async function getTypeLinkMap(): Promise<TypeLinkMap> {
     if (!doc) continue;
 
     for (const node of doc.exports) {
-      if (!isPublic(node)) continue;
+      if (!isDocumentedExport(node)) continue;
 
       // Only add if not already mapped (first package wins)
       if (!typeToPackage.has(node.name)) {

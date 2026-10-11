@@ -5,7 +5,7 @@
  */
 
 import { basePath } from "./path.ts";
-import type { PackageDoc } from "./api-docs.ts";
+import { type PackageDoc, partsToMarkdown } from "./api-docs.ts";
 
 /**
  * Documentation page metadata
@@ -76,10 +76,8 @@ async function getPackageDescription(
   }
   try {
     const doc = await loadPackageDoc(packageName);
-    if (doc?.moduleDoc) {
-      const desc = extractDescription(doc.moduleDoc);
-      if (desc) return desc;
-    }
+    const desc = extractDescription(partsToMarkdown(doc?.moduleDoc?.summary));
+    if (desc) return desc;
   } catch {
     // Fallback to default description
   }

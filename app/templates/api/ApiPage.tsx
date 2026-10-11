@@ -2,10 +2,10 @@
  * API Documentation Page Templates
  */
 import {
-  deduplicateByName,
+  EXPORT_KINDS,
   groupByKind,
-  groupByName,
-  isPublic,
+  isDocumentedExport,
+  partsToMarkdown,
 } from "../../lib/api-docs.ts";
 import {
   getPackageGroups,
@@ -17,7 +17,12 @@ import {
 import { basePath } from "../../lib/path.ts";
 import { parseApiMarkdown } from "../../lib/markdown.ts";
 import { Layout } from "../Layout.tsx";
-import { ApiToc, DocNodeRenderer, PackageSidebar } from "./components.tsx";
+import {
+  ApiToc,
+  EXPORT_KIND_INFO,
+  ExportDoc,
+  PackageSidebar,
+} from "./components.tsx";
 
 // ============================================================================
 // API Index Page (lists all packages)
@@ -46,7 +51,7 @@ export async function ApiIndexPage() {
               <h1>API Reference</h1>
             </header>
             <p class="api-intro">
-              Complete API documentation for all <code>@probitas/*</code>{" "}
+              Complete API documentation for all <code>@probitas-test/*</code>{" "}
               packages. Browse <strong>{packages.length} packages</strong> with
               {" "}
               <strong>{totalExports} exports</strong>.
@@ -138,37 +143,25 @@ export async function PackagePage({ packageName }: PackagePageProps) {
     return <NotFoundPage packageName={packageName} />;
   }
 
-  // Filter public exports and deduplicate overloads (for TOC)
-  const publicExports = doc.exports.filter(isPublic);
-  const uniqueExports = deduplicateByName(publicExports);
-  const grouped = groupByKind(uniqueExports);
-
-  // Group all overloads together (for documentation display)
-  const overloadMap = groupByName(publicExports);
+  const exports = doc.exports.filter(isDocumentedExport);
+  const grouped = groupByKind(exports);
+  const groupsInOrder = EXPORT_KINDS.flatMap((kind) => {
+    const items = grouped[kind];
+    return items?.length ? [[kind, items] as const] : [];
+  });
+  const moduleDoc = partsToMarkdown(doc.moduleDoc?.summary);
 
   // Create set of local type names for linking
-  const localTypes = new Set(uniqueExports.map((n) => n.name));
+  const localTypes = new Set(exports.map((n) => n.name));
 
   // Get cross-package type linking map
   const typeLinkMap = await getTypeLinkMap();
   const typeToPackage = typeLinkMap.typeToPackage;
 
-  // Order of display
-  const kindOrder = [
-    "class",
-    "interface",
-    "function",
-    "typeAlias",
-    "variable",
-    "enum",
-  ];
-  const orderedKinds = kindOrder.filter((k) => grouped[k]?.length > 0);
-
   return (
     <Layout
       title={`${doc.specifier} - API Reference - Probitas Documentation`}
-      description={doc.moduleDoc ??
-        `API documentation for ${doc.specifier}`}
+      description={moduleDoc || `API documentation for ${doc.specifier}`}
       pagePath={`/api/${packageName}`}
       alternateJson={basePath(`/api/${packageName}/index.json`)}
       alternateMarkdown={basePath(`/api/${packageName}/index.md`)}
@@ -202,7 +195,15 @@ export async function PackagePage({ packageName }: PackagePageProps) {
                   <div class="content-header-meta">
                     <span class="package-version">v{doc.version}</span>
                     <a
-                      href={`https://jsr.io/${doc.specifier}`}
+                      href={`https://www.npmjs.com/package/@probitas-test/${doc.name}`}
+                      class="npm-link"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <i class="ti ti-external-link" /> View on npm
+                    </a>
+                    <a
+                      href={`https://jsr.io/@probitas/${doc.name}`}
                       class="jsr-link"
                       target="_blank"
                       rel="noopener"
@@ -212,11 +213,11 @@ export async function PackagePage({ packageName }: PackagePageProps) {
                   </div>
                 </header>
 
-                {doc.moduleDoc && (
+                {moduleDoc && (
                   <div
                     class="module-doc markdown-content"
                     dangerouslySetInnerHTML={{
-                      __html: parseApiMarkdown(doc.moduleDoc, {
+                      __html: parseApiMarkdown(moduleDoc, {
                         typeToPackage,
                         localTypes,
                         currentPackage: packageName,
@@ -235,27 +236,25 @@ export async function PackagePage({ packageName }: PackagePageProps) {
                 </div>
 
                 {/* Render each kind group */}
-                {orderedKinds.map((kind) => (
+                {groupsInOrder.map(([kind, items]) => (
                   <section key={kind} class="api-kind-section">
-                    <h2 id={kindInfoMap[kind]?.id}>{kindToTitle(kind)}</h2>
-                    {grouped[kind].map((node) => {
-                      const key = `${node.kind}:${node.name}`;
-                      const overloads = overloadMap.get(key);
-                      return (
-                        <DocNodeRenderer
-                          key={node.name}
-                          node={node}
-                          overloads={overloads}
-                          localTypes={localTypes}
-                          typeToPackage={typeToPackage}
-                          currentPackage={packageName}
-                        />
-                      );
-                    })}
+                    <h2 id={EXPORT_KIND_INFO[kind].id}>
+                      <i class={`ti ${EXPORT_KIND_INFO[kind].icon}`} />{" "}
+                      {EXPORT_KIND_INFO[kind].title}
+                    </h2>
+                    {items.map((reflection) => (
+                      <ExportDoc
+                        key={`${reflection.kind}:${reflection.name}`}
+                        reflection={reflection}
+                        localTypes={localTypes}
+                        typeToPackage={typeToPackage}
+                        currentPackage={packageName}
+                      />
+                    ))}
                   </section>
                 ))}
 
-                {uniqueExports.length === 0 && (
+                {exports.length === 0 && (
                   <p class="no-exports">
                     This package has no public exports. It may be a CLI tool or
                     internal module.
@@ -264,44 +263,12 @@ export async function PackagePage({ packageName }: PackagePageProps) {
               </article>
             </div>
             <aside class="api-toc-sidebar">
-              <ApiToc nodes={uniqueExports} />
+              <ApiToc groups={groupsInOrder} />
             </aside>
           </div>
         </main>
       </div>
     </Layout>
-  );
-}
-
-interface KindInfo {
-  title: string;
-  icon: string;
-}
-
-const kindInfoMap: Record<string, KindInfo & { id: string }> = {
-  class: { title: "Classes", icon: "ti-box", id: "category-classes" },
-  interface: {
-    title: "Interfaces",
-    icon: "ti-puzzle",
-    id: "category-interfaces",
-  },
-  function: { title: "Functions", icon: "ti-code", id: "category-functions" },
-  typeAlias: { title: "Types", icon: "ti-tag", id: "category-types" },
-  variable: {
-    title: "Variables",
-    icon: "ti-variable",
-    id: "category-variables",
-  },
-  enum: { title: "Enums", icon: "ti-list", id: "category-enums" },
-};
-
-function kindToTitle(kind: string) {
-  const info = kindInfoMap[kind];
-  if (!info) return kind;
-  return (
-    <>
-      <i class={`ti ${info.icon}`} /> {info.title}
-    </>
   );
 }
 
@@ -326,7 +293,7 @@ function NotFoundPage({ packageName }: NotFoundPageProps) {
               <h1>Package Not Found</h1>
             </header>
             <p>
-              The package <code>@probitas/{packageName}</code> was not found.
+              The package <code>@probitas-test/{packageName}</code> was not found.
             </p>
             <p>
               <a href={basePath("/api")}>← Back to API Reference</a>

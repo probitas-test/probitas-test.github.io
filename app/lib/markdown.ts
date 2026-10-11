@@ -23,7 +23,6 @@ marked.use({
     heading(this: unknown, token: Tokens.Heading): string {
       const id = slugify(token.text);
       const text = this
-        // deno-lint-ignore no-explicit-any
         ? (this as any).parser.parseInline(token.tokens)
         : token.text;
       return `<h${token.depth} id="${id}">${text}</h${token.depth}>\n`;
@@ -48,7 +47,6 @@ marked.use({
         const cell = token.header[j];
         const align = token.align[j];
         const alignAttr = align ? ` style="text-align:${align}"` : "";
-        // deno-lint-ignore no-explicit-any
         const content = (this as any).parser.parseInline(cell.tokens);
         headerRow += `<th${alignAttr}>${content}</th>`;
       }
@@ -64,7 +62,6 @@ marked.use({
             const cell = row[j];
             const align = token.align[j];
             const alignAttr = align ? ` style="text-align:${align}"` : "";
-            // deno-lint-ignore no-explicit-any
             const content = (this as any).parser.parseInline(cell.tokens);
             rowHtml += `<td${alignAttr}>${content}</td>`;
           }
@@ -129,19 +126,26 @@ function processJsDocLinks(
     const isCode = tag === "linkcode";
     const displayText = description?.trim() || name;
 
+    // A member (`Type.member`) has its anchor at `Type-member` on the page of
+    // the package exporting `Type`
+    const [typeName, ...member] = name.split(".");
+    const anchor = member.length > 0
+      ? `${typeName}-${member.join(".")}`
+      : typeName;
+
     // Determine the target URL
     let href: string | null = null;
 
     // Check if it's a local type in the current package
-    if (localTypes?.has(name) && currentPackage) {
-      href = `${base}api/${currentPackage}#${name.toLowerCase()}`;
+    if (localTypes?.has(typeName) && currentPackage) {
+      href = `${base}api/${currentPackage}#${anchor}`;
     } // Check if it's in another package
-    else if (typeToPackage?.has(name)) {
-      const targetPackage = typeToPackage.get(name)!;
-      href = `${base}api/${targetPackage}#${name.toLowerCase()}`;
+    else if (typeToPackage?.has(typeName)) {
+      const targetPackage = typeToPackage.get(typeName)!;
+      href = `${base}api/${targetPackage}#${anchor}`;
     } // Default: link to current package anchor (best effort)
     else if (currentPackage) {
-      href = `${base}api/${currentPackage}#${name.toLowerCase()}`;
+      href = `${base}api/${currentPackage}#${anchor}`;
     }
 
     // Format the display text
