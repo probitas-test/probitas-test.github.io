@@ -9,15 +9,23 @@
     "summary": [
       {
         "kind": "text",
-        "text": "Probitas - Scenario-based testing and workflow execution framework.\n\nThis is the main entry point for the Probitas framework. It provides a fluent API\nfor building and executing scenario-based tests with support for:\n\n- **Sequential steps**: Define test steps that execute in order with type-safe context passing\n- **Skip conditions**: Conditionally skip steps or entire scenarios\n- **Rich assertions**: Built-in expect utilities for comprehensive assertions\n- **External clients**: Pre-configured clients for HTTP, databases, message queues, and more\n- **Test utilities**: Faker for test data, time mocking, and function spies\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [Documentation]("
+        "text": "Probitas - Scenario-based testing and workflow execution framework.\n\nThis is the main entry point for the Probitas framework. It provides a fluent API\nfor building and executing scenario-based tests with support for:\n\n- **Sequential steps**: Define test steps that execute in order with type-safe context passing\n- **Skip conditions**: Conditionally skip steps or entire scenarios\n- **Rich assertions**: Built-in expect utilities for comprehensive assertions\n- **External clients**: Pre-configured clients for HTTP, databases, message queues, and more\n- **Test utilities**: Faker for test data, time mocking, and function spies\n\n## Links\n\n- [GitHub Repository](https://github.com/probitas-test/probitas)\n- [Documentation](https://probitas-test.github.io/)\n\n## Installation\n\nScenarios run on the "
       },
       {
-        "kind": "relative-link",
-        "text": "./.claude/README.md"
+        "kind": "code",
+        "text": "`probitas`"
       },
       {
         "kind": "text",
-        "text": ")\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas/builder](https://jsr.io/@probitas/builder) | Fluent API for building scenario definitions |\n| [@probitas/runner](https://jsr.io/@probitas/runner) | Test execution engine with retry and concurrency |\n| [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions and utilities |\n| [@probitas/discover](https://jsr.io/@probitas/discover) | Scenario file discovery |\n| [@probitas/logger](https://jsr.io/@probitas/logger) | Unified logging interface |\n| [@probitas/cli](https://jsr.io/@probitas/cli) | Command-line interface |\n\n## Core Exports\n\n- "
+        "text": " CLI, a single binary (see the\ndocumentation). Install this package for editor support and type checking:\n\n"
+      },
+      {
+        "kind": "code",
+        "text": "```bash\nnpm install --save-dev @probitas-test/probitas\n```"
+      },
+      {
+        "kind": "text",
+        "text": "\n\n## Related Packages\n\n| Package | Description |\n|---------|-------------|\n| [@probitas-test/builder](https://www.npmjs.com/package/@probitas-test/builder) | Fluent API for building scenario definitions |\n| [@probitas-test/runner](https://www.npmjs.com/package/@probitas-test/runner) | Test execution engine with retry and concurrency |\n| [@probitas-test/core](https://www.npmjs.com/package/@probitas-test/core) | Core type definitions and utilities |\n| [@probitas-test/discover](https://www.npmjs.com/package/@probitas-test/discover) | Scenario file discovery |\n\n## Core Exports\n\n- "
       },
       {
         "kind": "inline-tag",
@@ -11615,5 +11623,5 @@
     }
   ],
   "packageName": "@probitas-test/probitas",
-  "packageVersion": "2.0.2"
+  "packageVersion": "2.0.3"
 }
